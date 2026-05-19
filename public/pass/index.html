@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crown Rush – Tournament Player Pass</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --purple: #7c3aed;
+      --gold:   #f59e0b;
+      --text:   #e2e8f0;
+      --muted:  #94a3b8;
+      --border: rgba(255,255,255,.12);
+    }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #0a0718;
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center;
+      padding: 32px 16px; gap: 20px;
+      color: var(--text);
+    }
+
+    .lookup-box {
+      width: 420px; max-width: 100%;
+      background: rgba(255,255,255,.06);
+      border: 1px solid var(--border);
+      border-radius: 16px; padding: 18px 20px;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+
+    .lookup-row { display: flex; flex-direction: column; gap: 4px; }
+
+    .lookup-label {
+      font-size: 11px; font-weight: 800;
+      letter-spacing: .1em; text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .lookup-input {
+      font-family: 'Fredoka One', cursive;
+      font-size: 20px; letter-spacing: .12em;
+      background: rgba(0,0,0,.35);
+      border: 2px solid var(--border); border-radius: 10px;
+      color: var(--text); padding: 10px 14px;
+      outline: none; text-transform: uppercase; width: 100%;
+      transition: border-color .15s;
+    }
+    .lookup-input:focus { border-color: var(--purple); }
+    .lookup-input::placeholder { color: rgba(255,255,255,.2); font-size: 16px; }
+    .lookup-input[readonly] {
+      opacity: .7; cursor: not-allowed;
+      border-color: rgba(255,255,255,.06);
+    }
+
+    #lookupStatus { font-size: 13px; font-weight: 800; min-height: 18px; color: var(--muted); }
+
+    .controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+
+    .btn {
+      font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 15px;
+      padding: 10px 22px; border-radius: 999px; border: none;
+      cursor: pointer; transition: opacity .15s;
+    }
+    .btn:hover { opacity: .85; }
+    .btn-primary { background: var(--purple); color: #fff; }
+
+    .hint { font-size: 13px; color: var(--muted); font-weight: 700; text-align: center; max-width: 420px; }
+
+    /* ── Pass card ── */
+    .pass {
+      width: 420px; max-width: 100%;
+      background: linear-gradient(145deg, #13093a 0%, #1a0f4a 60%, #0e1a3a 100%);
+      border: 1.5px solid rgba(167,139,250,.35);
+      border-radius: 20px; overflow: hidden;
+      box-shadow: 0 0 0 1px rgba(167,139,250,.1), 0 20px 60px rgba(0,0,0,.6);
+    }
+
+    .pass-stripe { height: 8px; background: linear-gradient(90deg, #7c3aed, #a78bfa, #f59e0b, #a78bfa, #7c3aed); }
+
+    .pass-header {
+      display: flex; align-items: center; gap: 14px;
+      padding: 18px 22px 14px; border-bottom: 1px solid var(--border);
+    }
+
+    .pass-logo { font-family: 'Fredoka One', cursive; font-size: 28px; color: var(--gold); line-height: 1; flex-shrink: 0; }
+    .pass-title { font-family: 'Fredoka One', cursive; font-size: 18px; color: var(--text); }
+    .pass-subtitle { font-size: 11px; font-weight: 800; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; }
+    .pass-tournament-code { font-family: 'Fredoka One', cursive; font-size: 15px; color: var(--gold); letter-spacing: .1em; text-align: right; }
+    .pass-tournament-label { font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; text-align: right; }
+
+    .pass-body { display: flex; }
+
+    .pass-fields { flex: 1; padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 14px; }
+
+    .pass-field { display: flex; flex-direction: column; gap: 3px; }
+    .pass-field-label { font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+    .pass-field-value { font-size: 16px; font-weight: 800; color: var(--text); min-height: 26px; }
+
+    .pass-field-value.editable {
+      border-bottom: 1.5px solid rgba(167,139,250,.25);
+      padding-bottom: 2px; outline: none; background: transparent;
+      font-family: 'Nunito', sans-serif;
+    }
+    .pass-field-value.editable:focus { border-bottom-color: var(--purple); }
+    .pass-field-value.editable::after { content: " ✏"; font-size: 11px; opacity: .45; }
+    .pass-field-value.editable:focus::after { display: none; }
+
+    .pass-field-value.id-value {
+      font-family: 'Fredoka One', cursive; font-size: 22px;
+      color: var(--gold); letter-spacing: .12em;
+    }
+
+    .pass-qr-col {
+      padding: 18px 20px 20px 0;
+      display: flex; flex-direction: column; align-items: center; gap: 8px; flex-shrink: 0;
+    }
+
+    .qr-wrap {
+      background: #fff; border-radius: 10px; padding: 8px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    #qrCanvas { display: block; border-radius: 4px; }
+    .qr-label { font-size: 10px; font-weight: 800; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; text-align: center; }
+
+    .pass-footer { border-top: 1px solid var(--border); padding: 12px 22px; display: flex; flex-direction: column; gap: 4px; }
+    .pass-url-label { font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+    .pass-url { font-size: 12px; font-weight: 700; color: #a78bfa; word-break: break-all; }
+
+    .pass-stripe-bottom { height: 5px; background: linear-gradient(90deg, #f59e0b, #a78bfa, #7c3aed, #a78bfa, #f59e0b); opacity: .6; }
+
+    /* ── Override section ── */
+    .override-box {
+      width: 420px; max-width: 100%;
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--border);
+      border-radius: 16px; padding: 14px 18px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .override-label { font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+    .override-input {
+      font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 700;
+      background: rgba(0,0,0,.35); border: 2px solid var(--border); border-radius: 10px;
+      color: var(--text); padding: 8px 12px; outline: none; width: 100%;
+      transition: border-color .15s;
+    }
+    .override-input:focus { border-color: var(--purple); }
+    #overrideStatus { font-size: 12px; font-weight: 800; min-height: 16px; }
+
+    /* ── Print ── */
+    @media print {
+      body { background: #fff; padding: 0; gap: 0; }
+      .lookup-box, .controls, .hint, .override-box { display: none !important; }
+      .pass {
+        width: 100%; max-width: 480px; box-shadow: none; border-color: #ccc;
+        background: #fff; color: #000; border-radius: 12px;
+        -webkit-print-color-adjust: exact; print-color-adjust: exact;
+      }
+      .pass-stripe, .pass-stripe-bottom { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .pass-field-value { color: #111; }
+      .pass-field-value.editable { border-bottom-color: #bbb; }
+      .pass-field-value.id-value { color: #5b21b6; }
+      .pass-tournament-code { color: #92400e; }
+      .pass-logo { color: #92400e; }
+      .pass-title { color: #111; }
+      .pass-subtitle, .pass-url-label, .qr-label, .pass-field-label, .pass-tournament-label { color: #666; }
+      .pass-url { color: #5b21b6; }
+      .qr-wrap { background: #fff; border: 1px solid #ddd; }
+      .pass-field-value.editable::after { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div style="width:420px;max-width:100%;">
+    <a href="/" style="text-decoration:none;">
+      <button class="btn" style="background:rgba(255,255,255,.08);color:var(--text);border:1px solid var(--border);padding:8px 18px;font-size:14px;">← Back to Home</button>
+    </a>
+  </div>
+
+  <!-- Lookup controls -->
+  <div class="lookup-box">
+    <div class="lookup-row">
+      <div class="lookup-label">Tournament Code</div>
+      <input id="codeInput" class="lookup-input" placeholder="ABCDEFGH" maxlength="8" />
+    </div>
+    <div class="lookup-row">
+      <div class="lookup-label">Player ID</div>
+      <input id="pidInput" class="lookup-input" placeholder="Loading…" maxlength="8" readonly />
+    </div>
+    <div id="lookupStatus"></div>
+  </div>
+
+  <div class="controls">
+    <button class="btn btn-primary" onclick="window.print()">🖨 Print / Save as PDF</button>
+  </div>
+
+  <p class="hint" id="pageHint">Loading your player pass…</p>
+
+  <!-- Pass card -->
+  <div class="pass">
+    <div class="pass-stripe"></div>
+
+    <div class="pass-header">
+      <div class="pass-logo">👑</div>
+      <div style="flex:1">
+        <div class="pass-title">Crown Rush</div>
+        <div class="pass-subtitle">Tournament Player Pass</div>
+      </div>
+      <div>
+        <div class="pass-tournament-label">Tournament Code</div>
+        <div class="pass-tournament-code" id="fieldCode">—</div>
+      </div>
+    </div>
+
+    <div class="pass-body">
+      <div class="pass-fields">
+
+        <div class="pass-field">
+          <div class="pass-field-label">Player Name</div>
+          <div class="pass-field-value" id="fieldName">—</div>
+        </div>
+
+        <div class="pass-field">
+          <div class="pass-field-label">Date of Birth</div>
+          <div class="pass-field-value editable" contenteditable="true" spellcheck="false">MM / DD / YYYY</div>
+        </div>
+
+        <div class="pass-field">
+          <div class="pass-field-label">Notes</div>
+          <div class="pass-field-value editable" contenteditable="true" spellcheck="false"></div>
+        </div>
+
+        <div class="pass-field">
+          <div class="pass-field-label">Player ID</div>
+          <div class="pass-field-value id-value" id="fieldPID">—</div>
+        </div>
+
+      </div>
+
+      <div class="pass-qr-col">
+        <div class="qr-wrap">
+          <img id="qrImg" width="148" height="148" alt="QR code" style="display:block;border-radius:4px;" />
+        </div>
+        <div class="qr-label">Host scans to add</div>
+      </div>
+    </div>
+
+    <div class="pass-footer">
+      <div class="pass-url-label">Player join link (type to join manually)</div>
+      <div class="pass-url" id="dispURL">—</div>
+    </div>
+
+    <div class="pass-stripe-bottom"></div>
+  </div>
+
+  <!-- Override section -->
+  <div class="override-box">
+    <div class="override-label">Host Override — Enter Password to Change Player ID</div>
+    <input id="overrideInput" class="override-input" type="password" placeholder="Password" />
+    <div id="overrideStatus"></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp }                        from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getFirestore, doc, getDoc }            from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged }          from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import QRCode                                   from "https://cdn.jsdelivr.net/npm/qrcode@1.5.3/+esm";
+
+    const app = initializeApp({
+      apiKey: "AIzaSyDnLusbSL7Fa-aAceIm3vLE_yRa1R-VajE",
+      authDomain: "hidden-towers.firebaseapp.com",
+      projectId: "hidden-towers",
+      storageBucket: "hidden-towers.firebasestorage.app",
+      messagingSenderId: "93909210045",
+      appId: "1:93909210045:web:7335ea94fc4a196129f8d4"
+    });
+    const db   = getFirestore(app);
+    const auth = getAuth(app);
+
+    const pidInput      = document.getElementById("pidInput");
+    const codeInput     = document.getElementById("codeInput");
+    const status        = document.getElementById("lookupStatus");
+    const hint          = document.getElementById("pageHint");
+    const overrideInput = document.getElementById("overrideInput");
+    const overrideSt    = document.getElementById("overrideStatus");
+
+    let authResolved = false;
+    const authReady = new Promise(resolve => {
+      onAuthStateChanged(auth, user => {
+        if (!authResolved) { authResolved = true; resolve(user); }
+      });
+    });
+
+    function currentCode() {
+      return codeInput.value.toUpperCase().replace(/[^A-Z]/g, "");
+    }
+
+    async function generateQR(pid) {
+      const url = `${window.location.origin}/pass/?pid=${pid}`;
+      try {
+        const dataUrl = await QRCode.toDataURL(url, {
+          width: 148, margin: 1,
+          color: { dark: "#000000", light: "#ffffff" }
+        });
+        document.getElementById("qrImg").src = dataUrl;
+      } catch(e) { console.error("QR error:", e); }
+    }
+
+    function updateJoinLink() {
+      const code = currentCode();
+      const pid  = document.getElementById("fieldPID").textContent.trim();
+      if (code.length === 8 && pid && pid !== "—") {
+        document.getElementById("dispURL").textContent =
+          `${window.location.origin}/?tjoin=${code}`;
+      }
+    }
+
+    async function lookupPlayer(pid) {
+      status.textContent = "Looking up…";
+      status.style.color = "var(--muted)";
+
+      const user = await authReady;
+      if (!user) {
+        status.textContent = "Sign in on the main page first, then re-open this tab.";
+        status.style.color = "#f87171";
+        return;
+      }
+
+      try {
+        const snap = await getDoc(doc(db, "playerIds", pid));
+        if (!snap.exists()) {
+          status.textContent = "Player ID not found.";
+          status.style.color = "#f87171";
+          document.getElementById("fieldName").textContent = "—";
+          document.getElementById("fieldPID").textContent  = "—";
+          document.getElementById("qrImg").src = "";
+          return;
+        }
+        const { username } = snap.data();
+        document.getElementById("fieldName").textContent = username;
+        document.getElementById("fieldPID").textContent  = pid;
+        status.textContent = "✓ Player found";
+        status.style.color = "#6ee7b7";
+        await generateQR(pid);
+        updateJoinLink();
+      } catch(e) {
+        status.textContent = "Lookup failed: " + e.message;
+        status.style.color = "#f87171";
+      }
+    }
+
+    // Override password gate
+    overrideInput.addEventListener("input", () => {
+      if (overrideInput.value === "123456") {
+        pidInput.removeAttribute("readonly");
+        pidInput.style.opacity = "";
+        pidInput.style.cursor = "";
+        pidInput.placeholder = "Enter 8-char Player ID";
+        overrideSt.textContent = "✓ Player ID field unlocked";
+        overrideSt.style.color = "#6ee7b7";
+      } else {
+        pidInput.setAttribute("readonly", "");
+        pidInput.style.opacity = ".7";
+        pidInput.style.cursor = "not-allowed";
+        overrideSt.textContent = "";
+      }
+    });
+
+    // Manual PID input (only active when unlocked)
+    pidInput.addEventListener("input", () => {
+      if (pidInput.hasAttribute("readonly")) return;
+      pidInput.value = pidInput.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8);
+      if (pidInput.value.length === 8) lookupPlayer(pidInput.value);
+    });
+
+    codeInput.addEventListener("input", () => {
+      codeInput.value = codeInput.value.toUpperCase().replace(/[^A-Z]/g, "").slice(0, 8);
+      const code = codeInput.value;
+      document.getElementById("fieldCode").textContent = code || "—";
+      updateJoinLink();
+    });
+
+    // Pre-fill from URL params (opened via lobby Pass button)
+    const params  = new URLSearchParams(window.location.search);
+    const preCode = (params.get("code") || "").toUpperCase();
+    const prePid  = (params.get("pid")  || "").toUpperCase();
+
+    if (preCode) {
+      codeInput.value = preCode;
+      document.getElementById("fieldCode").textContent = preCode;
+    }
+
+    // Autofill from logged-in user's account
+    const user = await authReady;
+    if (!user) {
+      pidInput.placeholder = "Not signed in";
+      hint.textContent = "Sign in on the main page first, then return here.";
+    } else if (prePid) {
+      // Opened with a specific pid param (host-generated link)
+      pidInput.value = prePid;
+      hint.textContent = "Edit Date of Birth and Notes if needed, then print or save as PDF.";
+      lookupPlayer(prePid);
+    } else {
+      // Autofill from the signed-in user's own Player ID
+      try {
+        const userSnap = await getDoc(doc(db, "users", user.uid));
+        if (userSnap.exists()) {
+          const { playerId } = userSnap.data();
+          if (playerId) {
+            pidInput.value = playerId;
+            hint.textContent = "Your Player ID has been filled in automatically. Edit Date of Birth and Notes if needed, then print or save as PDF.";
+            lookupPlayer(playerId);
+          } else {
+            pidInput.placeholder = "No Player ID yet";
+            hint.textContent = "No Player ID found for your account. Try logging out and back in.";
+          }
+        }
+      } catch(e) {
+        pidInput.placeholder = "Error loading";
+        hint.textContent = "Could not load your Player ID.";
+      }
+    }
+  </script>
+</body>
+</html>

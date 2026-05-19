@@ -1,0 +1,8 @@
+{
+  "appId": "com.hiddentowers.game",
+  "appName": "Hidden Towers",
+  "webDir": "public",
+  "ios": {
+    "contentInset": "automatic"
+  }
+}

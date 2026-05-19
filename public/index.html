@@ -1,0 +1,4160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/png" href="/assets/icon-192.png" sizes="192x192" />
+  <link rel="icon" type="image/png" href="/assets/icon-512.png" sizes="512x512" />
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
+  <link rel="shortcut icon" href="/assets/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-title" content="HiddenTowers" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hidden Towers Multiplayer</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #0b0820;
+      --card: rgba(255,255,255,0.07);
+      --card-border: rgba(255,255,255,0.13);
+      --gold: #fbbf24;
+      --gold2: #f97316;
+      --purple: #7c3aed;
+      --purple2: #a78bfa;
+      --green: #10b981;
+      --red: #ef4444;
+      --text: #eee8ff;
+      --muted: #9b8ec4;
+      --r: 16px;
+      --r2: 22px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body.view-room, body.view-tournament, body.view-auth {
+      overflow-y: auto;
+    }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      background-image:
+        radial-gradient(ellipse at 15% 55%, rgba(124,58,237,.18) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 15%, rgba(59,130,246,.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 95%, rgba(16,185,129,.07) 0%, transparent 40%);
+    }
+
+    /* Starfield */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,.85) 1px, transparent 1px),
+        radial-gradient(circle, rgba(255,255,255,.55) 1px, transparent 1px),
+        radial-gradient(circle, rgba(255,255,255,.35) 1px, transparent 1px);
+      background-size: 420px 420px, 260px 260px, 180px 180px;
+      background-position: 0 0, 55px 85px, 125px 35px;
+      pointer-events: none;
+      z-index: 0;
+      opacity: .45;
+    }
+
+    /* ── App shell ── */
+    .app {
+      position: relative;
+      z-index: 1;
+      min-height: 100dvh;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      gap: 8px;
+    }
+
+    body.view-game .app {
+      height: 100dvh;
+      height: 100vh;
+      overflow: hidden;
+      justify-content: flex-start;
+    }
+
+    /* ── Typography ── */
+    h1, h2, h3, .ftitle { font-family: 'Fredoka One', cursive; font-weight: 400; }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: var(--r2);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    /* ── Inputs ── */
+    input:not([type="color"]), select {
+      width: 100%;
+      padding: 11px 14px;
+      border-radius: var(--r);
+      border: 2px solid var(--card-border);
+      background: rgba(0,0,0,.32);
+      color: var(--text);
+      font-family: 'Nunito', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      outline: none;
+      transition: border-color .18s, box-shadow .18s;
+    }
+
+    input:not([type="color"])::placeholder { color: var(--muted); font-weight: 600; }
+    input:not([type="color"]):focus, select:focus {
+      border-color: var(--purple2);
+      box-shadow: 0 0 0 3px rgba(167,139,250,.2);
+    }
+
+    input[type="color"] {
+      width: 50px; height: 40px;
+      border-radius: 10px;
+      border: 2px solid var(--card-border);
+      background: transparent;
+      cursor: pointer;
+      padding: 3px;
+    }
+
+    select {
+      appearance: none; -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239b8ec4' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 36px;
+    }
+
+    select option {
+      background: #ffffff;
+      color: #1a0820;
+    }
+
+    /* ── Buttons ── */
+    button {
+      cursor: pointer;
+      font-family: 'Fredoka One', cursive;
+      font-size: 16px;
+      border: none;
+      border-radius: var(--r);
+      padding: 11px 20px;
+      transition: transform .14s, box-shadow .14s, filter .14s;
+    }
+
+    button:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.1); }
+    button:active:not(:disabled) { transform: translateY(0); }
+    button:disabled { opacity: .4; cursor: not-allowed; }
+
+    /* Gold — default for unlabelled buttons */
+    button:not(.secondary):not(.danger):not(.tab-btn):not(.how-btn):not(.stay-btn) {
+      background: linear-gradient(135deg, var(--gold), var(--gold2));
+      color: #1a0800;
+      box-shadow: 0 4px 14px rgba(251,191,36,.3);
+    }
+    button:not(.secondary):not(.danger):not(.tab-btn):not(.how-btn):not(.stay-btn):hover:not(:disabled) {
+      box-shadow: 0 6px 22px rgba(251,191,36,.5);
+    }
+
+    .secondary {
+      background: rgba(255,255,255,.1);
+      color: var(--text);
+      border: 1px solid var(--card-border);
+    }
+    .secondary:hover:not(:disabled) { background: rgba(255,255,255,.16); }
+
+    .danger {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(239,68,68,.3);
+    }
+
+    .stay-btn {
+      background: linear-gradient(135deg, var(--green), #059669);
+      color: #fff;
+      font-size: 16px;
+      padding: 10px 22px;
+      white-space: nowrap;
+      box-shadow: 0 4px 14px rgba(16,185,129,.35);
+    }
+    .stay-btn:hover:not(:disabled) { box-shadow: 0 6px 20px rgba(16,185,129,.5); }
+
+    
+
+    .how-btn {
+      background: rgba(255,255,255,.08);
+      color: var(--muted);
+      border: 1px solid var(--card-border);
+      font-size: 13px;
+      padding: 8px 16px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+    }
+
+    /* ── Hidden helper ── */
+    .hidden-section { display: none; }
+    .tab-hidden { display: none !important; }
+
+    /* ════════════════════════════
+       AUTH CARD
+    ════════════════════════════ */
+    #authCard {
+      width: 100%;
+      max-width: 480px;
+      padding: 20px 22px 16px;
+    }
+
+    .auth-hero { text-align: center; margin-bottom: 14px; }
+
+    .auth-hero .game-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(26px, 7vw, 44px);
+      background: linear-gradient(135deg, var(--gold), #f472b6, var(--purple2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 18px rgba(251,191,36,.4));
+      line-height: 1.1;
+    }
+
+    .auth-hero .sub {
+      font-size: clamp(11px, 2.5vw, 14px);
+      color: var(--muted);
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    .auth-tabs {
+      display: flex; gap: 6px;
+      background: rgba(0,0,0,.28);
+      border-radius: calc(var(--r) + 2px);
+      padding: 4px;
+      margin-bottom: 14px;
+    }
+
+    .tab-btn {
+      flex: 1; padding: 9px 10px;
+      border-radius: var(--r);
+      border: none;
+      font-family: 'Fredoka One', cursive;
+      font-size: 15px;
+      cursor: pointer;
+      background: transparent;
+      color: var(--muted);
+      transition: all .2s;
+      box-shadow: none !important;
+      transform: none !important;
+      filter: none !important;
+    }
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--purple), #4f46e5);
+      color: #fff;
+      box-shadow: 0 3px 14px rgba(124,58,237,.45) !important;
+    }
+
+    .tab-panel { display: flex; flex-direction: column; gap: 8px; }
+
+    #authMessage {
+      font-size: 12px; color: #fca5a5;
+      text-align: center; min-height: 16px;
+      font-weight: 700; margin-top: 6px;
+    }
+
+    .auth-footer { text-align: center; margin-top: 8px; }
+
+    /* ════════════════════════════
+       ROOM CARD
+    ════════════════════════════ */
+    #roomCard {
+      width: 100%;
+      max-width: 860px;
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .room-header {
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 10px;
+      padding: 9px 16px;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: var(--r2);
+      backdrop-filter: blur(12px);
+      flex-shrink: 0;
+      flex-wrap: wrap;
+      position: relative;
+    }
+
+    .signed-label { font-size: 13px; color: var(--muted); font-weight: 700; }
+    .signed-label b { color: var(--gold); font-size: 14px; }
+    .player-id-badge {
+      font-family: 'Fredoka One', cursive;
+      font-size: 14px; letter-spacing: .08em;
+      color: var(--gold);
+      vertical-align: middle; margin-left: 6px;
+    }
+
+    .htp-link {
+      font-size: 13px; font-weight: 800;
+      color: var(--purple-light, #a78bfa);
+      text-decoration: none;
+      padding: 5px 12px;
+      border-radius: 999px;
+      border: 1.5px solid rgba(167,139,250,.3);
+      background: rgba(124,58,237,.12);
+      transition: background .15s, color .15s, border-color .15s;
+      white-space: nowrap;
+    }
+    .htp-link:hover {
+      background: rgba(124,58,237,.25);
+      color: #fff;
+      border-color: rgba(167,139,250,.6);
+    }
+
+    body.view-game .htp-link,
+    body.view-tournament .htp-link { display: none; }
+
+    .room-main-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(18px, 4.5vw, 26px);
+      text-align: center;
+      background: linear-gradient(135deg, var(--gold), var(--purple2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      flex-shrink: 0;
+    }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .menu-box {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: var(--r2);
+      padding: 14px 16px;
+      backdrop-filter: blur(10px);
+      display: flex; flex-direction: column; gap: 6px;
+    }
+
+    .menu-box h3 {
+      font-family: 'Fredoka One', cursive;
+      font-size: 17px;
+      color: var(--gold);
+      margin-bottom: 2px;
+    }
+
+    .menu-box label {
+      font-size: 11px; color: var(--muted);
+      font-weight: 800; text-transform: uppercase;
+      letter-spacing: .5px; margin-top: 2px;
+    }
+
+    .color-row { display: flex; align-items: center; gap: 8px; }
+    .color-row span { font-size: 12px; color: var(--muted); }
+
+    .mode-options { display: grid; gap: 7px; }
+
+    .mode-card {
+      border: 2px solid rgba(255,255,255,.1);
+      background: rgba(255,255,255,.04);
+      border-radius: var(--r);
+      padding: 9px 11px;
+      cursor: pointer;
+      transition: border-color .15s;
+    }
+    .mode-card:hover { border-color: rgba(251,191,36,.4); }
+    .mode-card.active { border-color: var(--gold); background: rgba(251,191,36,.09); }
+    .mode-card strong {
+      font-family: 'Fredoka One', cursive; font-weight: 400;
+      font-size: 14px; display: block; color: #fff;
+    }
+    .mode-card span { color: var(--muted); font-size: 11px; line-height: 1.3; }
+
+    #lobbyBox {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: var(--r2);
+      padding: 12px 16px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+      flex-shrink: 0;
+    }
+
+    .lobby-label {
+      font-size: 10px; text-transform: uppercase;
+      letter-spacing: 1px; color: var(--muted); font-weight: 800;
+    }
+
+    .room-code {
+      color: var(--gold);
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(26px, 8vw, 40px);
+      letter-spacing: 7px;
+      margin: 4px 0;
+      text-shadow: 0 0 22px rgba(251,191,36,.5);
+    }
+
+    .small { font-size: 12px; color: var(--muted); line-height: 1.5; font-weight: 600; }
+
+    .setup-row {
+      display: flex; align-items: center;
+      gap: 8px; flex-wrap: wrap; margin-top: 6px;
+    }
+
+    #lobbyBox { display: none; }
+    .leave-room-btn { display: none; }
+
+    /* In-lobby: hide the main menu, show lobby and leave button */
+    #roomCard.in-lobby .menu-grid,
+    #roomCard.in-lobby .room-main-title { display: none; }
+    #roomCard.in-lobby #lobbyBox { display: block; }
+    #roomCard.in-lobby .leave-room-btn { display: inline-block; }
+
+    /* In-game: collapse room card to just the header */
+    body.view-game #roomCard .menu-grid,
+    body.view-game #roomCard .room-main-title,
+    body.view-game #roomCard #lobbyBox,
+    body.view-game #roomCard .t-menu-section,
+    body.view-game #roomCard #quickLinks { display: none; }
+
+    /* ════════════════════════════
+       GAME AREA
+    ════════════════════════════ */
+    #gameArea {
+      width: 100%;
+      max-width: 860px;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    #gameArea[style*="display: flex"],
+    #gameArea[style*="display:flex"] { display: flex !important; }
+
+    .game-top-bar {
+      display: flex; align-items: center;
+      justify-content: center; gap: 10px;
+      width: 100%; flex-shrink: 0;
+    }
+
+    .info {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(13px, 3.2vw, 18px);
+      text-align: center;
+      padding: 8px 14px;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: var(--r);
+      flex: 1;
+      backdrop-filter: blur(10px);
+    }
+
+    .scores {
+      display: flex; justify-content: center;
+      gap: 7px; flex-wrap: wrap;
+      width: 100%; flex-shrink: 0;
+    }
+
+    .score {
+      padding: 7px 14px;
+      border-radius: 999px;
+      color: #fff;
+      font-weight: 800;
+      font-size: clamp(12px, 2.8vw, 15px);
+      border: 2px solid rgba(255,255,255,.25);
+      text-shadow: 0 1px 3px rgba(0,0,0,.5);
+    }
+
+    .board-wrap {
+      flex: 1; min-height: 0;
+      display: flex; align-items: center; justify-content: center;
+      width: 100%;
+    }
+
+    .board {
+      display: grid;
+      gap: 4px;
+      background: #050210;
+      padding: 6px;
+      border-radius: var(--r2);
+      border: 2px solid rgba(124,58,237,.35);
+      box-shadow: 0 0 40px rgba(124,58,237,.22), inset 0 0 20px rgba(0,0,0,.3);
+      width: min(92vw, calc(100dvh - 215px), calc(100vh - 215px));
+      aspect-ratio: 1 / 1;
+    }
+
+    .tile {
+      position: relative;
+      border-radius: 8px;
+      border: 1.5px solid rgba(100,80,200,.2);
+      cursor: pointer;
+      font-weight: bold;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      transition: filter .1s;
+    }
+
+    .tile:hover:not(.locked) { filter: brightness(1.22); }
+    .tile.locked { cursor: not-allowed; }
+
+    .hidden {
+      background: #ffffff;
+      border-color: #ccc8e8;
+    }
+
+    .revealed { background: #181035; color: #fff; }
+    .tower { color: #fff; }
+    .gas-origin { background: #065f46 !important; }
+    .infected { background: #064e3b !important; }
+    .safe-infected { color: #fff; }
+
+    .safe-letter {
+      position: absolute; inset: 0;
+      display: grid; place-items: center;
+      font-size: clamp(18px, 3.8vw, 34px);
+      font-weight: 900; color: #fff;
+      z-index: 2; pointer-events: none;
+      text-shadow: 0 2px 4px #000;
+    }
+
+    .gas-mark {
+      position: absolute; inset: 0;
+      display: grid; place-items: center;
+      font-size: clamp(18px, 3.8vw, 32px);
+      font-weight: 900; z-index: 2; pointer-events: none;
+    }
+
+    .tower-number {
+      position: absolute; inset: 0;
+      display: grid; place-items: center;
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(18px, 3.8vw, 36px);
+      font-weight: 400; pointer-events: none; z-index: 1;
+    }
+
+    .progress-wrap {
+      position: absolute;
+      left: 5px; right: 5px; bottom: 4px;
+      height: 5px;
+      background: rgba(255,255,255,.25);
+      border-radius: 999px; overflow: hidden; z-index: 3;
+    }
+
+    .progress-bar {
+      height: 100%; width: 0%;
+      background: #fff; border-radius: 999px;
+    }
+
+    .players {
+      position: absolute; inset: 0;
+      display: flex; align-items: flex-start;
+      justify-content: center; gap: 2px;
+      flex-wrap: wrap; padding: 4px; z-index: 4;
+    }
+
+    .piece {
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.8);
+      display: grid; place-items: center;
+      font-size: 10px; color: #fff;
+      text-shadow: 0 1px 2px #000;
+      font-weight: 900;
+    }
+
+    .note {
+      font-size: clamp(10px, 1.9vw, 12px);
+      color: var(--muted); text-align: center;
+      width: 100%; flex-shrink: 0; font-weight: 600;
+    }
+
+    .reset-bottom {
+      position: fixed; bottom: 12px; right: 12px;
+      padding: 9px 14px; font-size: 13px; z-index: 40;
+    }
+
+    /* ════════════════════════════
+       GAME OVER MODAL
+    ════════════════════════════ */
+    .game-over {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.86);
+      z-index: 20; place-items: center;
+      padding: 20px;
+      backdrop-filter: blur(6px);
+    }
+
+    .game-over-box {
+      background: #0b0820;
+      border-radius: var(--r2);
+      padding: 26px;
+      width: min(95vw, 580px);
+      border: 2px solid var(--gold);
+      box-shadow: 0 0 60px rgba(251,191,36,.22);
+      max-height: 90dvh;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .game-over-box h2 {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(24px, 6vw, 38px);
+      background: linear-gradient(135deg, var(--gold), #f472b6);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-align: center; margin-bottom: 6px;
+    }
+
+    .game-over-box p {
+      text-align: center; color: var(--muted);
+      margin-bottom: 14px; font-weight: 600; font-size: 14px;
+    }
+
+    .ranking { display: grid; gap: 8px; margin: 12px 0; text-align: left; }
+
+    .rank-row {
+      padding: 11px 14px;
+      border-radius: var(--r);
+      background: rgba(255,255,255,.06);
+      border: 2px solid rgba(255,255,255,.1);
+      font-size: 13px; line-height: 1.5;
+    }
+
+    .rank-row strong {
+      font-family: 'Fredoka One', cursive;
+      font-size: 15px; display: block;
+    }
+
+    .go-actions {
+      display: flex; gap: 10px;
+      justify-content: center; flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    /* ════════════════════════════
+       RESPONSIVE
+    ════════════════════════════ */
+    @media (max-width: 600px) {
+      .app { padding: 8px; gap: 6px; }
+
+      #authCard { padding: 14px 14px 12px; }
+      .auth-hero { margin-bottom: 10px; }
+
+      .menu-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+      .menu-box { padding: 11px 12px; gap: 5px; }
+      .menu-box h3 { font-size: 15px; }
+
+      .board {
+        width: min(92vw, calc(100dvh - 205px), calc(100vh - 205px));
+        gap: 3px; padding: 5px;
+      }
+
+      /* Tournament mobile */
+      .t-player-cards { grid-template-columns: 1fr; }
+      #tournamentCard { padding: 14px; }
+      .t-games-list { gap: 8px; }
+      .t-game-row { padding: 10px 12px; }
+    }
+
+    @media (max-width: 380px) {
+      .menu-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ════════════════════════════
+       GAME SIDEBAR (base)
+    ════════════════════════════ */
+    .game-sidebar {
+      display: flex; flex-direction: column;
+      gap: 6px; width: 100%; flex-shrink: 0;
+    }
+
+    /* ════════════════════════════
+       DESKTOP TWO-COLUMN LAYOUT
+    ════════════════════════════ */
+    @media (min-width: 700px) {
+      body.view-game #gameArea {
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 14px;
+        max-width: 1100px;
+      }
+
+      body.view-game .board-wrap {
+        flex: 1; min-width: 0;
+        align-self: flex-start;
+        justify-content: flex-start;
+      }
+
+      body.view-game .board {
+        width: min(calc(100dvh - 110px), calc(100vh - 110px), 100%);
+      }
+
+      body.view-game .game-sidebar {
+        flex: 0 0 260px;
+        width: 260px;
+        min-width: 0;
+      }
+
+      body.view-game .info {
+        font-size: clamp(12px, 1.6vw, 16px);
+      }
+
+      body.view-game .scores {
+        flex-direction: column;
+        gap: 5px;
+        justify-content: flex-start;
+      }
+
+      body.view-game .score {
+        width: 100%;
+        border-radius: 12px;
+        font-size: 13px;
+        white-space: normal;
+        word-break: break-word;
+        box-sizing: border-box;
+      }
+    }
+
+    body.view-loading .app { visibility: hidden; }
+
+    /* ════════════════════════════
+       LOADING SCREEN
+    ════════════════════════════ */
+    #loadingScreen {
+      position: fixed; inset: 0; z-index: 9999;
+      background: #0a0718;
+      background-image: radial-gradient(ellipse 80% 55% at 50% -5%, rgba(124,58,237,.28) 0%, transparent 70%);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 28px;
+      transition: opacity .35s ease, visibility .35s ease;
+    }
+
+    #loadingScreen.hidden {
+      opacity: 0; visibility: hidden; pointer-events: none;
+    }
+
+    .loading-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(32px, 7vw, 52px);
+      background: linear-gradient(135deg, #fbbf24, #f472b6);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.1;
+    }
+
+    .loading-sub {
+      font-family: 'Nunito', sans-serif;
+      font-size: 15px; font-weight: 700;
+      color: rgba(255,255,255,.38);
+      margin-top: -18px;
+      letter-spacing: .04em;
+    }
+
+    .loading-spinner {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      border: 3.5px solid rgba(124,58,237,.18);
+      border-top-color: #a78bfa;
+      border-right-color: #7c3aed;
+      animation: spin .8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ════════════════════════════
+       TOURNAMENT
+    ════════════════════════════ */
+    #tournamentCard {
+      display: none; flex-direction: column;
+      gap: 12px; width: 100%;
+      padding: 20px 22px;
+      box-sizing: border-box;
+    }
+
+    body.view-tournament .app { justify-content: flex-start; }
+    body.view-tournament #tournamentCard { display: flex; }
+    body.view-tournament #roomCard .room-main-title,
+    body.view-tournament #roomCard .menu-grid,
+    body.view-tournament #roomCard #lobbyBox,
+    body.view-tournament #roomCard .t-menu-section { display: none; }
+    body.view-game #tournamentCard { display: none !important; }
+
+    .t-menu-section {
+      display: flex; flex-direction: column; gap: 10px; flex-shrink: 0;
+    }
+
+    .t-menu-divider {
+      display: flex; align-items: center; gap: 10px;
+      color: var(--muted); font-size: 12px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: .06em;
+      margin-top: 4px;
+    }
+
+    .t-menu-divider::before, .t-menu-divider::after {
+      content: ""; flex: 1; height: 1px;
+      background: var(--card-border);
+    }
+
+    .t-banner {
+      padding: 10px 16px; border-radius: var(--r);
+      font-size: 14px; font-weight: 700; text-align: center;
+      flex-shrink: 0;
+    }
+
+    .t-banner-warn  { background: rgba(251,191,36,.12); border: 1px solid rgba(251,191,36,.3); color: #fde68a; }
+    .t-banner-ready { background: rgba(16,185,129,.12); border: 1px solid rgba(16,185,129,.3); color: #6ee7b7; }
+    .t-banner-info  { background: rgba(124,58,237,.12); border: 1px solid rgba(124,58,237,.3); color: #c4b5fd; }
+
+    .t-code {
+      font-family: 'Fredoka One', cursive;
+      font-size: 16px; color: var(--gold);
+      letter-spacing: .08em;
+    }
+
+    .t-lobby-players { display: flex; flex-direction: column; gap: 6px; margin: 6px 0; }
+
+    .t-lobby-player {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 12px;
+      background: var(--card); border: 1px solid var(--card-border);
+      border-radius: var(--r); font-size: 14px; font-weight: 700;
+    }
+
+    .t-pid-chip {
+      font-family: 'Fredoka One', cursive;
+      font-size: 12px; letter-spacing: .08em;
+      color: var(--gold); background: rgba(245,158,11,.1);
+      border: 1px solid rgba(245,158,11,.25);
+      padding: 2px 8px; border-radius: 999px;
+      flex-shrink: 0;
+    }
+
+    .t-pass-btn {
+      font-family: 'Nunito', sans-serif;
+      font-size: 12px; font-weight: 800;
+      padding: 4px 12px; border-radius: 999px;
+      border: 1.5px solid rgba(167,139,250,.4);
+      background: rgba(124,58,237,.15);
+      color: #c4b5fd; cursor: pointer;
+      transition: background .15s;
+      flex-shrink: 0;
+    }
+    .t-pass-btn:hover { background: rgba(124,58,237,.3); }
+
+    .t-color-dot {
+      width: 13px; height: 13px; border-radius: 50%;
+      flex-shrink: 0; border: 1.5px solid rgba(255,255,255,.25);
+    }
+
+    .t-phase-bar {
+      display: flex; gap: 6px; align-items: center;
+      margin-bottom: 4px; flex-wrap: wrap;
+    }
+
+    .t-phase-pip {
+      padding: 4px 10px; border-radius: 999px;
+      font-size: 12px; font-weight: 800;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.1);
+      color: var(--muted);
+    }
+
+    .t-phase-pip.active {
+      background: rgba(124,58,237,.25);
+      border-color: rgba(167,139,250,.5);
+      color: #c4b5fd;
+    }
+
+    .t-phase-pip.done {
+      background: rgba(16,185,129,.18);
+      border-color: rgba(16,185,129,.4);
+      color: #6ee7b7;
+    }
+
+    .t-player-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 10px;
+    }
+
+    .t-player-card {
+      background: var(--card); border: 1px solid var(--card-border);
+      border-radius: var(--r2); padding: 12px 14px;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+
+    .t-card-header {
+      display: flex; align-items: center; gap: 7px;
+    }
+
+    .t-rank-num {
+      font-family: 'Fredoka One', cursive;
+      font-size: 16px; color: var(--gold);
+    }
+
+    .t-card-name {
+      font-weight: 800; font-size: 14px; flex: 1;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+
+    .t-card-avg { font-size: 13px; color: var(--muted); font-weight: 700; }
+    .t-card-avg strong { color: #e2e8f0; }
+
+    .t-card-status {
+      font-size: 12px; font-weight: 800;
+      padding: 3px 8px; border-radius: 999px; width: fit-content;
+    }
+
+    .t-card-status.playing { background: rgba(16,185,129,.18); color: #6ee7b7; }
+    .t-card-status.done    { background: rgba(167,139,250,.18); color: #c4b5fd; }
+    .t-card-status.waiting { background: rgba(255,255,255,.06); color: var(--muted); }
+
+    .t-rating-row { display: flex; flex-wrap: wrap; gap: 4px; }
+
+    .t-rating-chip {
+      background: rgba(124,58,237,.2); border: 1px solid rgba(167,139,250,.3);
+      color: #c4b5fd; font-size: 11px; font-weight: 800;
+      padding: 2px 7px; border-radius: 999px;
+    }
+
+    .t-phase-status {
+      font-size: 13px; color: var(--muted); font-weight: 700;
+      text-align: center; padding: 4px 0;
+    }
+
+    .t-games-list {
+      display: flex; flex-direction: column; gap: 10px; margin: 4px 0;
+    }
+
+    .t-game-row {
+      background: var(--card); border: 1px solid var(--card-border);
+      border-radius: var(--r2); padding: 12px 16px;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+
+    .t-game-row.done { border-color: rgba(16,185,129,.3); }
+    .t-game-row.playing { border-color: rgba(167,139,250,.3); }
+
+    .t-game-matchup {
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+      font-size: 14px; font-weight: 800;
+    }
+
+    .t-game-vs { color: var(--muted); font-size: 12px; font-weight: 700; }
+
+    .t-game-meta {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    }
+
+    .t-game-code {
+      font-family: 'Fredoka One', cursive; font-size: 13px;
+      color: var(--gold); letter-spacing: .06em;
+    }
+
+    .t-game-badge {
+      font-size: 11px; font-weight: 800; padding: 2px 8px;
+      border-radius: 999px;
+    }
+
+    .t-game-badge.done { background: rgba(16,185,129,.18); color: #6ee7b7; }
+    .t-game-badge.playing { background: rgba(167,139,250,.18); color: #c4b5fd; }
+
+    .t-card-stats {
+      font-size: 12px; color: var(--muted); font-weight: 700;
+      display: flex; gap: 10px; flex-wrap: wrap;
+    }
+
+    .t-card-stats span { color: #e2e8f0; }
+
+    .t-info-line {
+      font-size: 14px; font-weight: 700; padding: 8px 0;
+      text-align: center; color: var(--text);
+    }
+
+    .t-rankings-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: 16px; color: var(--gold); margin-bottom: 6px;
+    }
+
+    .t-rank-row {
+      display: flex; align-items: center; gap: 8px;
+      padding: 7px 10px;
+      background: var(--card); border: 1px solid var(--card-border);
+      border-radius: var(--r); font-size: 14px; font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    .t-rank-row.me {
+      border-color: rgba(167,139,250,.4);
+      background: rgba(124,58,237,.1);
+    }
+
+    .t-rank-avg { margin-left: auto; color: var(--gold); font-weight: 800; font-size: 13px; }
+
+    .t-final-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: 22px; color: var(--gold);
+      text-align: center; margin-bottom: 10px;
+    }
+
+    .t-final-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px;
+      background: var(--card); border: 1px solid var(--card-border);
+      border-radius: var(--r); margin-bottom: 6px;
+    }
+
+    .t-final-medal { font-size: 20px; }
+    .t-final-name  { flex: 1; font-weight: 800; font-size: 15px; }
+    .t-final-avg   { font-family: 'Fredoka One', cursive; font-size: 17px; color: var(--gold); }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.18); border-radius: 999px; }
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100%;
+  overscroll-behavior: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+body {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+button,
+a,
+.game-tile,
+.tile,
+.card,
+.no-select {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+input,
+textarea {
+  -webkit-user-select: text;
+  user-select: text;
+}
+  </style>
+</head>
+
+<body class="view-loading">
+
+  <!-- ══ LOADING SCREEN ══ -->
+  <div id="loadingScreen">
+    <div class="loading-title">&#127984; Hidden Towers</div>
+    <div class="loading-sub">Multiplayer Adventure</div>
+    <div class="loading-spinner"></div>
+  </div>
+
+  <div class="app">
+
+    <!-- ══ AUTH CARD ══ -->
+    <section class="card" id="authCard">
+      <div class="auth-hero">
+        <div class="game-title">&#127984; Hidden Towers</div>
+        <div class="sub">Multiplayer Adventure</div>
+      </div>
+
+      <div class="auth-tabs">
+        <button class="tab-btn active" onclick="switchAuthTab('signup')">Sign Up</button>
+        <button class="tab-btn" onclick="switchAuthTab('login')">Log In</button>
+      </div>
+
+      <div id="tabSignup" class="tab-panel">
+        <input id="signupUsername" placeholder="Username" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        <input id="signupEmail" type="email" placeholder="Email">
+        <input id="signupPassword" type="password" placeholder="Password">
+        <button onclick="signUp()" style="width:100%">Create Account</button>
+      </div>
+
+      <div id="tabLogin" class="tab-panel tab-hidden">
+        <input id="loginEmail" type="email" placeholder="Email">
+        <input id="loginPassword" type="password" placeholder="Password">
+        <button onclick="login()" style="width:100%">Log In</button>
+      </div>
+
+      <p id="authMessage"></p>
+
+      <div class="auth-footer">
+        <a href="/how-to-play" target="_blank">
+          <button class="how-btn">&#10067; How to Play</button>
+        </a>
+      </div>
+    </section>
+
+    <!-- ══ ROOM / LOBBY CARD ══ -->
+    <section id="roomCard">
+      <div class="room-header">
+        <span class="signed-label">Signed in as <b id="signedInAs"></b> <span class="player-id-badge" id="playerIdBadge" style="display:none"></span></span>
+        <a class="htp-link" href="/how-to-play" target="_blank">&#10067; How to Play</a>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <button class="secondary leave-room-btn" onclick="leaveRoom()" style="padding:7px 14px;font-size:14px;">Leave Room</button>
+          <button class="secondary" onclick="logout()" style="padding:7px 14px;font-size:14px;">Logout</button>
+        </div>
+      </div>
+
+      <div class="room-main-title">&#127942; Main Menu</div>
+
+      <div class="menu-grid">
+        <div class="menu-box">
+          <h3>&#127968; Create Game</h3>
+
+          <label for="roomPlayerCount">Players</label>
+          <select id="roomPlayerCount" onchange="updateGameTypeOptions()">
+            <option value="1">1 Player (vs AI)</option>
+            <option value="2" selected>2 Players</option>
+            <option value="3">3 Players</option>
+            <option value="4">4 Players</option>
+          </select>
+
+          <label>Game Type</label>
+          <div class="mode-options" id="gameTypeOptions"></div>
+
+          <label for="hostPlayerColor">Your Color</label>
+          <div class="color-row">
+            <input id="hostPlayerColor" type="color" value="#e03131">
+            <span>Pick a color</span>
+          </div>
+
+          <button onclick="createRoom()" style="width:100%;margin-top:4px;">Create Room</button>
+        </div>
+
+        <div class="menu-box">
+          <h3>&#128272; Join Game</h3>
+
+          <label for="joinCode">Room Code</label>
+          <input id="joinCode" placeholder="Enter code"
+            oninput="this.value=this.value.toUpperCase()"
+            autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
+
+          <label for="joinPlayerColor">Your Color</label>
+          <div class="color-row">
+            <input id="joinPlayerColor" type="color" value="#1971c2">
+            <span>Pick a color</span>
+          </div>
+
+          <button onclick="joinRoom()" style="width:100%;margin-top:4px;">Join Room</button>
+        </div>
+      </div>
+
+      <!-- ══ TOURNAMENT MENU ══ -->
+      <div class="t-menu-section">
+        <div class="t-menu-divider">Tournaments</div>
+        <div class="menu-grid">
+          <div class="menu-box">
+            <h3>&#127942; Create Tournament</h3>
+            <label for="tCreateColor">Your Color</label>
+            <div class="color-row">
+              <input id="tCreateColor" type="color" value="#e03131">
+              <span>Pick a color</span>
+            </div>
+            <button onclick="createTournament()" style="width:100%;margin-top:4px;">Create Tournament</button>
+          </div>
+          <div class="menu-box">
+            <h3>&#127919; Join Tournament</h3>
+            <label for="tJoinCode">Tournament Code</label>
+            <input id="tJoinCode" placeholder="Enter 8-letter code"
+              oninput="this.value=this.value.replace(/[^A-Za-z]/g,'').toUpperCase().slice(0,8)"
+              autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"
+              maxlength="8">
+            <label for="tJoinColor">Your Color</label>
+            <div class="color-row">
+              <input id="tJoinColor" type="color" value="#1971c2">
+              <span>Pick a color</span>
+            </div>
+            <button onclick="joinTournament()" style="width:100%;margin-top:4px;">Join Tournament</button>
+            <div id="tJoinStatus" style="font-size:13px;font-weight:700;min-height:18px;text-align:center;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="quickLinks" style="display:flex;gap:8px;margin-top:8px;">
+        <a href="/pass/" style="text-decoration:none;flex:1;">
+          <button class="secondary" style="width:100%;padding:10px;">🪪 My Player Pass</button>
+        </a>
+        <a href="/leagues/" style="text-decoration:none;flex:1;">
+          <button class="secondary" style="width:100%;padding:10px;">🏅 Leagues</button>
+        </a>
+      </div>
+
+      <div id="lobbyBox">
+        <div class="lobby-label">Room Code</div>
+        <div class="room-code" id="roomCodeDisplay"></div>
+        <div class="small" id="lobbyPlayers"></div>
+        <button id="startRoomBtn" onclick="startRoomGame()" style="margin-top:10px;">Start Game</button>
+      </div>
+    </section>
+
+    <!-- ══ TOURNAMENT CARD ══ -->
+    <section class="card" id="tournamentCard">
+
+      <!-- Host view -->
+      <div id="tHostView" style="display:none">
+        <div class="t-banner" id="tBanner"></div>
+
+        <div id="tLobbyContent">
+          <div class="t-lobby-players" id="tLobbyPlayers"></div>
+          <button id="tScanBtn" onclick="openQRScanner()" style="width:100%;margin-top:8px;" class="secondary">📷 Scan Player QR Code</button>
+          <button id="tStartBtn" onclick="startTournament()" disabled style="width:100%;margin-top:6px;">Start Tournament</button>
+        </div>
+
+        <!-- QR scanner overlay -->
+        <div id="qrScannerOverlay" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.85);flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:20px;">
+          <div style="font-family:'Fredoka One',cursive;font-size:20px;color:#e2e8f0;">Scan Player Pass QR Code</div>
+          <div id="qrScannerRegion" style="width:280px;height:280px;border-radius:12px;overflow:hidden;"></div>
+          <div id="qrScannerStatus" style="font-size:13px;font-weight:800;color:#94a3b8;min-height:18px;text-align:center;"></div>
+          <button onclick="closeQRScanner()" class="secondary" style="padding:10px 28px;">Cancel</button>
+        </div>
+
+        <div id="tDashContent" style="display:none">
+          <div class="t-phase-bar" id="tPhaseBar"></div>
+          <div class="t-player-cards" id="tPlayerCards"></div>
+          <div class="t-phase-status" id="tPhaseStatus"></div>
+          <button id="tNextPhaseBtn" onclick="advanceTournamentPhase()" style="display:none;width:100%;margin-top:8px;"></button>
+          <div id="tFinalContent"></div>
+        </div>
+
+        <button class="danger" onclick="endTournamentConfirm()" style="margin-top:12px;width:100%;">End Tournament</button>
+      </div>
+
+      <!-- Player view -->
+      <div id="tPlayerView" style="display:none">
+        <div class="t-banner" id="tPlayerBanner"></div>
+        <div id="tPlayerInfo"></div>
+        <div id="tPlayerRankings"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
+          <button id="tJoinGameBtn" onclick="joinTournamentGame()" style="display:none;flex:1;">Join Your Game</button>
+          <button class="secondary" onclick="leaveTournament()" style="flex:1;">Leave Tournament</button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ══ GAME AREA ══ -->
+    <section id="gameArea">
+      <div class="board-wrap">
+        <div class="board" id="board"></div>
+      </div>
+
+      <div class="game-sidebar">
+        <div class="game-top-bar">
+          <div class="info" id="info">Waiting...</div>
+          <button class="stay-btn" onclick="stayTurn()">Stay</button>
+        </div>
+
+        <div class="scores" id="scores"></div>
+
+        <div class="note" id="gameNote">
+          Online mode. Arrow keys move. S stays.
+        </div>
+
+        <button id="backToRoomBtn" onclick="backToRoom()" style="display:none;margin-top:4px;">Back to Room</button>
+        <button id="leaveGameBtn" onclick="confirmLeaveGame()" style="display:none;margin-top:4px;" class="secondary danger">Leave Game</button>
+      </div>
+
+    </section>
+
+  </div>
+
+  <!-- ══ GAME OVER MODAL ══ -->
+  <div class="game-over" id="gameOver">
+    <div class="game-over-box">
+      <h2 id="winnerTitle"></h2>
+      <p id="winnerReason"></p>
+      <div class="ranking" id="finalRanking"></div>
+      <div class="go-actions">
+        <button class="secondary" onclick="hideGameOver()">Hide Final Screen</button>
+        <button onclick="backToRoom()">Back to Room</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchAuthTab(tab) {
+      document.getElementById('tabSignup').classList.toggle('tab-hidden', tab !== 'signup');
+      document.getElementById('tabLogin').classList.toggle('tab-hidden', tab !== 'login');
+      document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+        btn.classList.toggle('active', (i === 0) === (tab === 'signup'));
+      });
+    }
+  </script>
+
+  <script type="module">
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDnLusbSL7Fa-aAceIm3vLE_yRa1R-VajE",
+  authDomain: "hidden-towers.firebaseapp.com",
+  projectId: "hidden-towers",
+  storageBucket: "hidden-towers.firebasestorage.app",
+  messagingSenderId: "93909210045",
+  appId: "1:93909210045:web:7335ea94fc4a196129f8d4",
+  measurementId: "G-SEFMNLV3KH"
+    };
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import {
+      getFirestore,
+      doc,
+      collection,
+      getDoc,
+      setDoc,
+      updateDoc,
+      runTransaction,
+      onSnapshot,
+      serverTimestamp,
+      increment
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUser = null;
+    let currentProfile = null;
+    let roomId = null;
+    let unsubRoom = null;
+    let state = null;
+    let selectedGameType = "poison";
+    let aiMoveTimer = null;
+    let selectedDifficulty = "medium";
+    let tournamentId = null;
+    let tournament = null;
+    let unsubTournament = null;
+    let advancingPhase = false;
+    let heartbeatInterval = null;
+    const reportedRooms = new Set();
+    const creditedRooms = new Set();
+    const creditedTournaments = new Set();
+    const knownLeftUids = new Set();
+
+    window.signUp = signUp;
+    window.login = login;
+    window.logout = logout;
+    window.createRoom = createRoom;
+    window.joinRoom = joinRoom;
+    window.startRoomGame = startRoomGame;
+    window.stayTurn = stayTurn;
+    window.confirmResetRoom = confirmResetRoom;
+    window.hideGameOver = hideGameOver;
+    window.backToRoom = backToRoom;
+    window.createTournament = createTournament;
+    window.joinTournament = joinTournament;
+    window.joinTournamentByCode = joinTournamentByCode;
+    window.openPlayerPass = openPlayerPass;
+    window.openQRScanner  = openQRScanner;
+    window.closeQRScanner = closeQRScanner;
+    window.startTournament = startTournament;
+    window.advanceTournamentPhase = advanceTournamentPhase;
+    window.joinTournamentGame = joinTournamentGame;
+    window.leaveTournament = leaveTournament;
+    window.endTournamentConfirm = endTournamentConfirm;
+    window.updateMyLobbyColor = updateMyLobbyColor;
+    window.updateGameTypeOptions = updateGameTypeOptions;
+    window.selectGameType = selectGameType;
+    window.selectDifficulty = selectDifficulty;
+    window.leaveRoom = leaveRoom;
+    window.confirmLeaveGame = confirmLeaveGame;
+
+    updateGameTypeOptions();
+
+    function updateGameTypeOptions() {
+      const raw = parseInt(document.getElementById("roomPlayerCount").value, 10);
+      const count = raw === 1 ? 2 : raw;
+      const box = document.getElementById("gameTypeOptions");
+      if (!box) return;
+
+      if (count === 4 && selectedGameType === "noname") selectedGameType = "poison";
+      if (selectedGameType !== "classic" && selectedGameType !== "poison" && selectedGameType !== "noname") {
+        selectedGameType = "poison";
+      }
+
+      const classicDescs = {
+        2: "6x6 grid, 4 towers, get 3000 points to win.",
+        3: "7x7 grid, 6 towers, get 4000 pts to win or own 4 towers.",
+        4: "8x8 grid, 7 towers, get 5000 pts to win or own 4 towers."
+      };
+      const poisonDescs = {
+        2: "6x6 grid, 4 towers, poison gas, get 2000 pts to win.",
+        3: "7x7 grid, 6 towers, poison gas, get 3000 pts to win or own 4 towers.",
+        4: "8x8 grid, 7 towers, poison gas, get 4000 pts to win or own 4 towers."
+      };
+      const nonameDescs = {
+        2: "8x8 grid, 4 towers pre-revealed (2 each). Steal enemy towers on contact. Own all 4 or be last with points.",
+        3: "8x8 grid, 6 towers pre-revealed (2 each). Steal enemy towers on contact. Own 4 of 6 or be last with points."
+      };
+
+      const nonameCard = count <= 3 ? `
+        <div class="mode-card ${selectedGameType === "noname" ? "active" : ""}" onclick="selectGameType('noname')">
+          <strong>Not-So-Hidden Towers</strong>
+          <span>${nonameDescs[count]}</span>
+        </div>` : "";
+
+      const difficultySection = raw === 1 ? `
+        <div style="margin-top:8px">
+          <label class="menu-box" style="display:block;font-size:11px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;padding:0;background:none;border:none;">AI Difficulty</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+            <div class="mode-card ${selectedDifficulty === "easy" ? "active" : ""}" onclick="selectDifficulty('easy')" style="text-align:center">
+              <strong>Easy</strong>
+              <span>Makes mistakes, forgiving</span>
+            </div>
+            <div class="mode-card ${selectedDifficulty === "medium" ? "active" : ""}" onclick="selectDifficulty('medium')" style="text-align:center">
+              <strong>Medium</strong>
+              <span>Solid play, beatable</span>
+            </div>
+            <div class="mode-card ${selectedDifficulty === "hard" ? "active" : ""}" onclick="selectDifficulty('hard')" style="text-align:center">
+              <strong>Hard</strong>
+              <span>Near-optimal. Good luck.</span>
+            </div>
+          </div>
+        </div>` : "";
+
+      box.innerHTML = `
+        <div class="mode-card ${selectedGameType === "classic" ? "active" : ""}" onclick="selectGameType('classic')">
+          <strong>Classic</strong>
+          <span>${classicDescs[count]}</span>
+        </div>
+        <div class="mode-card ${selectedGameType === "poison" ? "active" : ""}" onclick="selectGameType('poison')">
+          <strong>Poison Gas</strong>
+          <span>${poisonDescs[count]}</span>
+        </div>
+        ${nonameCard}
+        ${difficultySection}
+      `;
+    }
+
+    function selectGameType(type) {
+      const raw = parseInt(document.getElementById("roomPlayerCount").value, 10);
+      const count = raw === 1 ? 2 : raw;
+      if (type === "noname" && count === 4) return;
+      selectedGameType = type;
+      updateGameTypeOptions();
+    }
+
+    function selectDifficulty(level) {
+      selectedDifficulty = level;
+      updateGameTypeOptions();
+    }
+
+    function hideLoading() {
+      const el = document.getElementById("loadingScreen");
+      if (el) el.classList.add("hidden");
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+  currentUser = user;
+
+  if (!user) {
+    currentProfile = null;
+    showAuth();
+    hideLoading();
+    return;
+  }
+
+  const profileSnap = await getDoc(doc(db, "users", user.uid));
+
+  if (!profileSnap.exists()) {
+    currentProfile = null;
+    document.getElementById("signedInAs").textContent = "Setting up account...";
+    hideLoading();
+    return;
+  }
+
+  currentProfile = profileSnap.data();
+
+  // Ensure Player ID exists on profile and in the playerIds lookup collection
+  if (!currentProfile.playerId) {
+    const newPid = generatePlayerId();
+    await updateDoc(doc(db, "users", user.uid), { playerId: newPid });
+    await setDoc(doc(db, "playerIds", newPid), { username: currentProfile.username, uid: user.uid });
+    currentProfile = { ...currentProfile, playerId: newPid };
+  } else {
+    // playerIds doc may be missing if the account was backfilled before that
+    // write was added — ensure it exists on every login (cheap read + rare write)
+    const pidSnap = await getDoc(doc(db, "playerIds", currentProfile.playerId));
+    if (!pidSnap.exists()) {
+      await setDoc(doc(db, "playerIds", currentProfile.playerId), { username: currentProfile.username, uid: user.uid });
+    }
+  }
+
+  setSignedInDisplay(currentProfile.username, currentProfile.playerId);
+
+  // Auto-join from QR / pass link: ?tjoin=CODE&pid=PLAYERID
+  const urlParams = new URLSearchParams(window.location.search);
+  const tjoin = urlParams.get("tjoin");
+  if (tjoin) {
+    // Clean URL so back/refresh doesn't re-trigger
+    history.replaceState({}, "", window.location.pathname);
+    showRoom();
+    hideLoading();
+    await joinTournamentByCode(tjoin);
+    return;
+  }
+
+  showRoom();
+  hideLoading();
+});
+
+    function setSignedInDisplay(username, playerId) {
+      document.getElementById("signedInAs").textContent = username;
+      const badge = document.getElementById("playerIdBadge");
+      if (playerId) { badge.textContent = playerId; badge.style.display = ""; }
+      else { badge.style.display = "none"; }
+    }
+
+    function usernameKey(name) {
+      return name.trim().toLowerCase();
+    }
+
+    async function signUp() {
+      const username = document.getElementById("signupUsername").value.trim();
+      const email = document.getElementById("signupEmail").value.trim();
+      const password = document.getElementById("signupPassword").value;
+
+      if (!/^[a-zA-Z0-9_]{3,16}$/.test(username)) {
+        setAuthMessage("Username must be 3-16 characters: letters, numbers, underscores.");
+        return;
+      }
+
+      const key = usernameKey(username);
+
+      try {
+        const usernameRef = doc(db, "usernames", key);
+
+        await runTransaction(db, async (tx) => {
+          const usernameSnap = await tx.get(usernameRef);
+          if (usernameSnap.exists()) {
+            throw new Error("That username is already taken.");
+          }
+        });
+
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        const newPid = generatePlayerId();
+
+        await runTransaction(db, async (tx) => {
+          const freshSnap = await tx.get(usernameRef);
+          if (freshSnap.exists()) {
+            throw new Error("That username is already taken.");
+          }
+
+          tx.set(usernameRef, {
+            uid: cred.user.uid,
+            username,
+            createdAt: serverTimestamp()
+          });
+
+          tx.set(doc(db, "users", cred.user.uid), {
+            uid: cred.user.uid,
+            username,
+            usernameKey: key,
+            email,
+            playerId: newPid,
+            leagueCredits: 0,
+            createdAt: serverTimestamp()
+          });
+
+          tx.set(doc(db, "playerIds", newPid), { username, uid: cred.user.uid });
+        });
+
+        currentProfile = {
+          uid: cred.user.uid,
+          username,
+          usernameKey: key,
+          email
+        };
+
+        setSignedInDisplay(username, newPid);
+        showRoom();
+        setAuthMessage("Account created.");
+      } catch (err) {
+        setAuthMessage(err.message);
+      }
+    }
+
+    async function login() {
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value;
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        setAuthMessage("");
+      } catch (err) {
+        setAuthMessage(err.message);
+      }
+    }
+
+      async function logout() {
+      stopHeartbeat();
+      if (unsubRoom) unsubRoom();
+      unsubRoom = null;
+      roomId = null;
+      state = null;
+      await signOut(auth);
+    }
+
+    async function confirmLeaveGame() {
+      if (!confirm("Leave the game? You will be removed from the board and the others will continue without you.")) return;
+      await leaveRoom();
+    }
+
+    async function leaveRoom() {
+      if (!roomId || !currentUser) return;
+      stopHeartbeat();
+      const ref = doc(db, "games", roomId);
+      try {
+        await runTransaction(db, async (tx) => {
+          const snap = await tx.get(ref);
+          if (!snap.exists()) return;
+          const data = snap.data();
+
+          if (data.status === "lobby") {
+            const remaining = (data.players || [])
+              .filter(p => p.uid !== currentUser.uid)
+              .map((p, i) => ({ ...p, id: i }));
+            const humanRemaining = remaining.filter(p => !p.isAI);
+            if (humanRemaining.length === 0) {
+              tx.delete(ref);
+            } else {
+              tx.update(ref, {
+                players: remaining,
+                hostUid: data.hostUid === currentUser.uid ? humanRemaining[0].uid : data.hostUid,
+                updatedAt: serverTimestamp()
+              });
+            }
+          } else if (data.status === "playing") {
+            const next = clone(data);
+            const leavingPlayer = next.players.find(p => p.uid === currentUser.uid);
+            if (!leavingPlayer || leavingPlayer.left) return;
+            leavingPlayer.left = true;
+            leavingPlayer.eliminated = true;
+            if (next.currentPlayer === leavingPlayer.id) advanceTurnSkipLeft(next);
+            checkAndEndIfOneLeft(next);
+            tx.update(ref, stripServerTimestamp(next));
+          }
+        });
+      } catch (_) {}
+
+      if (unsubRoom) unsubRoom();
+      unsubRoom = null;
+      roomId = null;
+      state = null;
+      knownLeftUids.clear();
+      document.getElementById("roomCard").classList.remove("in-lobby");
+      showRoom();
+    }
+
+    function startHeartbeat() {
+      stopHeartbeat();
+      if (!roomId || !currentUser) return;
+      const ping = () => {
+        if (!roomId || !currentUser) { stopHeartbeat(); return; }
+        updateDoc(doc(db, "games", roomId), {
+          [`pings.${currentUser.uid}`]: serverTimestamp()
+        }).catch(() => {});
+      };
+      ping();
+      heartbeatInterval = setInterval(ping, 28000);
+    }
+
+    function stopHeartbeat() {
+      if (heartbeatInterval) { clearInterval(heartbeatInterval); heartbeatInterval = null; }
+    }
+
+    function advanceTurnSkipLeft(s) {
+      let guard = 0;
+      while (s.players[s.currentPlayer]?.eliminated && guard < s.players.length) {
+        s.currentPlayer++;
+        if (s.currentPlayer >= s.players.length) {
+          s.currentPlayer = 0;
+          s.fullRoundNumber++;
+        }
+        guard++;
+      }
+    }
+
+    function checkAndEndIfOneLeft(s) {
+      if (s.status === "ended") return;
+      const alive = s.players.filter(p => !p.eliminated && !p.isAI);
+      if (alive.length === 1) {
+        endGameInState(s, alive[0], `${alive[0].username} wins — others left the game.`);
+      } else if (alive.length === 0) {
+        s.status = "ended"; s.finalWinnerId = null;
+        s.gameOverReason = "All players left the game.";
+      }
+    }
+
+    async function checkStalePlayers(s) {
+      if (!s || s.status !== "playing" || currentUser?.uid !== s.hostUid) return;
+      const pings = s.pings || {};
+      const now = Date.now();
+      const STALE_MS = 90000;
+      let dirty = false;
+      const next = clone(s);
+      for (const p of next.players) {
+        if (p.isAI || p.left || p.eliminated) continue;
+        const ping = pings[p.uid];
+        if (!ping) continue;
+        const pingTime = ping.toMillis ? ping.toMillis() : (typeof ping === "number" ? ping : 0);
+        if (pingTime > 0 && now - pingTime > STALE_MS) {
+          p.left = true; p.eliminated = true; dirty = true;
+        }
+      }
+      if (!dirty) return;
+      if (next.players[next.currentPlayer]?.eliminated) advanceTurnSkipLeft(next);
+      checkAndEndIfOneLeft(next);
+      await saveState(next);
+    }
+
+    function showLeaveNotification(username) {
+      const info = document.getElementById("info");
+      if (!info) return;
+      const prev = info.textContent;
+      info.textContent = `${username} left the game`;
+      info.style.color = "#f87171";
+      setTimeout(() => { info.style.color = ""; if (state) render(); else info.textContent = prev; }, 3000);
+    }
+
+    function setAuthMessage(text) {
+      document.getElementById("authMessage").textContent = text;
+    }
+
+    function showAuth() {
+      document.body.className = "view-auth";
+      document.getElementById("authCard").style.display = "";
+      document.getElementById("roomCard").style.display = "none";
+      document.getElementById("gameArea").style.display = "none";
+      document.getElementById("gameOver").style.display = "none";
+    }
+
+    function showRoom() {
+      document.body.className = "view-room";
+      document.getElementById("authCard").style.display = "none";
+      document.getElementById("roomCard").style.display = "flex";
+      document.getElementById("gameArea").style.display = "none";
+    }
+
+    function showTournamentView() {
+      document.body.className = "view-tournament";
+      document.getElementById("authCard").style.display = "none";
+      document.getElementById("roomCard").style.display = "flex";
+      document.getElementById("gameArea").style.display = "none";
+    }
+
+    function showGame() {
+      document.body.className = "view-game";
+      document.getElementById("authCard").style.display = "none";
+      document.getElementById("roomCard").style.display = "flex";
+      document.getElementById("gameArea").style.display = "flex";
+    }
+
+    function roomCode() {
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      let out = "";
+      for (let i = 0; i < 5; i++) out += chars[Math.floor(Math.random() * chars.length)];
+      return out;
+    }
+
+    async function createRoom() {
+      if (!currentUser || !currentProfile) return;
+
+      const rawCount = parseInt(document.getElementById("roomPlayerCount").value, 10);
+      const playerCount = rawCount === 1 ? 2 : rawCount;
+      const color = document.getElementById("hostPlayerColor").value;
+
+      let code = roomCode();
+      let ref = doc(db, "games", code);
+      let snap = await getDoc(ref);
+
+      while (snap.exists()) {
+        code = roomCode();
+        ref = doc(db, "games", code);
+        snap = await getDoc(ref);
+      }
+
+      const gameType = selectedGameType;
+      const blank = blankGame(code, playerCount, gameType);
+      blank.hostUid = currentUser.uid;
+      blank.players.push({
+        uid: currentUser.uid,
+        username: currentProfile.username,
+        color: pickAvailableColor([], color),
+        id: 0,
+        x: null,
+        y: null,
+        points: 0,
+        infected: false,
+        eliminated: false
+      });
+
+      if (rawCount === 1) {
+        blank.aiDifficulty = selectedDifficulty;
+        blank.players.push({
+          uid: "AI_PLAYER",
+          username: "CPU",
+          color: pickAvailableColor(blank.players, "#6366f1"),
+          id: 1,
+          x: null,
+          y: null,
+          points: 0,
+          infected: false,
+          eliminated: false,
+          isAI: true
+        });
+      }
+
+      await setDoc(ref, blank);
+      subscribeRoom(code);
+    }
+
+    async function joinRoom() {
+      if (!currentUser || !currentProfile) return;
+
+      const code = document.getElementById("joinCode").value.trim().toUpperCase();
+      if (!code) return;
+
+      const ref = doc(db, "games", code);
+      const preferredColor = document.getElementById("joinPlayerColor").value;
+
+      try {
+        await runTransaction(db, async (tx) => {
+          const snap = await tx.get(ref);
+          if (!snap.exists()) throw new Error("Room not found.");
+
+          const data = snap.data();
+          if (data.status !== "lobby") throw new Error("That game already started.");
+
+          const players = data.players || [];
+          const existingIndex = players.findIndex(p => p.uid === currentUser.uid);
+
+          if (existingIndex !== -1) {
+            const otherPlayers = players.filter(p => p.uid !== currentUser.uid);
+            players[existingIndex] = {
+              ...players[existingIndex],
+              color: pickAvailableColor(otherPlayers, preferredColor)
+            };
+          } else {
+            if (players.length >= data.playerCount) throw new Error("Room is full.");
+
+            players.push({
+              uid: currentUser.uid,
+              username: currentProfile.username,
+              color: pickAvailableColor(players, preferredColor),
+              id: players.length,
+              x: null,
+              y: null,
+              points: 0,
+              infected: false,
+              eliminated: false
+            });
+          }
+
+          tx.update(ref, { players, updatedAt: serverTimestamp() });
+        });
+
+        subscribeRoom(code);
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    function normalizeHex(color) {
+      return String(color || "").trim().toLowerCase();
+    }
+
+    function pickAvailableColor(existingPlayers, preferredColor) {
+      const fallbackColors = ["#e03131", "#1971c2", "#2f9e44", "#9c36b5", "#f08c00", "#0ca678", "#c2255c", "#364fc7"];
+      const used = new Set((existingPlayers || []).map(p => normalizeHex(p.color)));
+      const preferred = normalizeHex(preferredColor);
+
+      if (preferred && !used.has(preferred)) {
+        return preferred;
+      }
+
+      for (const color of fallbackColors) {
+        if (!used.has(normalizeHex(color))) {
+          return color;
+        }
+      }
+
+      return preferred || fallbackColors[0];
+    }
+
+    function blankGame(code, playerCount, gameType = "classic") {
+      const poisonMode = gameType === "poison";
+      const noNameMode = gameType === "noname";
+
+      let size, towerCount, pointsToWin, useTowerWin, towersToWin, startingPoints;
+      if (noNameMode) {
+        size = 8;
+        if (playerCount === 2) { towerCount = 4; towersToWin = 4; startingPoints = 2000; }
+        else                   { towerCount = 6; towersToWin = 4; startingPoints = 3000; }
+        pointsToWin = 999999;
+        useTowerWin = true;
+      } else if (playerCount === 2) {
+        size = 6; towerCount = 4; startingPoints = 0;
+        if (poisonMode) { pointsToWin = 2000; useTowerWin = false; towersToWin = 0; }
+        else             { pointsToWin = 3000; useTowerWin = false; towersToWin = 0; }
+      } else if (playerCount === 3) {
+        size = 7; towerCount = 6; startingPoints = 0;
+        if (poisonMode) { pointsToWin = 3000; useTowerWin = true; towersToWin = 4; }
+        else             { pointsToWin = 4000; useTowerWin = true; towersToWin = 4; }
+      } else {
+        size = 8; towerCount = 7; startingPoints = 0;
+        if (poisonMode) { pointsToWin = 4000; useTowerWin = true; towersToWin = 4; }
+        else             { pointsToWin = 5000; useTowerWin = true; towersToWin = 4; }
+      }
+
+      return {
+        code,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        hostUid: null,
+        status: "lobby",
+        playerCount,
+        gameType,
+        noNameMode,
+        size,
+        towerCount,
+        pointsToWin,
+        useTowerWin,
+        towersToWin,
+        startingPoints,
+        twoPlayerMode: poisonMode,
+        currentPlayer: 0,
+        fullRoundNumber: 1,
+        finalWinnerId: null,
+        consecutiveStayTurns: 0,
+        players: [],
+        tiles: [],
+        gasOrigin: null,
+        gasActive: false,
+        infectedTiles: [],
+        infectionSafeZones: {},
+        gasRound: 0,
+        gasFinalized: false,
+        gameOverReason: ""
+      };
+    }
+
+    function subscribeRoom(code) {
+      if (unsubRoom) unsubRoom();
+      stopHeartbeat();
+      knownLeftUids.clear();
+
+      roomId = code;
+      document.getElementById("roomCodeDisplay").textContent = code;
+      document.getElementById("roomCard").classList.add("in-lobby");
+      startHeartbeat();
+
+      unsubRoom = onSnapshot(doc(db, "games", code), (snap) => {
+        if (!snap.exists()) {
+          alert("Room deleted or unavailable.");
+          return;
+        }
+
+        state = snap.data();
+
+        // Detect newly-left players and notify
+        (state.players || []).filter(p => p.left && !p.isAI).forEach(p => {
+          if (!knownLeftUids.has(p.uid)) {
+            knownLeftUids.add(p.uid);
+            if (p.uid !== currentUser?.uid) showLeaveNotification(p.username);
+          }
+        });
+
+        if (state.status === "playing" || state.status === "ended") {
+          showGame();
+          render();
+          // Debounced AI trigger — clears any pending timer so rapid human clicks
+          // never leave the AI permanently stuck
+          if (state.status === "playing" && isAITurn() && currentUser?.uid === state.hostUid) {
+            clearTimeout(aiMoveTimer);
+            aiMoveTimer = setTimeout(async () => {
+              aiMoveTimer = null;
+              if (state?.status === "playing" && isAITurn()) await executeAIMove();
+            }, 850);
+          } else {
+            clearTimeout(aiMoveTimer);
+            aiMoveTimer = null;
+          }
+          // Check for stale (disconnected) players — host only
+          checkStalePlayers(state);
+          // Tournament result reporting — idempotent via Firestore transaction
+          if (state.status === "ended" && state.tournamentCode && !reportedRooms.has(code)) {
+            reportedRooms.add(code);
+            reportTournamentResult(state);
+          }
+          // League credits for this game
+          if (state.status === "ended") awardGameCredits(state);
+        } else {
+          if (tournamentId) {
+            showTournamentView();
+          } else {
+            showRoom();
+            renderLobby();
+          }
+        }
+      });
+    }
+
+    function renderLobby() {
+      if (!state) return;
+
+      document.getElementById("roomCodeDisplay").textContent = state.code;
+
+      const playerList = state.players.map(p => {
+        return `${p.username} <span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:${p.color};border:1px solid white;vertical-align:middle;"></span>`;
+      }).join(", ");
+
+      const me = state.players.find(p => p.uid === currentUser?.uid);
+      const colorEditor = me && state.status === "lobby"
+        ? `<div class="setup-row">
+             <label class="small" style="margin:0">Your color</label>
+             <input id="lobbyColorPicker" type="color" value="${me.color}">
+             <button onclick="updateMyLobbyColor()" style="padding:6px 12px;font-size:13px;">Save</button>
+           </div>`
+        : "";
+
+      const hasAI = (state.players || []).some(p => p.isAI);
+      const diffLabel = hasAI ? ` · CPU ${(state.aiDifficulty || "hard").charAt(0).toUpperCase() + (state.aiDifficulty || "hard").slice(1)}` : "";
+      const typeLabel = (state.gameType === "poison" ? "Poison Gas" : state.gameType === "noname" ? "Not-So-Hidden Towers" : "Classic") + diffLabel;
+      document.getElementById("lobbyPlayers").innerHTML =
+        `<strong style="color:var(--gold)">${typeLabel}</strong> &nbsp;|&nbsp; Players (${state.players.length}/${state.playerCount}): ${playerList}${colorEditor}`;
+
+      document.getElementById("startRoomBtn").disabled =
+        currentUser.uid !== state.hostUid ||
+        state.status !== "lobby" ||
+        state.players.length !== state.playerCount;
+    }
+
+    async function updateMyLobbyColor() {
+      if (!state || !currentUser || state.status !== "lobby") return;
+
+      const picker = document.getElementById("lobbyColorPicker");
+      if (!picker) return;
+
+      const preferredColor = picker.value;
+      const ref = doc(db, "games", state.code);
+
+      try {
+        await runTransaction(db, async (tx) => {
+          const snap = await tx.get(ref);
+          if (!snap.exists()) throw new Error("Room not found.");
+
+          const data = snap.data();
+          if (data.status !== "lobby") throw new Error("Colors can only be changed before the game starts.");
+
+          const players = data.players || [];
+          const index = players.findIndex(p => p.uid === currentUser.uid);
+          if (index === -1) throw new Error("You are not in this room.");
+
+          const otherPlayers = players.filter(p => p.uid !== currentUser.uid);
+          players[index] = {
+            ...players[index],
+            color: pickAvailableColor(otherPlayers, preferredColor)
+          };
+
+          tx.update(ref, {
+            players,
+            updatedAt: serverTimestamp()
+          });
+        });
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    async function startRoomGame() {
+      if (!state || currentUser.uid !== state.hostUid) return;
+      if (state.players.length !== state.playerCount) return;
+
+      const next = clone(state);
+      const starts = generateStartPositions(next.playerCount, next.size, next.twoPlayerMode);
+
+      next.tiles = createTiles(next.size);
+      shuffle(next.players);
+      next.players = next.players.map((p, i) => ({
+        ...p,
+        id: i,
+        x: starts[i].x,
+        y: starts[i].y,
+        points: 0,
+        infected: false,
+        eliminated: false
+      }));
+
+      next.players.forEach(player => {
+        getTileFrom(next.tiles, player.x, player.y).revealed = true;
+      });
+
+      placeTowersIn(next, starts);
+
+      if (next.noNameMode) {
+        const towerTiles = next.tiles.filter(t => t.type === "tower");
+        towerTiles.forEach(t => { t.revealed = true; });
+        shuffle(towerTiles);
+        towerTiles.forEach((t, i) => {
+          const playerIdx = Math.floor(i / 2);
+          if (playerIdx < next.players.length) {
+            t.owner = playerIdx;
+            t.level = 1;
+          }
+        });
+        next.players.forEach(p => { p.points = next.startingPoints; });
+      }
+
+      if (next.twoPlayerMode) {
+        placeGasIn(next, starts);
+      }
+
+      next.status = "playing";
+      next.currentPlayer = 0;
+      next.fullRoundNumber = 1;
+      next.finalWinnerId = null;
+      next.consecutiveStayTurns = 0;
+      next.gasOrigin = null;
+      next.gasActive = false;
+      next.infectedTiles = [];
+      next.infectionSafeZones = {};
+      next.gasRound = 0;
+      next.gasFinalized = false;
+      next.gameOverReason = "";
+
+      await saveState(next);
+    }
+
+    function createTiles(size) {
+      const arr = [];
+
+      for (let y = 0; y < size; y++) {
+        for (let x = 0; x < size; x++) {
+          arr.push({
+            x,
+            y,
+            revealed: false,
+            type: "empty",
+            owner: null,
+            level: 1,
+            ownerProgress: 0,
+            invaderId: null,
+            invaderProgress: 0
+          });
+        }
+      }
+
+      return arr;
+    }
+
+    function generateStartPositions(count, size, twoPlayerMode) {
+      const positions = [];
+      let attempts = 0;
+      const minDistance = twoPlayerMode ? 4 : 5;
+
+      while (positions.length < count && attempts < 5000) {
+        attempts++;
+
+        const pos = {
+          x: Math.floor(Math.random() * size),
+          y: Math.floor(Math.random() * size)
+        };
+
+        if (positions.every(other => manhattan(pos, other) >= minDistance)) {
+          positions.push(pos);
+        }
+      }
+
+      if (positions.length < count) {
+        const c = size - 1;
+        return [
+          { x: 0, y: 0 },
+          { x: c, y: c },
+          { x: c, y: 0 },
+          { x: 0, y: c }
+        ].slice(0, count);
+      }
+
+      return positions;
+    }
+
+    function placeTowersIn(s, starts) {
+      let placed = 0;
+      let attempts = 0;
+      const minTowerDist = s.noNameMode ? 3 : 0;
+
+      while (placed < s.towerCount && attempts < 10000) {
+        attempts++;
+        const x = Math.floor(Math.random() * s.size);
+        const y = Math.floor(Math.random() * s.size);
+        const tile = getTileFrom(s.tiles, x, y);
+        const isStart = starts.some(p => p.x === x && p.y === y);
+        if (isStart || tile.type === "tower") continue;
+
+        if (minTowerDist > 0) {
+          const tooClose = s.tiles.some(t => t.type === "tower" && manhattan(t, { x, y }) < minTowerDist);
+          if (tooClose) continue;
+        }
+
+        tile.type = "tower";
+        placed++;
+      }
+    }
+
+    function placeGasIn(s, starts) {
+      let attempts = 0;
+
+      while (attempts < 5000) {
+        attempts++;
+
+        const x = Math.floor(Math.random() * s.size);
+        const y = Math.floor(Math.random() * s.size);
+        const tile = getTileFrom(s.tiles, x, y);
+        const isStart = starts.some(p => p.x === x && p.y === y);
+
+        if (!isStart && tile.type !== "tower") {
+          tile.type = "gas";
+          return;
+        }
+      }
+    }
+
+    function render() {
+      if (!state) return;
+
+      renderScores();
+      renderBoard();
+
+      const leaveBtn = document.getElementById("leaveGameBtn");
+      const btrBtn = document.getElementById("backToRoomBtn");
+
+      if (state.status === "playing") {
+        const current = state.players[state.currentPlayer];
+        const gasText = state.twoPlayerMode && state.gasActive ? ` | Gas round ${state.gasRound}` : "";
+        const turnText = isMyTurn() ? "YOUR TURN" : `${current.username}'s turn`;
+        document.getElementById("info").textContent =
+          `${turnText} | Round ${state.fullRoundNumber}${gasText}`;
+        // Show leave button only if the local player is still in the game
+        const me = state.players.find(p => p.uid === currentUser?.uid);
+        leaveBtn.style.display = (me && !me.left) ? "block" : "none";
+        btrBtn.style.display = "none";
+      } else if (state.status === "ended") {
+        document.getElementById("info").textContent = "Game over. Hide final screen to inspect the board.";
+        leaveBtn.style.display = "none";
+        btrBtn.textContent = tournamentId ? "Back to Tournament" : "Back to Room";
+        btrBtn.style.display = "block";
+        showGameOver();
+      }
+
+      const towerNote = state.useTowerWin ? ` or own ${state.towersToWin} towers` : "";
+      if (state.noNameMode) {
+        document.getElementById("gameNote").textContent =
+          `${state.playerCount}-player Not-So-Hidden Towers: ${state.size}x${state.size}, ${state.towerCount} towers pre-revealed. Own ${state.towersToWin} towers or be last with points to win.`;
+      } else if (state.twoPlayerMode) {
+        document.getElementById("gameNote").textContent =
+          `${state.playerCount}-player Poison Gas: ${state.size}x${state.size}, ${state.towerCount} towers, get ${state.pointsToWin} pts${towerNote} to win. Gas spreads after revealed.`;
+      } else {
+        document.getElementById("gameNote").textContent =
+          `${state.playerCount}-player Classic: ${state.size}x${state.size}, ${state.towerCount} towers, get ${state.pointsToWin} pts${towerNote} to win. Arrow keys / S stays.`;
+      }
+    }
+
+    function renderScores() {
+      const scores = document.getElementById("scores");
+      scores.innerHTML = "";
+
+      state.players.forEach(player => {
+        const div = document.createElement("div");
+        div.className = "score";
+        div.style.background = player.color;
+        if (player.left) {
+          div.style.opacity = "0.4";
+          div.style.textDecoration = "line-through";
+          div.textContent = `${player.username}: left`;
+        } else {
+          div.textContent =
+            `${player.username}: ${player.points} pts | Towers: ${countOwnedTowersIn(state, player.id)}${player.infected ? " | Infected" : ""}${player.eliminated ? " | OUT" : ""}`;
+        }
+        scores.appendChild(div);
+      });
+    }
+
+    function renderBoard() {
+      const board = document.getElementById("board");
+      board.innerHTML = "";
+      board.style.gridTemplateColumns = `repeat(${state.size}, 1fr)`;
+      board.style.gridTemplateRows = `repeat(${state.size}, 1fr)`;
+
+      for (const tile of state.tiles) {
+        const tilePlayers = state.players.filter(p => p.x === tile.x && p.y === tile.y);
+        const key = tileKey(tile.x, tile.y);
+
+        const div = document.createElement("div");
+        div.className = "tile ";
+
+        if (!tile.revealed) {
+          div.className += "hidden";
+        } else if (tile.type === "tower") {
+          div.className += "tower";
+          div.style.background = tile.owner !== null ? state.players[tile.owner]?.color || "#7048e8" : "#7048e8";
+
+          const towerNumber = document.createElement("div");
+          towerNumber.className = "tower-number";
+          towerNumber.textContent = tile.level;
+          div.appendChild(towerNumber);
+
+          const progressWrap = document.createElement("div");
+          progressWrap.className = "progress-wrap";
+
+          const progressBar = document.createElement("div");
+          progressBar.className = "progress-bar";
+          progressBar.style.width = getTowerProgressPercent(tile) + "%";
+
+          progressWrap.appendChild(progressBar);
+          div.appendChild(progressWrap);
+        } else {
+          div.className += "revealed";
+        }
+
+        if (tile.revealed && tile.type === "gas") {
+          div.className += " gas-origin";
+
+          const gasMark = document.createElement("div");
+          gasMark.className = "gas-mark";
+          gasMark.textContent = "☣";
+          div.appendChild(gasMark);
+        }
+
+        if ((state.infectedTiles || []).includes(key) && !(state.gasOrigin && state.gasOrigin.x === tile.x && state.gasOrigin.y === tile.y)) {
+          if (tile.type === "tower") {
+            div.className += " infected";
+          } else {
+            const safeIds = getSafeIdsForKey(state, key);
+            if (safeIds.length > 0) {
+              div.className += " safe-infected";
+              applySafeTileVisual(div, safeIds);
+              const safeLetter = document.createElement("div");
+              safeLetter.className = "safe-letter";
+              safeLetter.textContent = safeIds.map(id => getPlayerInitialById(state, id)).join("");
+              div.appendChild(safeLetter);
+            } else {
+              div.className += " infected";
+            }
+          }
+        }
+
+        if (!isMyTurn() || state.status !== "playing") {
+          div.className += " locked";
+        }
+
+        div.onclick = () => moveTo(tile.x, tile.y);
+
+        const playerLayer = document.createElement("div");
+        playerLayer.className = "players";
+
+        tilePlayers.forEach(p => {
+          const piece = document.createElement("div");
+          piece.className = "piece";
+          piece.style.background = p.color;
+          piece.textContent = p.username.charAt(0).toUpperCase();
+          playerLayer.appendChild(piece);
+        });
+
+        div.appendChild(playerLayer);
+        board.appendChild(div);
+      }
+    }
+
+    function isMyTurn() {
+      if (!state || state.status !== "playing" || !currentUser) return false;
+      const p = state.players[state.currentPlayer];
+      return p && p.uid === currentUser.uid;
+    }
+
+    function isAITurn() {
+      if (!state || state.status !== "playing") return false;
+      const p = state.players[state.currentPlayer];
+      return p && p.isAI === true;
+    }
+
+    async function executeAIMove() {
+      if (!state || !isAITurn() || currentUser?.uid !== state.hostUid) return;
+
+      const next = clone(state);
+      const player = next.players[next.currentPlayer];
+
+      if (player.infected) {
+        teleportPlayer(next, player);
+        player.infected = false;
+        next.consecutiveStayTurns = 0;
+        if (!checkWinner(next, player)) advanceTurn(next);
+        await saveState(next);
+        return;
+      }
+
+      const action = chooseAIMove(next, player);
+
+      if (action === "stay") {
+        const tile = getTileFrom(next.tiles, player.x, player.y);
+        handleTowerStep(next, player, tile, false);
+        if (next.gasFinalized) rebuildInfectionSafeZones(next);
+        handleInfection(next, player);
+        next.consecutiveStayTurns++;
+        if (checkWinner(next, player)) { await saveState(next); return; }
+        if (next.consecutiveStayTurns >= next.players.length * 5) {
+          endGameInState(next, getRankingFor(next)[0], "Game ended — no movement for too long.");
+        } else {
+          advanceTurn(next);
+        }
+      } else {
+        const { x, y } = action;
+        player.x = x;
+        player.y = y;
+        const tile = getTileFrom(next.tiles, x, y);
+        if (!tile.revealed) {
+          tile.revealed = true;
+          player.points += 10;
+          if (next.twoPlayerMode && tile.type === "gas" && !next.gasActive) {
+            next.gasActive = true;
+            next.gasOrigin = { x, y };
+            next.infectedTiles.push(tileKey(x, y));
+          }
+        }
+        handleTowerStep(next, player, tile, true);
+        if (next.gasFinalized) rebuildInfectionSafeZones(next);
+        handleInfection(next, player);
+        next.consecutiveStayTurns = 0;
+        if (!checkWinner(next, player)) advanceTurn(next);
+      }
+
+      await saveState(next);
+    }
+
+    // ── Fast clone for minimax simulation ──────────────────────────────────
+    function fastClone(s) {
+      return {
+        ...s,
+        tiles: s.tiles.map(t => ({...t})),
+        players: s.players.map(p => ({...p})),
+        infectedTiles: s.infectedTiles ? [...s.infectedTiles] : [],
+        infectionSafeZones: s.infectionSafeZones ? Object.assign({}, s.infectionSafeZones) : {}
+      };
+    }
+
+    // advanceTurn without random gas expansion (keeps search deterministic)
+    function advanceTurnFast(s) {
+      s.currentPlayer++;
+      if (s.currentPlayer >= s.players.length) {
+        s.currentPlayer = 0;
+        s.fullRoundNumber++;
+      }
+      if (s.noNameMode) {
+        let g = 0;
+        while (s.players[s.currentPlayer]?.eliminated && g < s.players.length) {
+          s.currentPlayer++;
+          if (s.currentPlayer >= s.players.length) { s.currentPlayer = 0; s.fullRoundNumber++; }
+          g++;
+        }
+      }
+    }
+
+    // Ordered move list (best moves first for alpha-beta efficiency)
+    function getAIMoves(s, player) {
+      const dirs = [{dx:0,dy:-1},{dx:0,dy:1},{dx:-1,dy:0},{dx:1,dy:0}];
+      const infected = s.infectedTiles || [];
+      const curTile = getTileFrom(s.tiles, player.x, player.y);
+      const towerMoves = [], hiddenMoves = [], emptyMoves = [];
+
+      for (const {dx, dy} of dirs) {
+        const nx = player.x + dx, ny = player.y + dy;
+        if (nx < 0 || ny < 0 || nx >= s.size || ny >= s.size) continue;
+        const key = tileKey(nx, ny);
+        if (infected.includes(key) && !isSafeForPlayer(s, key, player.id)) continue;
+        const tile = getTileFrom(s.tiles, nx, ny);
+        const m = {x: nx, y: ny};
+        if (tile.type === "tower") towerMoves.push(m);
+        else if (!tile.revealed) hiddenMoves.push(m);
+        else emptyMoves.push(m);
+      }
+
+      // Prioritise staying when actively defending or mid-invasion
+      const defendOrInvade =
+        (curTile.type === "tower" && curTile.owner === player.id && curTile.invaderId !== null) ||
+        (!s.noNameMode && curTile.type === "tower" && curTile.owner !== null && curTile.owner !== player.id);
+
+      return defendOrInvade
+        ? ["stay", ...towerMoves, ...hiddenMoves, ...emptyMoves]
+        : [...towerMoves, ...hiddenMoves, "stay", ...emptyMoves];
+    }
+
+    // Apply one action to a pre-cloned state (no Firebase, no rendering)
+    function applyActionFast(s, action) {
+      const player = s.players[s.currentPlayer];
+
+      if (player.infected) {
+        player.infected = false;
+        s.consecutiveStayTurns = 0;
+        if (!checkWinner(s, player)) advanceTurnFast(s);
+        return;
+      }
+
+      if (action === "stay") {
+        const tile = getTileFrom(s.tiles, player.x, player.y);
+        handleTowerStep(s, player, tile, false);
+        handleInfection(s, player);
+        s.consecutiveStayTurns++;
+        if (checkWinner(s, player)) return;
+        if (s.consecutiveStayTurns >= s.players.length * 5) {
+          endGameInState(s, getRankingFor(s)[0], "Stalemate");
+        } else {
+          advanceTurnFast(s);
+        }
+      } else {
+        const {x, y} = action;
+        player.x = x; player.y = y;
+        const tile = getTileFrom(s.tiles, x, y);
+        if (!tile.revealed) {
+          tile.revealed = true;
+          player.points += 10;
+          if (s.twoPlayerMode && tile.type === "gas" && !s.gasActive) {
+            s.gasActive = true;
+            s.gasOrigin = {x, y};
+            s.infectedTiles.push(tileKey(x, y));
+          }
+        }
+        handleTowerStep(s, player, tile, true);
+        handleInfection(s, player);
+        s.consecutiveStayTurns = 0;
+        if (!checkWinner(s, player)) advanceTurnFast(s);
+      }
+    }
+
+    // Sum of cumulative tower values owned by a player
+    function cumulativeTowerValue(s, playerId) {
+      return s.tiles
+        .filter(t => t.type === "tower" && t.owner === playerId)
+        .reduce((sum, t) => sum + cumulativeTowerPoints(t.level), 0);
+    }
+
+    // Static evaluation: positive = good for AI, negative = good for opponent
+    function evaluateState(s, aiId) {
+      if (s.status === "ended") {
+        return s.finalWinnerId === aiId ? 1000000 : -1000000;
+      }
+
+      const ai  = s.players.find(p => p.id === aiId);
+      const opp = s.players.find(p => p.id !== aiId);
+      if (!ai || !opp) return 0;
+
+      const aiT    = countOwnedTowersIn(s, aiId);
+      const oppT   = countOwnedTowersIn(s, opp.id);
+      const aiCV   = cumulativeTowerValue(s, aiId);
+      const oppCV  = cumulativeTowerValue(s, opp.id);
+
+      let score = ai.points - opp.points;
+
+      if (s.noNameMode) {
+        score += (aiT - oppT) * 300;
+        score += (aiCV - oppCV) * 0.6;
+        score += ((s.towersToWin - oppT) - (s.towersToWin - aiT)) * 400;
+        if (opp.eliminated) score += 80000;
+        if (ai.eliminated)  score -= 80000;
+        if (opp.points < 150 && !opp.eliminated) score +=  1500;
+        if (ai.points  < 150 && !ai.eliminated)  score -= 1500;
+      } else {
+        score += (aiT - oppT) * 120;
+        score += (aiCV - oppCV) * 0.5;
+        if (s.pointsToWin < 999999) {
+          score += (s.pointsToWin - opp.points) - (s.pointsToWin - ai.points);
+        }
+        if (s.useTowerWin) {
+          score += ((s.towersToWin - oppT) - (s.towersToWin - aiT)) * 200;
+        }
+        if (opp.infected) score +=  300;
+        if (ai.infected)  score -=  300;
+      }
+
+      // Positional reach advantage: who gets to each contested tower first?
+      for (const tile of s.tiles) {
+        if (tile.type !== "tower") continue;
+        const aiDist  = manhattan(ai,  tile);
+        const oppDist = manhattan(opp, tile);
+        if (tile.owner !== aiId) {
+          // Contested or enemy tower — AI reaching it first is good
+          const val = s.noNameMode
+            ? cumulativeTowerPoints(tile.level) * 0.35
+            : (tile.owner === null ? 35 : pointsForTowerLevel(tile.level) * 0.35);
+          if (aiDist  < oppDist) score += val;
+          else if (oppDist < aiDist) score -= val;
+        } else {
+          // Own tower — opponent adjacent is a threat
+          if (oppDist === 1) {
+            score -= s.noNameMode
+              ? cumulativeTowerPoints(tile.level) * 0.4
+              : pointsForTowerLevel(tile.level) * 0.4;
+          }
+        }
+      }
+
+      return score;
+    }
+
+    // Cheap per-move score used to order moves before alpha-beta search
+    function quickMoveScore(s, player, move) {
+      if (move === "stay") {
+        const t = getTileFrom(s.tiles, player.x, player.y);
+        if (!t || t.type !== "tower") return 0;
+        if (t.owner === player.id && t.invaderId !== null) return 9000;
+        if (!s.noNameMode && t.owner !== null && t.owner !== player.id) return 8000;
+        if (t.owner === player.id && t.level < 8) return 3000;
+        return 0;
+      }
+      const t = getTileFrom(s.tiles, move.x, move.y);
+      if (!t) return 0;
+      if (t.type === "tower") {
+        if (t.owner === null) return 7000;
+        if (t.owner !== player.id) return s.noNameMode
+          ? cumulativeTowerPoints(t.level) * 10
+          : pointsForTowerLevel(t.level) * 8;
+        if (t.invaderId !== null) return 6000;
+        return 500;
+      }
+      return t.revealed ? 0 : 200;
+    }
+
+    // Alpha-beta minimax with move ordering for aggressive pruning
+    function minimaxSearch(s, depth, alpha, beta, aiId) {
+      if (depth === 0 || s.status !== "playing") return evaluateState(s, aiId);
+
+      const player = s.players[s.currentPlayer];
+      const maximizing = player.id === aiId;
+      let moves = getAIMoves(s, player);
+
+      // Sort moves by quick heuristic so best moves are tried first —
+      // dramatically improves alpha-beta cut rate
+      if (moves.length > 1) {
+        moves = moves.slice().sort(
+          (a, b) => quickMoveScore(s, player, b) - quickMoveScore(s, player, a)
+        );
+      }
+
+      if (maximizing) {
+        let best = -Infinity;
+        for (const move of moves) {
+          const next = fastClone(s);
+          applyActionFast(next, move);
+          const val = minimaxSearch(next, depth - 1, alpha, beta, aiId);
+          if (val > best) best = val;
+          if (best > alpha) alpha = best;
+          if (beta <= alpha) break;
+        }
+        return best;
+      } else {
+        let best = Infinity;
+        for (const move of moves) {
+          const next = fastClone(s);
+          applyActionFast(next, move);
+          const val = minimaxSearch(next, depth - 1, alpha, beta, aiId);
+          if (val < best) best = val;
+          if (best < beta) beta = best;
+          if (beta <= alpha) break;
+        }
+        return best;
+      }
+    }
+
+    // Entry point: iterative-deepening minimax within time budget
+    function chooseAIMove(s, player) {
+      const aiId = player.id;
+      const moves = getAIMoves(s, player);
+      if (moves.length === 0) return "stay";
+      if (moves.length === 1) return moves[0];
+
+      const difficulty = s.aiDifficulty || "hard";
+
+      // Easy: shallow search + deliberate blunders
+      if (difficulty === "easy") {
+        if (Math.random() < 0.40) {
+          // Pick a random move, biased toward non-terrible options
+          const nonEmpty = moves.filter(m => m === "stay" || (() => {
+            const t = getTileFrom(s.tiles, m.x, m.y);
+            return t && (t.type === "tower" || !t.revealed);
+          })());
+          const pool = nonEmpty.length ? nonEmpty : moves;
+          return pool[Math.floor(Math.random() * pool.length)];
+        }
+      }
+
+      const maxDepth  = difficulty === "easy" ? 2 : difficulty === "medium" ? 4 : Infinity;
+      const timeLimit = difficulty === "easy" ? 80 : difficulty === "medium" ? 250 : 1400;
+
+      const startTime = Date.now();
+      let bestAction = moves[0];
+
+      for (let depth = 2; depth <= maxDepth; depth++) {
+        if (Date.now() - startTime >= timeLimit) break;
+
+        let depthBest = -Infinity;
+        let depthBestAction = moves[0];
+        let alpha = -Infinity;
+        let complete = true;
+
+        for (const move of moves) {
+          if (Date.now() - startTime >= timeLimit) { complete = false; break; }
+          const next = fastClone(s);
+          applyActionFast(next, move);
+          const val = minimaxSearch(next, depth - 1, alpha, Infinity, aiId);
+          if (val > depthBest) { depthBest = val; depthBestAction = move; }
+          if (depthBest > alpha) alpha = depthBest;
+        }
+
+        if (complete) bestAction = depthBestAction;
+      }
+
+      return bestAction;
+    }
+
+    async function moveTo(x, y) {
+      if (!isMyTurn()) return;
+
+      const next = clone(state);
+      const player = next.players[next.currentPlayer];
+
+      if (x < 0 || y < 0 || x >= next.size || y >= next.size) return;
+
+      if (player.infected) {
+        teleportPlayer(next, player);
+        player.infected = false;
+        next.consecutiveStayTurns = 0;
+
+        if (!checkWinner(next, player)) advanceTurn(next);
+        await saveState(next);
+        return;
+      }
+
+      if (!isAdjacent(player.x, player.y, x, y)) return;
+
+      player.x = x;
+      player.y = y;
+
+      const tile = getTileFrom(next.tiles, x, y);
+      const wasHidden = tile.revealed === false;
+
+      if (wasHidden) {
+        tile.revealed = true;
+        player.points += 10;
+
+        if (next.twoPlayerMode && tile.type === "gas" && !next.gasActive) {
+          next.gasActive = true;
+          next.gasOrigin = { x: tile.x, y: tile.y };
+          next.infectedTiles.push(tileKey(tile.x, tile.y));
+        }
+      }
+
+      handleTowerStep(next, player, tile, true);
+      if (next.gasFinalized) rebuildInfectionSafeZones(next);
+      handleInfection(next, player);
+
+      next.consecutiveStayTurns = 0;
+
+      if (!checkWinner(next, player)) advanceTurn(next);
+      await saveState(next);
+    }
+
+    async function stayTurn() {
+      if (!isMyTurn()) return;
+
+      const next = clone(state);
+      const player = next.players[next.currentPlayer];
+
+      if (player.infected) {
+        teleportPlayer(next, player);
+        player.infected = false;
+        next.consecutiveStayTurns = 0;
+
+        if (!checkWinner(next, player)) advanceTurn(next);
+        await saveState(next);
+        return;
+      }
+
+      const tile = getTileFrom(next.tiles, player.x, player.y);
+
+      handleTowerStep(next, player, tile, false);
+      if (next.gasFinalized) rebuildInfectionSafeZones(next);
+      handleInfection(next, player);
+
+      next.consecutiveStayTurns++;
+
+      if (checkWinner(next, player)) {
+        await saveState(next);
+        return;
+      }
+
+      if (next.consecutiveStayTurns >= next.players.length * 5) {
+        endGameInState(next, getRankingFor(next)[0], "Game ended because everyone stayed for 5 full rounds with no movement.");
+        await saveState(next);
+        return;
+      }
+
+      advanceTurn(next);
+      await saveState(next);
+    }
+
+    function handleTowerStep(s, player, tile, justMovedOntoTile) {
+      if (tile.type !== "tower") return;
+
+      if (s.noNameMode) {
+        if (tile.owner === null) {
+          tile.owner = player.id;
+          tile.level = 1;
+          tile.ownerProgress = 0;
+          tile.invaderId = null;
+          tile.invaderProgress = 0;
+          return;
+        }
+        if (tile.owner === player.id) {
+          if (!justMovedOntoTile && tile.level < 8) {
+            tile.ownerProgress++;
+            if (tile.ownerProgress >= tile.level) {
+              tile.level++;
+              tile.ownerProgress = 0;
+              player.points += pointsForTowerLevel(tile.level);
+            }
+          }
+          return;
+        }
+        if (!justMovedOntoTile) return;
+        const prevOwner = s.players.find(p => p.id === tile.owner);
+        if (prevOwner) {
+          const stealAmt = Math.min(prevOwner.points, cumulativeTowerPoints(tile.level));
+          prevOwner.points -= stealAmt;
+          player.points += stealAmt;
+          if (prevOwner.points === 0) prevOwner.eliminated = true;
+        }
+        tile.owner = player.id;
+        tile.invaderId = null;
+        tile.invaderProgress = 0;
+        tile.ownerProgress = 0;
+        return;
+      }
+
+      if (tile.owner === null) {
+        tile.owner = player.id;
+        tile.level = 1;
+        tile.ownerProgress = 0;
+        tile.invaderId = null;
+        tile.invaderProgress = 0;
+        player.points += pointsForTowerLevel(tile.level);
+        return;
+      }
+
+      if (tile.owner === player.id) {
+        tile.invaderId = null;
+        tile.invaderProgress = 0;
+
+        if (justMovedOntoTile) return;
+        if (tile.level >= 8) return;
+
+        tile.ownerProgress++;
+
+        if (tile.ownerProgress >= tile.level) {
+          tile.level++;
+          tile.ownerProgress = 0;
+          player.points += pointsForTowerLevel(tile.level);
+        }
+
+        return;
+      }
+
+      tile.ownerProgress = 0;
+
+      if (tile.invaderId !== player.id) {
+        tile.invaderId = player.id;
+        tile.invaderProgress = 0;
+      }
+
+      tile.invaderProgress++;
+
+      if (tile.invaderProgress >= 5) {
+        const captureAmt = cumulativeTowerPoints(tile.level);
+        const prevOwner = s.players.find(p => p.id === tile.owner);
+        if (prevOwner) prevOwner.points = Math.max(0, prevOwner.points - captureAmt);
+        tile.owner = player.id;
+        tile.invaderId = null;
+        tile.invaderProgress = 0;
+        tile.ownerProgress = 0;
+        player.points += captureAmt;
+      }
+    }
+
+    function handleInfection(s, player) {
+      if (!s.twoPlayerMode || !s.gasActive) return;
+
+      const key = tileKey(player.x, player.y);
+      if (!(s.infectedTiles || []).includes(key)) return;
+      if (s.gasOrigin && player.x === s.gasOrigin.x && player.y === s.gasOrigin.y) return;
+      if (isSafeForPlayer(s, key, player.id)) return;
+
+      player.infected = true;
+    }
+
+    function expandGas(s) {
+      if (!s.twoPlayerMode || !s.gasActive) return;
+
+      s.gasRound++;
+
+      let expansions = 1;
+      if (s.gasRound === 3 || s.gasRound === 4) expansions = 2;
+      if (s.gasRound === 5) expansions = 3;
+      if (s.gasRound > 5) {
+        if (!s.gasFinalized) {
+          s.gasFinalized = true;
+          rebuildInfectionSafeZones(s);
+        }
+        return;
+      }
+
+      for (let i = 0; i < expansions; i++) {
+        const possible = [];
+
+        (s.infectedTiles || []).forEach(key => {
+          const [x, y] = key.split(",").map(Number);
+
+          for (let dx = -1; dx <= 1; dx++) {
+            for (let dy = -1; dy <= 1; dy++) {
+              if (dx === 0 && dy === 0) continue;
+
+              const nx = x + dx;
+              const ny = y + dy;
+
+              if (nx < 0 || ny < 0 || nx >= s.size || ny >= s.size) continue;
+
+              const newKey = tileKey(nx, ny);
+              const newTile = getTileFrom(s.tiles, nx, ny);
+              if (!s.infectedTiles.includes(newKey) && !(newTile && newTile.type === "tower")) possible.push(newKey);
+            }
+          }
+        });
+
+        if (possible.length) {
+          const pick = possible[Math.floor(Math.random() * possible.length)];
+          s.infectedTiles.push(pick);
+
+          const [px, py] = pick.split(",").map(Number);
+          const tile = getTileFrom(s.tiles, px, py);
+          if (tile) tile.revealed = true;
+        }
+      }
+
+      if (s.gasRound === 5) {
+        s.gasFinalized = true;
+        rebuildInfectionSafeZones(s);
+      }
+
+      s.players.forEach(player => handleInfection(s, player));
+    }
+
+    function rebuildInfectionSafeZones(s) {
+      const safe = {};
+      const infectedSet = new Set(s.infectedTiles || []);
+
+      (s.tiles || []).forEach(tile => {
+        if (tile.type !== "tower" || tile.owner === null || tile.owner === undefined) return;
+
+        const directions = [
+          { dx: 0, dy: -1 }, { dx: 0, dy: 1 },
+          { dx: -1, dy: 0 }, { dx: 1, dy: 0 }
+        ];
+
+        directions.forEach(dir => {
+          let x = tile.x + dir.dx;
+          let y = tile.y + dir.dy;
+
+          while (x >= 0 && y >= 0 && x < s.size && y < s.size) {
+            const key = tileKey(x, y);
+            const isOrigin = s.gasOrigin && s.gasOrigin.x === x && s.gasOrigin.y === y;
+            const target = getTileFrom(s.tiles, x, y);
+
+            if (infectedSet.has(key) && !isOrigin && !(target && target.type === "tower")) {
+              if (!safe[key]) safe[key] = [];
+              if (!safe[key].includes(tile.owner)) safe[key].push(tile.owner);
+            }
+
+            x += dir.dx;
+            y += dir.dy;
+          }
+        });
+      });
+
+      s.infectionSafeZones = safe;
+    }
+
+    function getSafeIdsForKey(s, key) {
+      const zones = s.infectionSafeZones || {};
+      return Array.isArray(zones[key]) ? zones[key] : [];
+    }
+
+    function isSafeForPlayer(s, key, playerId) {
+      const [x, y] = key.split(",").map(Number);
+      const tile = getTileFrom(s.tiles, x, y);
+      if (tile && tile.type === "tower" && tile.owner === playerId) return true;
+      return getSafeIdsForKey(s, key).includes(playerId);
+    }
+
+    function getPlayerInitialById(s, id) {
+      const player = (s.players || []).find(p => p.id === id);
+      return player ? player.username.charAt(0).toUpperCase() : "?";
+    }
+
+    function getPlayerColorById(s, id) {
+      const player = (s.players || []).find(p => p.id === id);
+      return player ? player.color : "#2ecc71";
+    }
+
+    function applySafeTileVisual(div, safeIds) {
+      if (safeIds.length === 1) {
+        div.style.background = getPlayerColorById(state, safeIds[0]);
+        return;
+      }
+
+      const colors = safeIds.map(id => getPlayerColorById(state, id));
+      const step = 100 / colors.length;
+      const parts = colors.map((color, index) => {
+        const start = Math.round(index * step);
+        const end = Math.round((index + 1) * step);
+        return `${color} ${start}% ${end}%`;
+      });
+
+      div.style.background = `linear-gradient(135deg, ${parts.join(", ")})`;
+    }
+
+    function teleportPlayer(s, player) {
+      let attempts = 0;
+
+      while (attempts < 1000) {
+        attempts++;
+
+        const x = Math.floor(Math.random() * s.size);
+        const y = Math.floor(Math.random() * s.size);
+
+        if (s.gasOrigin && x === s.gasOrigin.x && y === s.gasOrigin.y) continue;
+
+        player.x = x;
+        player.y = y;
+
+        const tile = getTileFrom(s.tiles, x, y);
+
+        if (tile && !tile.revealed) {
+          tile.revealed = true;
+          player.points += 10;
+
+          if (s.twoPlayerMode && tile.type === "gas" && !s.gasActive) {
+            s.gasActive = true;
+            s.gasOrigin = { x: tile.x, y: tile.y };
+            s.infectedTiles.push(tileKey(tile.x, tile.y));
+          }
+        }
+
+        if (tile) handleTowerStep(s, player, tile, true);
+        if (s.gasFinalized) rebuildInfectionSafeZones(s);
+
+        handleInfection(s, player);
+        return;
+      }
+    }
+
+    function advanceTurn(s) {
+      s.currentPlayer++;
+
+      if (s.currentPlayer >= s.players.length) {
+        s.currentPlayer = 0;
+        s.fullRoundNumber++;
+        expandGas(s);
+      }
+
+      if (s.noNameMode) {
+        let guard = 0;
+        while (s.players[s.currentPlayer]?.eliminated && guard < s.players.length) {
+          s.currentPlayer++;
+          if (s.currentPlayer >= s.players.length) {
+            s.currentPlayer = 0;
+            s.fullRoundNumber++;
+          }
+          guard++;
+        }
+      }
+    }
+
+    function checkWinner(s, player) {
+      const ownedTowers = countOwnedTowersIn(s, player.id);
+
+      if (s.noNameMode) {
+        if (ownedTowers >= s.towersToWin) {
+          endGameInState(s, player, `${player.username} owns ${ownedTowers} of ${s.towerCount} towers.`);
+          return true;
+        }
+        const alive = s.players.filter(p => !p.eliminated);
+        if (alive.length === 1) {
+          endGameInState(s, alive[0], `${alive[0].username} is the last player with points.`);
+          return true;
+        }
+        return false;
+      }
+
+      if (player.points >= s.pointsToWin) {
+        endGameInState(s, player, `${player.username} reached ${s.pointsToWin} points.`);
+        return true;
+      }
+
+      if (s.useTowerWin && ownedTowers >= (s.towersToWin || 4)) {
+        endGameInState(s, player, `${player.username} owns ${ownedTowers} of ${s.towerCount} towers.`);
+        return true;
+      }
+
+      return false;
+    }
+
+    function endGameInState(s, winner, reason) {
+      s.status = "ended";
+      s.finalWinnerId = winner.id;
+      s.gameOverReason = reason;
+    }
+
+    async function saveState(s) {
+      s.updatedAt = serverTimestamp();
+      await updateDoc(doc(db, "games", roomId), stripServerTimestamp(s));
+    }
+
+    function stripServerTimestamp(obj) {
+      return JSON.parse(JSON.stringify(obj));
+    }
+
+    async function confirmResetRoom() {
+      if (!state) return;
+
+      const confirmed = confirm("Are you sure you want to reset this room?");
+      if (!confirmed) return;
+
+      if (currentUser.uid !== state.hostUid) {
+        alert("Only the host can reset the room.");
+        return;
+      }
+
+      const reset = blankGame(state.code, state.playerCount, state.gameType || "classic");
+      reset.hostUid = state.hostUid;
+      reset.players = state.players.map((p, index) => ({
+        uid: p.uid,
+        username: p.username,
+        color: p.color,
+        id: index,
+        x: null,
+        y: null,
+        points: 0,
+        infected: false,
+        eliminated: false
+      }));
+
+      await updateDoc(doc(db, "games", roomId), stripServerTimestamp(reset));
+    }
+
+    function calcGameCredits(playerCount, placement) {
+      if (playerCount <= 2) return placement === 1 ? 10 : 5;
+      if (playerCount === 3) return [0, 40, 20, 10][placement] || 0;
+      if (playerCount === 4) return [0, 75, 45, 30, 15][placement] || 0;
+      return 0;
+    }
+
+    function calcTournamentCredits(placement) {
+      return [0, 150, 100, 60, 30][placement] || 0;
+    }
+
+    async function awardGameCredits(s) {
+      if (!currentUser || !currentProfile) return;
+      const key = `${currentUser.uid}_${s.code}`;
+      if (creditedRooms.has(key)) return;
+      creditedRooms.add(key);
+
+      const ranking = getRankingFor(s);
+      const placement = ranking.findIndex(p => p.uid === currentUser.uid) + 1;
+      if (placement < 1) return;
+
+      const credits = calcGameCredits(s.playerCount, placement);
+      if (credits <= 0) return;
+
+      const histRef = doc(db, "leagueHistory", key);
+      const userRef = doc(db, "users", currentUser.uid);
+      try {
+        await runTransaction(db, async (tx) => {
+          const existing = await tx.get(histRef);
+          if (existing.exists()) return;
+          tx.set(histRef, {
+            uid: currentUser.uid,
+            username: currentProfile.username,
+            gameCode: s.code,
+            playerCount: s.playerCount,
+            placement,
+            credits,
+            isTournament: false,
+            createdAt: serverTimestamp()
+          });
+          tx.set(userRef, { leagueCredits: increment(credits) }, { merge: true });
+        });
+      } catch(e) { console.error("League credit error:", e); }
+    }
+
+    async function awardTournamentCredits(t) {
+      if (!currentUser || !currentProfile) return;
+      const key = `${currentUser.uid}_t_${t.code}`;
+      if (creditedTournaments.has(key)) return;
+      creditedTournaments.add(key);
+
+      const rankings = getTournamentRankings(t.players || []);
+      const placement = rankings.findIndex(p => p.uid === currentUser.uid) + 1;
+      if (placement < 1) return;
+
+      const credits = calcTournamentCredits(placement);
+      if (credits <= 0) return;
+
+      const histRef = doc(db, "leagueHistory", key);
+      const userRef = doc(db, "users", currentUser.uid);
+      try {
+        await runTransaction(db, async (tx) => {
+          const existing = await tx.get(histRef);
+          if (existing.exists()) return;
+          tx.set(histRef, {
+            uid: currentUser.uid,
+            username: currentProfile.username,
+            gameCode: t.code,
+            playerCount: 4,
+            placement,
+            credits,
+            isTournament: true,
+            createdAt: serverTimestamp()
+          });
+          tx.set(userRef, { leagueCredits: increment(credits) }, { merge: true });
+        });
+      } catch(e) { console.error("Tournament league credit error:", e); }
+    }
+
+    function showGameOver() {
+      const winner = state.players.find(p => p.id === state.finalWinnerId) || getRankingFor(state)[0];
+
+      document.getElementById("winnerTitle").textContent = `${winner.username} Wins!`;
+      document.getElementById("winnerReason").textContent = state.gameOverReason || "Game ended.";
+
+      const rankingBox = document.getElementById("finalRanking");
+      rankingBox.innerHTML = "";
+
+      getRankingFor(state).forEach((player, index) => {
+        const div = document.createElement("div");
+        div.className = "rank-row";
+        div.style.borderColor = player.color;
+
+        div.innerHTML = `
+          <strong>#${index + 1} ${player.username}</strong>
+          Points: ${player.points} &nbsp;|&nbsp; Towers: ${countOwnedTowersIn(state, player.id)} &nbsp;|&nbsp; Highest: Lv ${highestTowerLevelIn(state, player.id)}
+        `;
+
+        rankingBox.appendChild(div);
+      });
+
+      document.getElementById("gameOver").style.display = "grid";
+    }
+
+    function hideGameOver() {
+      document.getElementById("gameOver").style.display = "none";
+    }
+
+    function backToRoom() {
+      stopHeartbeat();
+      document.getElementById("gameOver").style.display = "none";
+      if (tournamentId) {
+        if (unsubRoom) { unsubRoom(); unsubRoom = null; }
+        roomId = null; state = null; knownLeftUids.clear();
+        showTournamentView();
+      } else {
+        showRoom();
+      }
+    }
+
+    function pointsForTowerLevel(level) {
+      return Math.floor(50 * Math.pow(1.6, level - 1));
+    }
+
+    function cumulativeTowerPoints(level) {
+      let total = 0;
+      for (let i = 1; i <= level; i++) total += pointsForTowerLevel(i);
+      return total;
+    }
+
+    function countOwnedTowersIn(s, playerId) {
+      return (s.tiles || []).filter(tile => tile.type === "tower" && tile.owner === playerId).length;
+    }
+
+    function highestTowerLevelIn(s, playerId) {
+      const owned = (s.tiles || []).filter(tile => tile.type === "tower" && tile.owner === playerId);
+      if (!owned.length) return 0;
+      return Math.max(...owned.map(tile => tile.level));
+    }
+
+    function getRankingFor(s) {
+      return [...(s.players || [])].sort((a, b) => {
+        if (s.finalWinnerId !== null && s.finalWinnerId !== undefined) {
+          if (a.id === s.finalWinnerId) return -1;
+          if (b.id === s.finalWinnerId) return 1;
+        }
+
+        if (b.points !== a.points) return b.points - a.points;
+
+        if (countOwnedTowersIn(s, b.id) !== countOwnedTowersIn(s, a.id)) {
+          return countOwnedTowersIn(s, b.id) - countOwnedTowersIn(s, a.id);
+        }
+
+        return highestTowerLevelIn(s, b.id) - highestTowerLevelIn(s, a.id);
+      });
+    }
+
+    function getTowerProgressPercent(tile) {
+      if (tile.owner === null) return 0;
+
+      if (tile.invaderId !== null) {
+        return Math.min(100, (tile.invaderProgress / 5) * 100);
+      }
+
+      if (tile.level >= 8) return 100;
+
+      return Math.min(100, (tile.ownerProgress / tile.level) * 100);
+    }
+
+    function isAdjacent(x1, y1, x2, y2) {
+      return Math.abs(x1 - x2) + Math.abs(y1 - y2) === 1;
+    }
+
+    function getTileFrom(tilesArr, x, y) {
+      return tilesArr.find(tile => tile.x === x && tile.y === y);
+    }
+
+    function tileKey(x, y) {
+      return `${x},${y}`;
+    }
+
+    function manhattan(a, b) {
+      return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+    }
+
+    function clone(obj) {
+      return JSON.parse(JSON.stringify(obj));
+    }
+
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //   TOURNAMENT SYSTEM
+    // ═══════════════════════════════════════════════════════
+
+    const PHASE_LABELS = ["", "Round 1: vs AI", "Round 2: 1v1", "Round 3: 3-Player", "Round 4: 3-Player", "Round 5: 4-Player", "Round 6: Finals"];
+
+    function generateTournamentCode() {
+      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      let code = "";
+      for (let i = 0; i < 8; i++) code += chars[Math.floor(Math.random() * chars.length)];
+      return code;
+    }
+
+    function generatePlayerId() {
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      let id = "";
+      for (let i = 0; i < 8; i++) id += chars[Math.floor(Math.random() * chars.length)];
+      return id;
+    }
+
+    async function createTournament() {
+      if (!currentUser || !currentProfile) { alert("Not logged in."); return; }
+      try {
+        let code = generateTournamentCode();
+        for (let i = 0; i < 10; i++) {
+          if (!(await getDoc(doc(db, "tournaments", code))).exists()) break;
+          code = generateTournamentCode();
+        }
+        await setDoc(doc(db, "tournaments", code), {
+          code, hostUid: currentUser.uid, hostUsername: currentProfile.username,
+          status: "lobby", currentPhase: 0, phasesComplete: [],
+          players: [], games: [],
+          createdAt: serverTimestamp(), updatedAt: serverTimestamp()
+        });
+        tournamentId = code;
+        subscribeTournament(code);
+      } catch(e) {
+        alert("Could not create tournament: " + e.message);
+      }
+    }
+
+    async function joinTournamentByCode(code) {
+      if (!currentUser || !currentProfile) return;
+      code = code.toUpperCase();
+      try {
+        await runTransaction(db, async (tx) => {
+          const snap = await tx.get(doc(db, "tournaments", code));
+          if (!snap.exists()) throw new Error("Tournament not found.");
+          const d = snap.data();
+          if (d.hostUid === currentUser.uid) throw new Error("You are the host — no need to join.");
+          if (d.status !== "lobby") throw new Error("This tournament has already started.");
+          if ((d.players || []).length >= 4) throw new Error("Tournament is full (4/4).");
+          if ((d.players || []).some(p => p.uid === currentUser.uid)) {
+            // Already in — just subscribe
+            tournamentId = code;
+            subscribeTournament(code);
+            return;
+          }
+          const players = [...(d.players || []), {
+            uid: currentUser.uid, username: currentProfile.username,
+            color: pickAvailableColor(d.players || [], "#1971c2"),
+            playerId: currentProfile.playerId || generatePlayerId(),
+            ratings: [], phaseNumbers: [], gamesWon: 0, totalPoints: 0,
+            status: "waiting", currentRoomCode: null
+          }];
+          tx.update(doc(db, "tournaments", code), { players, updatedAt: serverTimestamp() });
+        });
+        tournamentId = code;
+        subscribeTournament(code);
+      } catch(e) { alert("Could not join tournament: " + e.message); }
+    }
+
+    async function joinTournament() {
+      const statusEl = document.getElementById("tJoinStatus");
+      statusEl.innerHTML = "";
+      if (!currentUser || !currentProfile) { statusEl.style.color = "#f87171"; statusEl.textContent = "Not logged in."; return; }
+      const code = document.getElementById("tJoinCode").value.trim().toUpperCase();
+      if (code.length !== 8) { statusEl.style.color = "#f87171"; statusEl.textContent = "Code must be exactly 8 letters."; return; }
+      let notAdded = false;
+      try {
+        await runTransaction(db, async (tx) => {
+          const snap = await tx.get(doc(db, "tournaments", code));
+          if (!snap.exists()) throw new Error("Tournament not found.");
+          const d = snap.data();
+          if (d.hostUid === currentUser.uid) throw new Error("You are the host — no need to join.");
+          if (d.status !== "lobby") throw new Error("This tournament has already started.");
+          if ((d.players || []).some(p => p.uid === currentUser.uid)) {
+            tournamentId = code;
+            subscribeTournament(code);
+            return;
+          }
+          notAdded = true;
+          throw new Error("not-added");
+        });
+        tournamentId = code;
+        subscribeTournament(code);
+      } catch(e) {
+        if (notAdded) {
+          statusEl.style.color = "#f87171";
+          statusEl.innerHTML = `Not added yet. Get your pass at <a href="/pass/" style="color:#a78bfa;">hiddentowers.onrender.com/pass</a> and ask your host to scan it.`;
+        } else {
+          statusEl.style.color = "#f87171";
+          statusEl.textContent = e.message;
+        }
+      }
+    }
+
+    function subscribeTournament(code) {
+      if (unsubTournament) unsubTournament();
+      tournamentId = code;
+      unsubTournament = onSnapshot(doc(db, "tournaments", code), (snap) => {
+        if (!snap.exists()) { alert("Tournament no longer exists."); leaveTournamentCleanup(); showRoom(); return; }
+        tournament = snap.data();
+        showTournamentView();
+        if (currentUser.uid === tournament.hostUid) renderTournamentHost();
+        else renderTournamentPlayer();
+        if (tournament.status === "finished") awardTournamentCredits(tournament);
+      });
+    }
+
+    function renderTournamentHost() {
+      document.getElementById("tHostView").style.display = "";
+      document.getElementById("tPlayerView").style.display = "none";
+      renderHostBanner();
+      if (tournament.status === "lobby") {
+        document.getElementById("tLobbyContent").style.display = "";
+        document.getElementById("tDashContent").style.display = "none";
+        renderHostLobbyPlayers();
+      } else {
+        document.getElementById("tLobbyContent").style.display = "none";
+        document.getElementById("tDashContent").style.display = "";
+        renderHostDashboard();
+      }
+    }
+
+    function renderHostBanner() {
+      const el = document.getElementById("tBanner");
+      const count = (tournament.players || []).length;
+      const startBtn = document.getElementById("tStartBtn");
+      if (tournament.status === "lobby") {
+        el.style.display = "";
+        el.className = count < 4 ? "t-banner t-banner-warn" : "t-banner t-banner-ready";
+        el.innerHTML = count < 4
+          ? `Tournament cannot start: <strong>${count}/4</strong> people have entered. &nbsp;CODE: <span class="t-code">${tournament.code}</span>`
+          : `Ready! 4/4 players joined. &nbsp;CODE: <span class="t-code">${tournament.code}</span>`;
+        startBtn.style.display = "";
+        startBtn.disabled = count < 4;
+      } else {
+        el.style.display = "none";
+        startBtn.style.display = "none";
+      }
+    }
+
+    function renderHostLobbyPlayers() {
+      const el = document.getElementById("tLobbyPlayers");
+      el.innerHTML = "";
+      (tournament.players || []).forEach(p => {
+        const d = document.createElement("div");
+        d.className = "t-lobby-player";
+        d.innerHTML = `
+          <span class="t-color-dot" style="background:${p.color}"></span>
+          <span style="flex:1">${p.username}</span>
+          ${p.playerId ? `<span class="t-pid-chip">${p.playerId}</span>` : ""}
+          <button class="t-pass-btn" onclick="openPlayerPass(${JSON.stringify(p)})">Pass</button>`;
+        el.appendChild(d);
+      });
+    }
+
+    let activeScanner = null;
+
+    async function openQRScanner() {
+      const overlay = document.getElementById("qrScannerOverlay");
+      const statusEl = document.getElementById("qrScannerStatus");
+      overlay.style.display = "flex";
+      statusEl.textContent = "Loading scanner…";
+
+      if (!window.jsQR) {
+        await new Promise((resolve, reject) => {
+          const s = document.createElement("script");
+          s.src = "https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js";
+          s.onload = resolve; s.onerror = reject;
+          document.head.appendChild(s);
+        });
+      }
+
+      const region = document.getElementById("qrScannerRegion");
+      region.innerHTML = "";
+      const video = document.createElement("video");
+      video.setAttribute("playsinline", "");
+      video.style.cssText = "width:280px;height:280px;object-fit:cover;border-radius:12px;";
+      region.appendChild(video);
+
+      const canvas = document.createElement("canvas");
+      canvas.width = 280; canvas.height = 280;
+      const ctx = canvas.getContext("2d");
+
+      let stream;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        video.srcObject = stream;
+        await video.play();
+        activeScanner = { stream, video };
+        statusEl.textContent = "Point camera at the QR code on the player's pass.";
+
+        const scan = () => {
+          if (!activeScanner) return;
+          if (video.readyState === video.HAVE_ENOUGH_DATA) {
+            ctx.drawImage(video, 0, 0, 280, 280);
+            const imageData = ctx.getImageData(0, 0, 280, 280);
+            const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: "dontInvert" });
+            if (code) {
+              closeQRScanner();
+              let pid = code.data.trim().toUpperCase();
+              try { pid = new URL(code.data).searchParams.get("pid")?.toUpperCase() || pid; } catch(_) {}
+              if (/^[A-Z0-9]{8}$/.test(pid)) {
+                addPlayerByPid(pid);
+              } else {
+                alert("Could not read a valid Player ID from that QR code.");
+              }
+              return;
+            }
+          }
+          requestAnimationFrame(scan);
+        };
+        requestAnimationFrame(scan);
+      } catch(e) {
+        statusEl.textContent = "Camera access denied or unavailable.";
+      }
+    }
+
+    function closeQRScanner() {
+      if (activeScanner?.stream) {
+        activeScanner.stream.getTracks().forEach(t => t.stop());
+      }
+      activeScanner = null;
+      document.getElementById("qrScannerOverlay").style.display = "none";
+      document.getElementById("qrScannerRegion").innerHTML = "";
+    }
+
+    async function addPlayerByPid(pid) {
+      if (!tournament || tournament.hostUid !== currentUser.uid) return;
+      try {
+        const pidSnap = await getDoc(doc(db, "playerIds", pid));
+        if (!pidSnap.exists()) { alert("Player ID not found: " + pid); return; }
+        const { username, uid } = pidSnap.data();
+        await runTransaction(db, async (tx) => {
+          const tSnap = await tx.get(doc(db, "tournaments", tournament.code));
+          if (!tSnap.exists()) return;
+          const d = tSnap.data();
+          if (d.status !== "lobby") throw new Error("Tournament has already started.");
+          if ((d.players || []).length >= 4) throw new Error("Tournament is full (4/4).");
+          if ((d.players || []).some(p => p.uid === uid)) throw new Error(`${username} is already in the tournament.`);
+          const players = [...(d.players || []), {
+            uid, username, playerId: pid,
+            color: pickAvailableColor(d.players || [], "#1971c2"),
+            ratings: [], phaseNumbers: [], gamesWon: 0, totalPoints: 0,
+            status: "waiting", currentRoomCode: null
+          }];
+          tx.update(doc(db, "tournaments", tournament.code), { players, updatedAt: serverTimestamp() });
+        });
+      } catch(e) { alert("Could not add player: " + e.message); }
+    }
+
+    function openPlayerPass(p) {
+      const base = window.location.origin + "/pass/";
+      const url = `${base}?code=${encodeURIComponent(tournament.code)}&pid=${encodeURIComponent(p.playerId || "")}&name=${encodeURIComponent(p.username)}`;
+      window.open(url, "_blank");
+    }
+
+    function renderHostDashboard() {
+      // Phase bar
+      const pb = document.getElementById("tPhaseBar");
+      pb.innerHTML = "";
+      const phaseDisplayLabels = ["1", "2", "3", "4", "5", "6"];
+      [1,2,3,4,5,6].forEach((ph, i) => {
+        const done = (tournament.phasesComplete || []).includes(ph);
+        const active = tournament.currentPhase === ph;
+        const sp = document.createElement("span");
+        sp.className = "t-phase-pip" + (done ? " done" : active ? " active" : "");
+        sp.textContent = phaseDisplayLabels[i];
+        pb.appendChild(sp);
+      });
+
+      // Player cards
+      const rankings = getTournamentRankings(tournament.players || []);
+      const cardsEl = document.getElementById("tPlayerCards");
+      cardsEl.innerHTML = "";
+      const phaseLabelsShort = ["", "R1", "R2", "R3", "R4", "R5", "R6"];
+      rankings.forEach((p, idx) => {
+        const avg = p.ratings.length
+          ? (p.ratings.reduce((s,r)=>s+r,0)/p.ratings.length).toFixed(1) : "—";
+        const statusLabel = p.status === "playing" ? "Playing" :
+                            p.status === "done" ? "Done ✓" : "Waiting";
+        const chips = (p.ratings || []).map((r, ri) => {
+          const ph = (p.phaseNumbers || [])[ri];
+          const label = ph ? phaseLabelsShort[ph] || `R${ph}` : `R${ri+1}`;
+          return `<span class="t-rating-chip" title="${label}">${label}: ${r}</span>`;
+        }).join("") || `<span style="color:var(--muted);font-size:12px">No ratings yet</span>`;
+        const card = document.createElement("div");
+        card.className = "t-player-card";
+        card.innerHTML = `
+          <div class="t-card-header">
+            <span class="t-rank-num">#${idx+1}</span>
+            <span class="t-color-dot" style="background:${p.color}"></span>
+            <span class="t-card-name">${p.username}</span>
+          </div>
+          <div class="t-card-avg">Avg: <strong>${avg}</strong></div>
+          <div class="t-card-stats">Wins: <span>${p.gamesWon}</span> &nbsp;Pts: <span>${p.totalPoints}</span></div>
+          <div class="t-card-status ${p.status}">${statusLabel}</div>
+          <div class="t-rating-row">${chips}</div>`;
+        cardsEl.appendChild(card);
+      });
+
+      // Games list for current phase
+      const phase = tournament.currentPhase;
+      const phaseGames = (tournament.games || []).filter(g => g.phase === phase);
+      const doneCount = phaseGames.filter(g => g.status === "done").length;
+      const phaseComplete = (tournament.phasesComplete || []).includes(phase);
+      const statusEl = document.getElementById("tPhaseStatus");
+      const nextBtn = document.getElementById("tNextPhaseBtn");
+
+      if (tournament.status === "finished") {
+        statusEl.innerHTML = "";
+        nextBtn.style.display = "none";
+        document.getElementById("tFinalContent").style.display = "";
+        renderFinalResults();
+      } else if (phase === 0) {
+        statusEl.innerHTML = "";
+        nextBtn.style.display = "none";
+      } else {
+        // Games list with matchups
+        const playerMap = Object.fromEntries((tournament.players || []).map(p => [p.uid, p]));
+        const gamesHtml = phaseGames.map(g => {
+          const names = g.playerUids.map(uid =>
+            uid === "AI" ? `<span style="color:var(--muted)">CPU</span>` :
+            `<span class="t-color-dot" style="background:${(playerMap[uid]||{}).color||'#888'};display:inline-block;vertical-align:middle;margin-right:3px"></span>${(playerMap[uid]||{}).username||uid}`
+          ).join(`<span class="t-game-vs"> vs </span>`);
+          const badge = g.status === "done"
+            ? `<span class="t-game-badge done">Done ✓</span>`
+            : `<span class="t-game-badge playing">In Progress</span>`;
+          const codeHtml = g.status !== "done"
+            ? `<span class="t-game-code">${g.roomCode}</span>` : "";
+          return `<div class="t-game-row ${g.status}">
+            <div class="t-game-matchup">${names}</div>
+            <div class="t-game-meta">${badge}${codeHtml}</div>
+          </div>`;
+        }).join("");
+        statusEl.innerHTML = `<div style="font-size:13px;color:var(--muted);font-weight:700;margin-bottom:6px">${PHASE_LABELS[phase]}: ${doneCount}/${phaseGames.length} games complete</div><div class="t-games-list">${gamesHtml}</div>`;
+
+        if (phaseComplete && phase < 6) {
+          nextBtn.style.display = "";
+          nextBtn.textContent = `▶ Start ${PHASE_LABELS[phase + 1]}`;
+        } else {
+          nextBtn.style.display = "none";
+          if (phaseComplete && phase === 6 && tournament.status !== "finished") finalizeTournament();
+        }
+      }
+    }
+
+    function renderFinalResults() {
+      const rankings = getTournamentRankings(tournament.players || []);
+      const el = document.getElementById("tFinalContent");
+      const medals = ["🥇","🥈","🥉","4️⃣"];
+      el.innerHTML = `<div class="t-final-title">🏆 Final Results</div>` +
+        rankings.map((p, i) => {
+          const avg = p.ratings.length
+            ? (p.ratings.reduce((s,r)=>s+r,0)/p.ratings.length).toFixed(1) : "0";
+          return `<div class="t-final-row">
+            <span class="t-final-medal">${medals[i]}</span>
+            <span class="t-color-dot" style="background:${p.color}"></span>
+            <span class="t-final-name">${p.username}</span>
+            <span class="t-final-avg">${avg}</span>
+          </div>`;
+        }).join("");
+    }
+
+    function renderTournamentPlayer() {
+      document.getElementById("tPlayerView").style.display = "";
+      document.getElementById("tHostView").style.display = "none";
+      const me = (tournament.players || []).find(p => p.uid === currentUser.uid);
+      if (!me) return;
+      const phase = tournament.currentPhase;
+      const bannerEl = document.getElementById("tPlayerBanner");
+      if (tournament.status === "lobby") {
+        bannerEl.className = "t-banner t-banner-warn";
+        bannerEl.textContent = `Waiting for the tournament to start… CODE: ${tournament.code}`;
+      } else if (tournament.status === "finished") {
+        bannerEl.className = "t-banner t-banner-ready";
+        bannerEl.textContent = "Tournament complete! Final results below.";
+      } else {
+        bannerEl.className = "t-banner t-banner-info";
+        bannerEl.textContent = PHASE_LABELS[phase] || `Round ${phase}`;
+      }
+
+      const infoEl = document.getElementById("tPlayerInfo");
+      const joinBtn = document.getElementById("tJoinGameBtn");
+      const myGame = (tournament.games || []).find(g =>
+        g.playerUids.includes(currentUser.uid) && g.phase === phase && g.status !== "done");
+
+      if (myGame && me.status === "playing") {
+        joinBtn.style.display = "";
+        joinBtn.dataset.roomCode = myGame.roomCode;
+        infoEl.innerHTML = `<div class="t-info-line">🎮 Your game is ready — <strong>${myGame.roomCode}</strong></div>`;
+      } else if (me.status === "done" || (!myGame && phase > 0)) {
+        joinBtn.style.display = "none";
+        const notInRound = phase > 0 && !myGame;
+        infoEl.innerHTML = `<div class="t-info-line">${notInRound ? "⏳ You don't play this round — waiting for others." : "✅ Round done — waiting for others."}</div>`;
+      } else {
+        joinBtn.style.display = "none";
+        infoEl.innerHTML = `<div class="t-info-line">⏳ Waiting for the next round to begin.</div>`;
+      }
+
+      // Show final results if finished
+      const rankingsEl = document.getElementById("tPlayerRankings");
+      if (tournament.status === "finished") {
+        const rankings = getTournamentRankings(tournament.players || []);
+        const medals = ["🥇","🥈","🥉","4️⃣"];
+        rankingsEl.innerHTML = `<div class="t-final-title" style="margin-top:10px">🏆 Final Results</div>` +
+          rankings.map((p, i) => {
+            const avg = p.ratings.length
+              ? (p.ratings.reduce((s,r)=>s+r,0)/p.ratings.length).toFixed(1) : "0";
+            const isMe = p.uid === currentUser.uid;
+            return `<div class="t-rank-row${isMe?" me":""}">
+              <span>${medals[i]}</span>
+              <span class="t-color-dot" style="background:${p.color}"></span>
+              <span>${p.username}${isMe?" (you)":""}</span>
+              <span class="t-rank-avg">${avg}</span>
+            </div>`;
+          }).join("");
+      } else {
+        const rankings = getTournamentRankings(tournament.players || []);
+        if (rankings.length) {
+          const medals = ["🥇","🥈","🥉","4️⃣"];
+          rankingsEl.innerHTML = `<div class="t-rankings-title">Current Rankings</div>` +
+            rankings.map((p, i) => {
+              const avg = p.ratings.length
+                ? (p.ratings.reduce((s,r)=>s+r,0)/p.ratings.length).toFixed(1) : "—";
+              const isMe = p.uid === currentUser.uid;
+              return `<div class="t-rank-row${isMe?" me":""}">
+                <span>${medals[i]||i+1}</span>
+                <span class="t-color-dot" style="background:${p.color}"></span>
+                <span>${p.username}${isMe?" (you)":""}</span>
+                <span class="t-rank-avg">${avg}</span>
+              </div>`;
+            }).join("");
+        } else {
+          rankingsEl.innerHTML = "";
+        }
+      }
+    }
+
+    function getTournamentRankings(players) {
+      return [...players].sort((a, b) => {
+        const avgA = a.ratings.length ? a.ratings.reduce((s,r)=>s+r,0)/a.ratings.length : 0;
+        const avgB = b.ratings.length ? b.ratings.reduce((s,r)=>s+r,0)/b.ratings.length : 0;
+        if (Math.abs(avgB - avgA) > 0.001) return avgB - avgA;
+        const na = a.username.toLowerCase(), nb = b.username.toLowerCase();
+        if (na < nb) return -1; if (na > nb) return 1;
+        if (b.gamesWon !== a.gamesWon) return b.gamesWon - a.gamesWon;
+        return b.totalPoints - a.totalPoints;
+      });
+    }
+
+    async function startTournament() {
+      if (!tournament || tournament.hostUid !== currentUser.uid) return;
+      if ((tournament.players || []).length < 4) return;
+      await advanceTournamentPhase();
+    }
+
+    async function advanceTournamentPhase() {
+      if (advancingPhase || !tournament || tournament.hostUid !== currentUser.uid) return;
+      advancingPhase = true;
+      try {
+      const nextPhase = tournament.currentPhase + 1;
+      if (nextPhase > 6) return;
+
+      // Live rankings reflect all scores so far
+      const rankings = getTournamentRankings(tournament.players);
+
+      // For Round 4, seed from the standings snapshot taken before Round 3 ran
+      const r3seed = (tournament.preRound3Seed || []).map(uid =>
+        tournament.players.find(p => p.uid === uid)
+      ).filter(Boolean);
+      const seedForR4 = r3seed.length === 4 ? r3seed : rankings;
+
+      let gamesToCreate = [];
+      let extraUpdate = {};
+
+      if (nextPhase === 1) {
+        gamesToCreate = rankings.map(p => ({ playerUids: [p.uid, "AI"], playerCount: 2, aiDifficulty: "easy" }));
+      } else if (nextPhase === 2) {
+        gamesToCreate = [
+          { playerUids: [rankings[0].uid, rankings[2].uid], playerCount: 2 },
+          { playerUids: [rankings[1].uid, rankings[3].uid], playerCount: 2 }
+        ];
+      } else if (nextPhase === 3) {
+        // Snapshot current standings so Round 4 uses pre-Round-3 seeding
+        extraUpdate.preRound3Seed = rankings.map(p => p.uid);
+        gamesToCreate = [
+          { playerUids: [rankings[0].uid, rankings[1].uid, rankings[2].uid], playerCount: 3 }
+        ];
+      } else if (nextPhase === 4) {
+        // 2nd, 3rd, 4th from pre-Round-3 standings
+        gamesToCreate = [
+          { playerUids: [seedForR4[1].uid, seedForR4[2].uid, seedForR4[3].uid], playerCount: 3 }
+        ];
+      } else if (nextPhase === 5) {
+        // Rankings now include Rounds 1-4 scores
+        gamesToCreate = [{ playerUids: rankings.map(p => p.uid), playerCount: 4 }];
+      } else if (nextPhase === 6) {
+        gamesToCreate = [
+          { playerUids: [rankings[0].uid, rankings[2].uid], playerCount: 2 },
+          { playerUids: [rankings[1].uid, rankings[3].uid], playerCount: 2 }
+        ];
+      }
+
+      const newGames = [];
+      for (const g of gamesToCreate) {
+        const rc = await createTournamentRoom(tournament.code, nextPhase, g.playerUids, g.playerCount, g.aiDifficulty || null);
+        newGames.push({ phase: nextPhase, roomCode: rc, playerUids: g.playerUids, status: "playing" });
+      }
+
+      const updatedPlayers = tournament.players.map(p => {
+        const myGame = newGames.find(g => g.playerUids.includes(p.uid));
+        return { ...p, status: myGame ? "playing" : "waiting", currentRoomCode: myGame ? myGame.roomCode : null };
+      });
+
+      await updateDoc(doc(db, "tournaments", tournament.code), {
+        currentPhase: nextPhase, status: "playing",
+        games: [...(tournament.games || []), ...newGames],
+        players: updatedPlayers, updatedAt: serverTimestamp(),
+        ...extraUpdate
+      });
+      } finally { advancingPhase = false; }
+    }
+
+    async function createTournamentRoom(tCode, phase, playerUids, playerCount, aiDifficulty) {
+      const tSnap = await getDoc(doc(db, "tournaments", tCode));
+      const tData = tSnap.data();
+      let rc = roomCode();
+      for (let i = 0; i < 20; i++) {
+        if (!(await getDoc(doc(db, "games", rc))).exists()) break;
+        rc = roomCode();
+      }
+      const blank = blankGame(rc, playerCount, "classic");
+      // Make each player's own device run the AI (first human is game host)
+      const firstHuman = playerUids.find(uid => uid !== "AI");
+      blank.hostUid = firstHuman;
+      blank.tournamentCode = tCode;
+      blank.tournamentPhase = phase;
+      if (aiDifficulty) blank.aiDifficulty = aiDifficulty;
+      blank.players = playerUids.map(uid => {
+        if (uid === "AI") return {
+          uid: "AI_PLAYER", username: "CPU", color: "#6366f1",
+          id: 0, x: null, y: null, points: 0, infected: false, eliminated: false, isAI: true
+        };
+        const tp = tData.players.find(p => p.uid === uid);
+        return { uid, username: tp.username, color: tp.color, id: 0, x: null, y: null, points: 0, infected: false, eliminated: false };
+      });
+      blank.playerCount = playerCount;
+      await setDoc(doc(db, "games", rc), blank);
+      await autoStartTournamentGame(rc, blank);
+      return rc;
+    }
+
+    async function autoStartTournamentGame(rc, gameData) {
+      const next = clone(gameData);
+      const starts = generateStartPositions(next.playerCount, next.size, next.twoPlayerMode);
+      next.tiles = createTiles(next.size);
+      shuffle(next.players);
+      next.players = next.players.map((p, i) => ({
+        ...p, id: i, x: starts[i].x, y: starts[i].y,
+        points: 0, infected: false, eliminated: false
+      }));
+      next.players.forEach(p => { getTileFrom(next.tiles, p.x, p.y).revealed = true; });
+      placeTowersIn(next, starts);
+      next.status = "playing"; next.currentPlayer = 0; next.fullRoundNumber = 1;
+      next.finalWinnerId = null; next.consecutiveStayTurns = 0;
+      next.gasOrigin = null; next.gasActive = false; next.infectedTiles = [];
+      next.infectionSafeZones = {}; next.gasRound = 0; next.gasFinalized = false;
+      next.gameOverReason = "";
+      await updateDoc(doc(db, "games", rc), stripServerTimestamp(next));
+    }
+
+    function joinTournamentGame() {
+      const rc = document.getElementById("tJoinGameBtn").dataset.roomCode;
+      if (!rc) return;
+      subscribeRoom(rc);
+    }
+
+    async function reportTournamentResult(gameState) {
+      if (!gameState.tournamentCode) return;
+      const tRef = doc(db, "tournaments", gameState.tournamentCode);
+      try {
+        await runTransaction(db, async (tx) => {
+          const tSnap = await tx.get(tRef);
+          if (!tSnap.exists()) return;
+          const tData = tSnap.data();
+          const games = clone(tData.games || []);
+          const gi = games.findIndex(g => g.roomCode === gameState.code);
+          if (gi === -1 || games[gi].status === "done") return;
+
+          const humanPlayers = gameState.players.filter(p => !p.isAI);
+          const results = humanPlayers.map(p => ({
+            uid: p.uid,
+            rating: calculateTournamentRating(p.uid, gameState),
+            points: p.points,
+            won: p.id === gameState.finalWinnerId
+          }));
+          games[gi] = { ...games[gi], status: "done", results };
+
+          const players = clone(tData.players).map(tp => {
+            const r = results.find(x => x.uid === tp.uid);
+            if (!r) return tp;
+            return {
+              ...tp,
+              ratings: [...tp.ratings, r.rating],
+              phaseNumbers: [...(tp.phaseNumbers || []), tData.currentPhase],
+              gamesWon: tp.gamesWon + (r.won ? 1 : 0),
+              totalPoints: tp.totalPoints + r.points,
+              status: "done", currentRoomCode: null
+            };
+          });
+
+          const phaseGames = games.filter(g => g.phase === tData.currentPhase);
+          const phaseComplete = phaseGames.every(g => g.status === "done");
+          const phasesComplete = phaseComplete
+            ? [...new Set([...(tData.phasesComplete || []), tData.currentPhase])]
+            : (tData.phasesComplete || []);
+          const finished = tData.currentPhase === 6 && phaseComplete;
+
+          tx.update(tRef, {
+            games, players, phasesComplete,
+            status: finished ? "finished" : tData.status,
+            updatedAt: serverTimestamp()
+          });
+        });
+      } catch(e) { console.error("Tournament report error:", e); }
+    }
+
+    function calculateTournamentRating(playerUid, gameState) {
+      const players = gameState.players;
+      const myPlayer = players.find(p => p.uid === playerUid);
+      if (!myPlayer) return 0;
+      const myId = myPlayer.id;
+      const playerCount = players.length;
+      const isWinner = gameState.finalWinnerId === myId;
+
+      // Placement for cap
+      const sorted = [...players].sort((a, b) => b.points - a.points);
+      const placement = sorted.findIndex(p => p.id === myId) + 1;
+      let cap;
+      if (placement === 1) cap = 100;
+      else if (placement === 2 && playerCount === 4) cap = 83;
+      else if (placement === 2 && playerCount === 3) cap = 78;
+      else if (placement === 3 && playerCount === 4) cap = 72;
+      else cap = 67;
+
+      // Factor 1 — Speed (winner only, 0–33.33)
+      let speedScore = 0;
+      if (isWinner) {
+        const maxRounds = playerCount === 2 ? 80 : playerCount === 3 ? 100 : 120;
+        speedScore = Math.max(0, 1 - gameState.fullRoundNumber / maxRounds) * 33.33;
+      }
+
+      // Factor 2 — Tower dominance: sqrt-normalized vs best player (0–33.33)
+      const myTowers = countOwnedTowersIn(gameState, myId);
+      const maxTowers = Math.max(...players.map(p => countOwnedTowersIn(gameState, p.id)));
+      let towerScore = 0;
+      if (maxTowers > 0) {
+        towerScore = Math.sqrt(myTowers / maxTowers) * 33.33;
+      }
+
+      // Factor 3 — Point dominance: sqrt-normalized vs best player (0–33.33)
+      const myPts = myPlayer.points;
+      const maxPts = Math.max(...players.map(p => p.points));
+      let pointScore = 0;
+      if (maxPts > 0 && myPts > 0) {
+        pointScore = Math.sqrt(myPts / maxPts) * 33.33;
+      }
+
+      const raw = speedScore + towerScore + pointScore;
+      return Math.min(cap, Math.max(0, Math.round(raw * 10) / 10));
+    }
+
+    function leaveTournament() {
+      if (!confirm("Leave the tournament? You cannot rejoin once you leave.")) return;
+      leaveTournamentCleanup();
+      showRoom();
+    }
+
+    function leaveTournamentCleanup() {
+      if (unsubTournament) { unsubTournament(); unsubTournament = null; }
+      tournamentId = null;
+      tournament = null;
+    }
+
+    async function endTournamentConfirm() {
+      const msgs = [
+        "Are you sure you want to end the tournament?",
+        "This will end the tournament for all 4 players. Really sure?",
+        "Final confirmation — permanently end the tournament?"
+      ];
+      for (const msg of msgs) {
+        if (!confirm(msg)) return;
+      }
+      await updateDoc(doc(db, "tournaments", tournamentId), {
+        status: "finished", updatedAt: serverTimestamp()
+      });
+    }
+
+    async function finalizeTournament() {
+      if (!tournament || tournament.hostUid !== currentUser.uid) return;
+      if (tournament.status === "finished") return;
+      await updateDoc(doc(db, "tournaments", tournamentId), {
+        status: "finished", updatedAt: serverTimestamp()
+      });
+    }
+
+    // Best-effort leave on tab close / navigation away.
+    // Firebase SDK will try to flush this write from its queue before the page fully unloads.
+    window.addEventListener("pagehide", () => {
+      if (!roomId || !currentUser || !state) return;
+      stopHeartbeat();
+      if (state.status === "playing") {
+        const leavingPlayer = state.players.find(p => p.uid === currentUser.uid);
+        if (!leavingPlayer || leavingPlayer.left) return;
+        const updatedPlayers = state.players.map(p =>
+          p.uid === currentUser.uid ? { ...p, left: true, eliminated: true } : p
+        );
+        updateDoc(doc(db, "games", roomId), { players: updatedPlayers }).catch(() => {});
+      }
+    });
+
+    document.addEventListener("keydown", function(event) {
+  if (!state || state.status !== "playing" || !isMyTurn()) return;
+
+  const key = event.key.toLowerCase();
+
+  if (
+    key === "arrowup" ||
+    key === "arrowdown" ||
+    key === "arrowleft" ||
+    key === "arrowright" ||
+    key === "s"
+  ) {
+    event.preventDefault();
+  }
+
+  const player = state.players[state.currentPlayer];
+
+  if (key === "arrowup") moveTo(player.x, player.y - 1);
+  if (key === "arrowdown") moveTo(player.x, player.y + 1);
+  if (key === "arrowleft") moveTo(player.x - 1, player.y);
+  if (key === "arrowright") moveTo(player.x + 1, player.y);
+  if (key === "s") stayTurn();
+});
+  </script>
+</body>
+</html>

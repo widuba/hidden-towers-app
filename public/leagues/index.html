@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crown Rush – Leagues</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --purple: #7c3aed;
+      --gold:   #f59e0b;
+      --text:   #e2e8f0;
+      --muted:  #94a3b8;
+      --border: rgba(255,255,255,.12);
+      --card:   rgba(255,255,255,.06);
+    }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #0a0718;
+      background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(124,58,237,.25) 0%, transparent 70%);
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center;
+      padding: 28px 16px 48px; gap: 20px;
+      color: var(--text);
+    }
+
+    .top-bar {
+      width: 100%; max-width: 640px;
+      display: flex; align-items: center; gap: 12px;
+    }
+
+    .back-btn {
+      font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 14px;
+      background: rgba(255,255,255,.08); border: 1px solid var(--border);
+      color: var(--text); border-radius: 999px; padding: 7px 16px;
+      cursor: pointer; text-decoration: none; transition: background .15s;
+    }
+    .back-btn:hover { background: rgba(255,255,255,.14); }
+
+    h1 {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(26px, 6vw, 38px);
+      background: linear-gradient(135deg, var(--gold), #f472b6, var(--purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ── My card ── */
+    .my-card {
+      width: 100%; max-width: 640px;
+      border-radius: 18px; padding: 20px 24px;
+      display: flex; align-items: center; gap: 16px;
+      border: 1.5px solid; /* set dynamically */
+    }
+
+    .my-avatar {
+      width: 52px; height: 52px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; flex-shrink: 0;
+    }
+
+    .my-info { flex: 1; min-width: 0; }
+    .my-name { font-family: 'Fredoka One', cursive; font-size: 20px; color: var(--gold); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .my-tier-label { font-size: 14px; font-weight: 800; margin-top: 2px; }
+    .my-sub  { font-size: 12px; color: var(--muted); font-weight: 700; margin-top: 2px; }
+
+    .my-credits { text-align: right; flex-shrink: 0; }
+    .my-credits-num { font-family: 'Fredoka One', cursive; font-size: 34px; color: var(--gold); line-height: 1; }
+    .my-credits-label { font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+
+    /* ── Progress bar ── */
+    .progress-wrap {
+      width: 100%; max-width: 640px;
+      display: flex; flex-direction: column; gap: 5px;
+    }
+    .progress-labels { display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; color: var(--muted); }
+    .progress-bar-bg {
+      height: 10px; border-radius: 999px;
+      background: rgba(255,255,255,.1);
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%; border-radius: 999px;
+      transition: width .5s ease;
+    }
+
+    /* ── Tier carousel ── */
+    .section-title {
+      width: 100%; max-width: 640px;
+      font-family: 'Fredoka One', cursive; font-size: 20px;
+      color: var(--text); padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .carousel-wrap {
+      width: 100%; max-width: 640px;
+      display: flex; align-items: center; gap: 10px;
+    }
+
+    .carousel-arrow {
+      background: rgba(255,255,255,.08); border: 1px solid var(--border);
+      color: var(--text); border-radius: 50%;
+      width: 36px; height: 36px; font-size: 18px;
+      cursor: pointer; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s; user-select: none;
+    }
+    .carousel-arrow:hover { background: rgba(255,255,255,.16); }
+    .carousel-arrow:disabled { opacity: .3; cursor: default; }
+
+    .carousel-viewport {
+      flex: 1; overflow: hidden; border-radius: 16px;
+    }
+
+    .carousel-track {
+      display: flex;
+      transition: transform .35s cubic-bezier(.4,0,.2,1);
+    }
+
+    .tier-card {
+      min-width: 100%; padding: 20px 24px;
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      border-radius: 16px; border: 1.5px solid;
+      cursor: pointer; user-select: none;
+    }
+
+    .tier-card-icon { font-size: 48px; line-height: 1; }
+    .tier-card-name { font-family: 'Fredoka One', cursive; font-size: 24px; }
+    .tier-card-req  { font-size: 13px; font-weight: 800; color: var(--muted); }
+    .tier-card-count { font-size: 13px; font-weight: 700; color: var(--muted); }
+
+    /* dot indicators */
+    .carousel-dots {
+      display: flex; justify-content: center; gap: 5px; flex-wrap: wrap;
+      width: 100%; max-width: 640px;
+    }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: rgba(255,255,255,.2); cursor: pointer;
+      transition: background .2s, transform .2s;
+    }
+    .dot.active { background: var(--gold); transform: scale(1.3); }
+    .dot.mine   { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+    /* ── Leaderboard ── */
+    .leaderboard { width: 100%; max-width: 640px; display: flex; flex-direction: column; gap: 8px; }
+
+    .lb-row {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 12px 16px;
+    }
+    .lb-row.me { border-color: rgba(245,158,11,.4); background: rgba(245,158,11,.08); }
+
+    .lb-rank { font-family: 'Fredoka One', cursive; font-size: 18px; width: 32px; text-align: center; flex-shrink: 0; color: var(--muted); }
+    .lb-rank.top1 { color: #fbbf24; }
+    .lb-rank.top2 { color: #94a3b8; }
+    .lb-rank.top3 { color: #b45309; }
+
+    .lb-name { flex: 1; font-size: 15px; font-weight: 800; }
+    .lb-tier-badge { font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 999px; flex-shrink: 0; }
+    .lb-credits { font-family: 'Fredoka One', cursive; font-size: 20px; color: var(--gold); }
+
+    /* ── Credit guide ── */
+    .guide {
+      width: 100%; max-width: 640px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 16px 20px;
+    }
+    .guide-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .guide-box { background: rgba(0,0,0,.2); border-radius: 10px; padding: 10px 12px; }
+    .guide-box-title { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 6px; }
+    .guide-row { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; padding: 2px 0; }
+    .guide-row span:last-child { color: var(--gold); font-family: 'Fredoka One', cursive; font-size: 14px; }
+
+    /* ── History ── */
+    .history { width: 100%; max-width: 640px; display: flex; flex-direction: column; gap: 8px; }
+
+    .hist-row {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 10px 14px;
+    }
+    .hist-badge { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; padding: 3px 8px; border-radius: 999px; flex-shrink: 0; }
+    .hist-badge.tournament { background: rgba(245,158,11,.2); color: #fbbf24; border: 1px solid rgba(245,158,11,.3); }
+    .hist-badge.game-4     { background: rgba(124,58,237,.2); color: #c4b5fd; border: 1px solid rgba(124,58,237,.3); }
+    .hist-badge.game-3     { background: rgba(16,185,129,.15); color: #6ee7b7; border: 1px solid rgba(16,185,129,.3); }
+    .hist-badge.game-2     { background: rgba(59,130,246,.15); color: #93c5fd; border: 1px solid rgba(59,130,246,.3); }
+
+    .hist-place { font-size: 14px; font-weight: 800; flex: 1; }
+    .hist-credits { font-family: 'Fredoka One', cursive; font-size: 18px; color: var(--gold); }
+    .hist-date { font-size: 11px; color: var(--muted); font-weight: 700; }
+
+    .empty { font-size: 14px; color: var(--muted); font-weight: 700; text-align: center; padding: 24px; }
+    .loading { font-size: 14px; color: var(--muted); font-weight: 700; text-align: center; padding: 16px; }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <a href="/" class="back-btn">← Home</a>
+    <h1>🏅 Leagues</h1>
+  </div>
+
+  <div class="my-card" id="myCard" style="display:none">
+    <div class="my-avatar" id="myAvatar">👑</div>
+    <div class="my-info">
+      <div class="my-name" id="myName">—</div>
+      <div class="my-tier-label" id="myTierLabel">—</div>
+      <div class="my-sub" id="myRankLabel">Your standing</div>
+    </div>
+    <div class="my-credits">
+      <div class="my-credits-num" id="myCredits">0</div>
+      <div class="my-credits-label">League Credits</div>
+    </div>
+  </div>
+
+  <div class="progress-wrap" id="progressWrap" style="display:none">
+    <div class="progress-labels">
+      <span id="progCurrent"></span>
+      <span id="progNext"></span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progFill"></div>
+    </div>
+  </div>
+
+  <div class="section-title">🎖 League Tiers</div>
+
+  <div class="carousel-wrap">
+    <button class="carousel-arrow" id="arrowLeft">&#8592;</button>
+    <div class="carousel-viewport">
+      <div class="carousel-track" id="carouselTrack"></div>
+    </div>
+    <button class="carousel-arrow" id="arrowRight">&#8594;</button>
+  </div>
+  <div class="carousel-dots" id="carouselDots"></div>
+
+  <div class="section-title">🏆 Leaderboard</div>
+  <div class="leaderboard" id="leaderboard"><div class="loading">Loading…</div></div>
+
+  <div class="section-title">📋 Credit Guide</div>
+  <div class="guide">
+    <div class="guide-grid">
+      <div class="guide-box">
+        <div class="guide-box-title">AI / 2-Player</div>
+        <div class="guide-row"><span>🥇 Win</span><span>+10</span></div>
+        <div class="guide-row"><span>🥈 Loss</span><span>+5</span></div>
+      </div>
+      <div class="guide-box">
+        <div class="guide-box-title">3-Player</div>
+        <div class="guide-row"><span>🥇 1st</span><span>+40</span></div>
+        <div class="guide-row"><span>🥈 2nd</span><span>+20</span></div>
+        <div class="guide-row"><span>🥉 3rd</span><span>+10</span></div>
+      </div>
+      <div class="guide-box">
+        <div class="guide-box-title">4-Player</div>
+        <div class="guide-row"><span>🥇 1st</span><span>+75</span></div>
+        <div class="guide-row"><span>🥈 2nd</span><span>+45</span></div>
+        <div class="guide-row"><span>🥉 3rd</span><span>+30</span></div>
+        <div class="guide-row"><span>4th</span><span>+15</span></div>
+      </div>
+      <div class="guide-box">
+        <div class="guide-box-title">Tournament</div>
+        <div class="guide-row"><span>🥇 1st</span><span>+150</span></div>
+        <div class="guide-row"><span>🥈 2nd</span><span>+100</span></div>
+        <div class="guide-row"><span>🥉 3rd</span><span>+60</span></div>
+        <div class="guide-row"><span>4th</span><span>+30</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">📜 My Recent Games</div>
+  <div class="history" id="history"><div class="loading">Loading…</div></div>
+
+  <script type="module">
+    import { initializeApp }       from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import {
+      getFirestore, collection, query, where,
+      getDocs, doc, getDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    const app = initializeApp({
+      apiKey: "AIzaSyDnLusbSL7Fa-aAceIm3vLE_yRa1R-VajE",
+      authDomain: "hidden-towers.firebaseapp.com",
+      projectId: "hidden-towers",
+      storageBucket: "hidden-towers.firebasestorage.app",
+      messagingSenderId: "93909210045",
+      appId: "1:93909210045:web:7335ea94fc4a196129f8d4"
+    });
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    // ── Tier definitions ──────────────────────────────────────
+    const TIERS = [
+      { name: "No Tier",      min: 0,      icon: "⬛", color: "#64748b", border: "rgba(100,116,139,.4)", bg: "rgba(100,116,139,.1)",  badge: "rgba(100,116,139,.25)" },
+      { name: "Bronze III",   min: 100,    icon: "🥉", color: "#b45309", border: "rgba(180,83,9,.4)",   bg: "rgba(180,83,9,.12)",    badge: "rgba(180,83,9,.25)" },
+      { name: "Bronze II",    min: 250,    icon: "🥉", color: "#b45309", border: "rgba(180,83,9,.4)",   bg: "rgba(180,83,9,.12)",    badge: "rgba(180,83,9,.25)" },
+      { name: "Bronze I",     min: 500,    icon: "🥉", color: "#b45309", border: "rgba(180,83,9,.4)",   bg: "rgba(180,83,9,.12)",    badge: "rgba(180,83,9,.25)" },
+      { name: "Silver III",   min: 850,    icon: "🥈", color: "#94a3b8", border: "rgba(148,163,184,.4)", bg: "rgba(148,163,184,.1)", badge: "rgba(148,163,184,.25)" },
+      { name: "Silver II",    min: 1300,   icon: "🥈", color: "#94a3b8", border: "rgba(148,163,184,.4)", bg: "rgba(148,163,184,.1)", badge: "rgba(148,163,184,.25)" },
+      { name: "Silver I",     min: 1900,   icon: "🥈", color: "#94a3b8", border: "rgba(148,163,184,.4)", bg: "rgba(148,163,184,.1)", badge: "rgba(148,163,184,.25)" },
+      { name: "Gold III",     min: 2700,   icon: "🥇", color: "#f59e0b", border: "rgba(245,158,11,.4)", bg: "rgba(245,158,11,.1)",  badge: "rgba(245,158,11,.25)" },
+      { name: "Gold II",      min: 3700,   icon: "🥇", color: "#f59e0b", border: "rgba(245,158,11,.4)", bg: "rgba(245,158,11,.1)",  badge: "rgba(245,158,11,.25)" },
+      { name: "Gold I",       min: 5000,   icon: "🥇", color: "#f59e0b", border: "rgba(245,158,11,.4)", bg: "rgba(245,158,11,.1)",  badge: "rgba(245,158,11,.25)" },
+      { name: "Platinum III", min: 6800,   icon: "💠", color: "#22d3ee", border: "rgba(34,211,238,.4)", bg: "rgba(34,211,238,.08)", badge: "rgba(34,211,238,.2)" },
+      { name: "Platinum II",  min: 9000,   icon: "💠", color: "#22d3ee", border: "rgba(34,211,238,.4)", bg: "rgba(34,211,238,.08)", badge: "rgba(34,211,238,.2)" },
+      { name: "Platinum I",   min: 12000,  icon: "💠", color: "#22d3ee", border: "rgba(34,211,238,.4)", bg: "rgba(34,211,238,.08)", badge: "rgba(34,211,238,.2)" },
+      { name: "Diamond 10",   min: 16000,  icon: "💎", color: "#a78bfa", border: "rgba(167,139,250,.5)", bg: "rgba(167,139,250,.1)", badge: "rgba(167,139,250,.25)" },
+      { name: "Diamond 20",   min: 21000,  icon: "💎", color: "#a78bfa", border: "rgba(167,139,250,.5)", bg: "rgba(167,139,250,.1)", badge: "rgba(167,139,250,.25)" },
+      { name: "Diamond 30",   min: 27500,  icon: "💎", color: "#a78bfa", border: "rgba(167,139,250,.5)", bg: "rgba(167,139,250,.1)", badge: "rgba(167,139,250,.25)" },
+      { name: "Diamond 40",   min: 35000,  icon: "💎", color: "#a78bfa", border: "rgba(167,139,250,.5)", bg: "rgba(167,139,250,.1)", badge: "rgba(167,139,250,.25)" },
+      { name: "Diamond 50",   min: 50000,  icon: "💎", color: "#a78bfa", border: "rgba(167,139,250,.5)", bg: "rgba(167,139,250,.1)", badge: "rgba(167,139,250,.25)" },
+    ];
+
+    function getTier(credits) {
+      let t = TIERS[0];
+      for (const tier of TIERS) { if (credits >= tier.min) t = tier; }
+      return t;
+    }
+
+    function getTierIndex(credits) {
+      let idx = 0;
+      for (let i = 0; i < TIERS.length; i++) { if (credits >= TIERS[i].min) idx = i; }
+      return idx;
+    }
+
+    // ── Carousel ──────────────────────────────────────────────
+    let currentSlide = 0;
+    let myTierIdx = 0;
+
+    const track     = document.getElementById("carouselTrack");
+    const dotsEl    = document.getElementById("carouselDots");
+    const arrowL    = document.getElementById("arrowLeft");
+    const arrowR    = document.getElementById("arrowRight");
+
+    function buildCarousel(playerCounts) {
+      track.innerHTML = "";
+      dotsEl.innerHTML = "";
+
+      TIERS.forEach((tier, i) => {
+        const count = playerCounts[i] || 0;
+        const card = document.createElement("div");
+        card.className = "tier-card";
+        card.style.background = tier.bg;
+        card.style.borderColor = tier.border;
+        card.innerHTML = `
+          <div class="tier-card-icon">${tier.icon}</div>
+          <div class="tier-card-name" style="color:${tier.color}">${tier.name}</div>
+          <div class="tier-card-req">${tier.min === 0 ? "Starting tier" : tier.min.toLocaleString() + " credits required"}</div>
+          <div class="tier-card-count">${count} player${count !== 1 ? "s" : ""} in this tier</div>
+        `;
+        card.addEventListener("click", () => goToSlide(i));
+        track.appendChild(card);
+
+        const dot = document.createElement("div");
+        dot.className = "dot" + (i === myTierIdx ? " mine" : "");
+        dot.title = tier.name;
+        dot.addEventListener("click", () => goToSlide(i));
+        dotsEl.appendChild(dot);
+      });
+
+      goToSlide(myTierIdx);
+    }
+
+    function goToSlide(i) {
+      currentSlide = Math.max(0, Math.min(TIERS.length - 1, i));
+      track.style.transform = `translateX(-${currentSlide * 100}%)`;
+      arrowL.disabled = currentSlide === 0;
+      arrowR.disabled = currentSlide === TIERS.length - 1;
+      dotsEl.querySelectorAll(".dot").forEach((d, idx) => {
+        d.classList.toggle("active", idx === currentSlide);
+      });
+    }
+
+    arrowL.addEventListener("click", () => goToSlide(currentSlide - 1));
+    arrowR.addEventListener("click", () => goToSlide(currentSlide + 1));
+
+    // Keyboard navigation
+    document.addEventListener("keydown", e => {
+      if (e.key === "ArrowLeft")  goToSlide(currentSlide - 1);
+      if (e.key === "ArrowRight") goToSlide(currentSlide + 1);
+    });
+
+    // ── Helpers ───────────────────────────────────────────────
+    const medals  = ["🥇", "🥈", "🥉", "4️⃣"];
+    const ordinal  = n => ["", "1st", "2nd", "3rd", "4th"][n] || `${n}th`;
+
+    function formatDate(ts) {
+      if (!ts) return "";
+      const d = ts.toDate ? ts.toDate() : new Date(ts);
+      return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+    }
+
+    function badgeClass(row) {
+      if (row.isTournament) return "tournament";
+      if (row.playerCount >= 4) return "game-4";
+      if (row.playerCount === 3) return "game-3";
+      return "game-2";
+    }
+
+    function badgeLabel(row) {
+      if (row.isTournament) return "Tournament";
+      if (row.playerCount >= 4) return "4-Player";
+      if (row.playerCount === 3) return "3-Player";
+      return row.playerCount <= 1 ? "vs AI" : "2-Player";
+    }
+
+    // ── Main ──────────────────────────────────────────────────
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        document.getElementById("myCard").style.display = "none";
+        document.getElementById("leaderboard").innerHTML = `<div class="empty">Sign in to see the leaderboard.</div>`;
+        document.getElementById("history").innerHTML = `<div class="empty">Sign in to see your history.</div>`;
+        buildCarousel({});
+        return;
+      }
+
+      const userSnap  = await getDoc(doc(db, "users", user.uid));
+      const profile   = userSnap.exists() ? userSnap.data() : {};
+      const myCredits = profile.leagueCredits || 0;
+      myTierIdx       = getTierIndex(myCredits);
+      const myTier    = TIERS[myTierIdx];
+      const nextTier  = TIERS[myTierIdx + 1] || null;
+
+      // My card
+      const cardEl = document.getElementById("myCard");
+      cardEl.style.background   = myTier.bg;
+      cardEl.style.borderColor  = myTier.border;
+      cardEl.style.display      = "";
+      document.getElementById("myAvatar").textContent       = myTier.icon;
+      document.getElementById("myName").textContent         = profile.username || "You";
+      document.getElementById("myTierLabel").textContent    = myTier.name;
+      document.getElementById("myTierLabel").style.color    = myTier.color;
+      document.getElementById("myCredits").textContent      = myCredits.toLocaleString();
+
+      // Progress bar
+      if (nextTier) {
+        const segStart = myTier.min;
+        const segEnd   = nextTier.min;
+        const pct      = Math.min(100, ((myCredits - segStart) / (segEnd - segStart)) * 100);
+        document.getElementById("progressWrap").style.display = "";
+        document.getElementById("progCurrent").textContent    = myTier.name;
+        document.getElementById("progNext").textContent       = `${nextTier.name} (${(segEnd - myCredits).toLocaleString()} to go)`;
+        const fill = document.getElementById("progFill");
+        fill.style.background = `linear-gradient(90deg, ${myTier.color}, ${nextTier.color})`;
+        setTimeout(() => { fill.style.width = pct + "%"; }, 50);
+      } else {
+        document.getElementById("progressWrap").style.display = "";
+        document.getElementById("progCurrent").textContent    = "Diamond 50";
+        document.getElementById("progNext").textContent       = "Max Tier 👑";
+        const fill = document.getElementById("progFill");
+        fill.style.background = myTier.color;
+        setTimeout(() => { fill.style.width = "100%"; }, 50);
+      }
+
+      // Leaderboard + tier counts
+      const lbEl = document.getElementById("leaderboard");
+      const tierCounts = {};
+      try {
+        const usersSnap = await getDocs(collection(db, "users"));
+        const allUsers  = usersSnap.docs
+          .map(d => ({ id: d.id, ...d.data() }))
+          .filter(p => p.username)
+          .sort((a, b) => (b.leagueCredits || 0) - (a.leagueCredits || 0))
+          .slice(0, 50);
+
+        // Count players per tier
+        usersSnap.docs.forEach(d => {
+          const p = d.data();
+          if (!p.username) return;
+          const ti = getTierIndex(p.leagueCredits || 0);
+          tierCounts[ti] = (tierCounts[ti] || 0) + 1;
+        });
+
+        let myRank = null;
+        if (allUsers.length === 0) {
+          lbEl.innerHTML = `<div class="empty">No scores yet — play some games!</div>`;
+        } else {
+          lbEl.innerHTML = "";
+          allUsers.forEach((p, i) => {
+            const rank    = i + 1;
+            const isMe    = p.id === user.uid;
+            if (isMe) myRank = rank;
+            const rankClass = rank === 1 ? "top1" : rank === 2 ? "top2" : rank === 3 ? "top3" : "";
+            const medal     = rank <= 4 ? medals[rank - 1] : `#${rank}`;
+            const pTier     = getTier(p.leagueCredits || 0);
+            const row       = document.createElement("div");
+            row.className   = "lb-row" + (isMe ? " me" : "");
+            row.innerHTML   = `
+              <div class="lb-rank ${rankClass}">${medal}</div>
+              <div class="lb-name">${p.username || "Unknown"}${isMe ? " (you)" : ""}</div>
+              <span class="lb-tier-badge" style="background:${pTier.badge};color:${pTier.color}">${pTier.icon} ${pTier.name}</span>
+              <div class="lb-credits">${(p.leagueCredits || 0).toLocaleString()}</div>
+            `;
+            lbEl.appendChild(row);
+          });
+        }
+
+        if (myRank) document.getElementById("myRankLabel").textContent = `Ranked #${myRank} overall`;
+
+      } catch(e) {
+        lbEl.innerHTML = `<div class="empty">Could not load leaderboard.</div>`;
+      }
+
+      buildCarousel(tierCounts);
+
+      // History
+      const histEl = document.getElementById("history");
+      try {
+        const histSnap = await getDocs(
+          query(collection(db, "leagueHistory"), where("uid", "==", user.uid))
+        );
+        const histDocs = histSnap.docs
+          .map(d => d.data())
+          .sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0))
+          .slice(0, 30);
+
+        if (histDocs.length === 0) {
+          histEl.innerHTML = `<div class="empty">No games recorded yet. Play a game to earn your first credits!</div>`;
+        } else {
+          histEl.innerHTML = "";
+          histDocs.forEach(h => {
+            const row = document.createElement("div");
+            row.className = "hist-row";
+            row.innerHTML = `
+              <span class="hist-badge ${badgeClass(h)}">${badgeLabel(h)}</span>
+              <span class="hist-place">${medals[h.placement - 1] || ""} ${ordinal(h.placement)} place</span>
+              <span class="hist-credits">+${h.credits}</span>
+              <span class="hist-date">${formatDate(h.createdAt)}</span>
+            `;
+            histEl.appendChild(row);
+          });
+        }
+      } catch(e) {
+        histEl.innerHTML = `<div class="empty">Could not load history.</div>`;
+      }
+    });
+  </script>
+</body>
+</html>
