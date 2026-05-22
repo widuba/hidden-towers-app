@@ -2046,11 +2046,11 @@ textarea {
     function openDeleteAccountStep1() {
       setAccountModal(
         "Delete Account?",
-        "This will permanently delete your Hidden Towers account, including your email address, username, Player ID, account profile, and personal account information associated with your account.
+        `This will permanently delete your Hidden Towers account, including your email address, username, Player ID, account profile, and personal account information associated with your account.
 
 Some completed game records may remain only if needed for leaderboard, tournament, security, or legal purposes, but your personal account identifiers will be removed or no longer associated where possible.
 
-Would you like to continue?",
+Would you like to continue?`,
         `
           <button class="secondary" onclick="closeAccountDeleteModal()">No, Keep My Account</button>
           <button class="danger" onclick="openDeleteAccountStep2()">Yes, Continue</button>
@@ -2061,9 +2061,9 @@ Would you like to continue?",
     window.openDeleteAccountStep2 = function openDeleteAccountStep2() {
       setAccountModal(
         "Final Confirmation",
-        "You selected YES to permanently delete your Hidden Towers account. This action cannot be undone.
+        `You selected YES to permanently delete your Hidden Towers account. This action cannot be undone.
 
-Are you sure this is correct?",
+Are you sure this is correct?`,
         `
           <button class="secondary" onclick="closeAccountDeleteModal()">No, Cancel</button>
           <button class="danger" onclick="performAccountDeletion()">Yes, Delete My Account</button>
