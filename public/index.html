@@ -1706,16 +1706,22 @@ textarea {
     return;
   }
 
-  const profileSnap = await getDoc(doc(db, "users", user.uid));
+  let profileSnap = await getDoc(doc(db, "users", user.uid));
 
-  if (!profileSnap.exists()) {
-    currentProfile = null;
-    document.getElementById("signedInAs").textContent = "Setting up account...";
-    hideLoading();
-    return;
-  }
+if (!profileSnap.exists()) {
+  await new Promise(resolve => setTimeout(resolve, 700));
+  profileSnap = await getDoc(doc(db, "users", user.uid));
+}
 
-  currentProfile = profileSnap.data();
+if (!profileSnap.exists()) {
+  currentProfile = null;
+  hideLoading();
+  showAuth();
+  setAuthMessage("Your login worked, but your game profile was not found. Please log out and create the account again.");
+  return;
+}
+
+currentProfile = profileSnap.data();
 
   // Ensure Player ID exists on profile and in the playerIds lookup collection
   if (!currentProfile.playerId) {
@@ -1811,16 +1817,20 @@ textarea {
           tx.set(doc(db, "playerIds", newPid), { username, uid: cred.user.uid });
         });
 
-        currentProfile = {
-          uid: cred.user.uid,
-          username,
-          usernameKey: key,
-          email
-        };
+        currentUser = cred.user;
 
-        setSignedInDisplay(username, newPid);
-        showRoom();
-        setAuthMessage("Account created.");
+currentProfile = {
+  uid: cred.user.uid,
+  username,
+  usernameKey: key,
+  email,
+  playerId: newPid,
+  leagueCredits: 0
+};
+
+setSignedInDisplay(username, newPid);
+showRoom();
+setAuthMessage("");
       } catch (err) {
         setAuthMessage(err.message);
       }
@@ -1999,7 +2009,12 @@ textarea {
     }
 
     function showSettings() {
-      if (!currentUser || !currentProfile) return;
+      if (!currentUser) return;
+
+if (!currentProfile) {
+  setAuthMessage("Your account is still loading. Please try again in a moment.");
+  return;
+}
 
       document.body.className = "view-settings";
       document.getElementById("authCard").style.display = "none";
