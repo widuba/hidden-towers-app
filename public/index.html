@@ -1034,6 +1034,156 @@
     .t-final-name  { flex: 1; font-weight: 800; font-size: 15px; }
     .t-final-avg   { font-family: 'Fredoka One', cursive; font-size: 17px; color: var(--gold); }
 
+
+/* ════════════════════════════
+   SETTINGS / ACCOUNT DELETION
+════════════════════════════ */
+#settingsCard {
+  width: 100%;
+  max-width: 860px;
+  display: none;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px 22px;
+}
+
+body.view-settings .app {
+  justify-content: flex-start;
+}
+
+body.view-settings #settingsCard {
+  display: flex;
+}
+
+.settings-title {
+  font-family: 'Fredoka One', cursive;
+  font-size: clamp(24px, 6vw, 38px);
+  text-align: center;
+  background: linear-gradient(135deg, var(--gold), var(--purple2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 2px;
+}
+
+.settings-sub {
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.settings-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.settings-row {
+  background: rgba(255,255,255,.055);
+  border: 1px solid var(--card-border);
+  border-radius: var(--r);
+  padding: 12px 14px;
+}
+
+.settings-label {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-bottom: 4px;
+}
+
+.settings-value {
+  font-family: 'Nunito', sans-serif;
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--text);
+  word-break: break-word;
+}
+
+.settings-warning {
+  background: rgba(239,68,68,.1);
+  border: 1px solid rgba(239,68,68,.28);
+  color: #fecaca;
+  border-radius: var(--r);
+  padding: 12px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.account-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(0,0,0,.78);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+}
+
+.account-modal-box {
+  width: min(94vw, 520px);
+  background: #0b0820;
+  border: 1.5px solid rgba(167,139,250,.35);
+  border-radius: var(--r2);
+  padding: 22px;
+  box-shadow: 0 0 60px rgba(124,58,237,.28);
+}
+
+.account-modal-title {
+  font-family: 'Fredoka One', cursive;
+  font-size: 26px;
+  color: var(--gold);
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.account-modal-message {
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.55;
+  text-align: center;
+  white-space: pre-line;
+}
+
+.account-modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+.goodbye-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 10001;
+  background: #0a0718;
+  background-image: radial-gradient(ellipse 80% 55% at 50% -5%, rgba(124,58,237,.28) 0%, transparent 70%);
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+}
+
+.goodbye-message {
+  font-family: 'Fredoka One', cursive;
+  font-size: clamp(26px, 7vw, 46px);
+  line-height: 1.15;
+  background: linear-gradient(135deg, var(--gold), #f472b6, var(--purple2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
     /* Scrollbar */
     ::-webkit-scrollbar { width: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
@@ -1208,13 +1358,14 @@ textarea {
         </div>
       </div>
 
-      <div id="quickLinks" style="display:flex;gap:8px;margin-top:8px;">
-        <a href="/pass/" style="text-decoration:none;flex:1;">
+      <div id="quickLinks" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+        <a href="pass/index.html" style="text-decoration:none;">
           <button class="secondary" style="width:100%;padding:10px;">🪪 My Player Pass</button>
         </a>
-        <a href="/leagues/" style="text-decoration:none;flex:1;">
+        <a href="leagues/index.html" style="text-decoration:none;">
           <button class="secondary" style="width:100%;padding:10px;">🏅 Leagues</button>
         </a>
+        <button class="secondary" onclick="showSettings()" style="grid-column:1 / -1;width:100%;padding:12px;">⚙️ Settings</button>
       </div>
 
       <div id="lobbyBox">
@@ -1223,6 +1374,36 @@ textarea {
         <div class="small" id="lobbyPlayers"></div>
         <button id="startRoomBtn" onclick="startRoomGame()" style="margin-top:10px;">Start Game</button>
       </div>
+    </section>
+
+    <!-- ══ SETTINGS CARD ══ -->
+    <section class="card" id="settingsCard">
+      <div class="settings-title">⚙️ Settings</div>
+      <p class="settings-sub">View your account details or permanently delete your Hidden Towers account.</p>
+
+      <div class="settings-grid">
+        <div class="settings-row">
+          <div class="settings-label">Email</div>
+          <div class="settings-value" id="settingsEmail">—</div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-label">Username</div>
+          <div class="settings-value" id="settingsUsername">—</div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-label">Player ID</div>
+          <div class="settings-value" id="settingsPlayerId">—</div>
+        </div>
+      </div>
+
+      <div class="settings-warning">
+        Deleting your account is permanent. Your email address, username, Player ID, and personal account profile will be deleted. Some completed game records may be retained or anonymized only where needed for leaderboard, tournament, security, or legal purposes.
+      </div>
+
+      <button class="danger" onclick="openDeleteAccountStep1()" style="width:100%;">Delete Account</button>
+      <button class="secondary" onclick="showRoom()" style="width:100%;">Back to Main Menu</button>
     </section>
 
     <!-- ══ TOURNAMENT CARD ══ -->
@@ -1296,6 +1477,23 @@ textarea {
 
   </div>
 
+  <!-- ══ ACCOUNT DELETE MODAL ══ -->
+  <div class="account-modal" id="accountDeleteModal">
+    <div class="account-modal-box">
+      <div class="account-modal-title" id="accountDeleteTitle">Delete Account?</div>
+      <div class="account-modal-message" id="accountDeleteMessage"></div>
+      <div class="account-modal-actions" id="accountDeleteActions"></div>
+    </div>
+  </div>
+
+  <!-- ══ GOODBYE OVERLAY ══ -->
+  <div class="goodbye-overlay" id="goodbyeOverlay">
+    <div class="goodbye-message">
+      We're sad to see you go,<br>
+      but all good things must come to an end.
+    </div>
+  </div>
+
   <!-- ══ GAME OVER MODAL ══ -->
   <div class="game-over" id="gameOver">
     <div class="game-over-box">
@@ -1337,15 +1535,23 @@ textarea {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
-  onAuthStateChanged
+  onAuthStateChanged,
+  deleteUser,
+  EmailAuthProvider,
+  reauthenticateWithCredential
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
     import {
       getFirestore,
       doc,
       collection,
       getDoc,
+      getDocs,
       setDoc,
       updateDoc,
+      deleteDoc,
+      writeBatch,
+      query,
+      where,
       runTransaction,
       onSnapshot,
       serverTimestamp,
@@ -1401,6 +1607,9 @@ textarea {
     window.selectDifficulty = selectDifficulty;
     window.leaveRoom = leaveRoom;
     window.confirmLeaveGame = confirmLeaveGame;
+    window.showSettings = showSettings;
+    window.openDeleteAccountStep1 = openDeleteAccountStep1;
+    window.closeAccountDeleteModal = closeAccountDeleteModal;
 
     updateGameTypeOptions();
 
@@ -1764,12 +1973,21 @@ textarea {
       document.getElementById("authMessage").textContent = text;
     }
 
+    function hideSettingsAndModals() {
+      const settings = document.getElementById("settingsCard");
+      if (settings) settings.style.display = "none";
+
+      const modal = document.getElementById("accountDeleteModal");
+      if (modal) modal.style.display = "none";
+    }
+
     function showAuth() {
       document.body.className = "view-auth";
       document.getElementById("authCard").style.display = "";
       document.getElementById("roomCard").style.display = "none";
       document.getElementById("gameArea").style.display = "none";
       document.getElementById("gameOver").style.display = "none";
+      hideSettingsAndModals();
     }
 
     function showRoom() {
@@ -1777,6 +1995,24 @@ textarea {
       document.getElementById("authCard").style.display = "none";
       document.getElementById("roomCard").style.display = "flex";
       document.getElementById("gameArea").style.display = "none";
+      hideSettingsAndModals();
+    }
+
+    function showSettings() {
+      if (!currentUser || !currentProfile) return;
+
+      document.body.className = "view-settings";
+      document.getElementById("authCard").style.display = "none";
+      document.getElementById("roomCard").style.display = "none";
+      document.getElementById("gameArea").style.display = "none";
+      document.getElementById("gameOver").style.display = "none";
+
+      const settings = document.getElementById("settingsCard");
+      if (settings) settings.style.display = "flex";
+
+      document.getElementById("settingsEmail").textContent = currentUser.email || "—";
+      document.getElementById("settingsUsername").textContent = currentProfile.username || "—";
+      document.getElementById("settingsPlayerId").textContent = currentProfile.playerId || "—";
     }
 
     function showTournamentView() {
@@ -1784,6 +2020,7 @@ textarea {
       document.getElementById("authCard").style.display = "none";
       document.getElementById("roomCard").style.display = "flex";
       document.getElementById("gameArea").style.display = "none";
+      hideSettingsAndModals();
     }
 
     function showGame() {
@@ -1791,6 +2028,157 @@ textarea {
       document.getElementById("authCard").style.display = "none";
       document.getElementById("roomCard").style.display = "flex";
       document.getElementById("gameArea").style.display = "flex";
+      hideSettingsAndModals();
+    }
+
+    function setAccountModal(title, message, actionsHtml) {
+      document.getElementById("accountDeleteTitle").textContent = title;
+      document.getElementById("accountDeleteMessage").textContent = message;
+      document.getElementById("accountDeleteActions").innerHTML = actionsHtml;
+      document.getElementById("accountDeleteModal").style.display = "flex";
+    }
+
+    function closeAccountDeleteModal() {
+      const modal = document.getElementById("accountDeleteModal");
+      if (modal) modal.style.display = "none";
+    }
+
+    function openDeleteAccountStep1() {
+      setAccountModal(
+        "Delete Account?",
+        "This will permanently delete your Hidden Towers account, including your email address, username, Player ID, account profile, and personal account information associated with your account.
+
+Some completed game records may remain only if needed for leaderboard, tournament, security, or legal purposes, but your personal account identifiers will be removed or no longer associated where possible.
+
+Would you like to continue?",
+        `
+          <button class="secondary" onclick="closeAccountDeleteModal()">No, Keep My Account</button>
+          <button class="danger" onclick="openDeleteAccountStep2()">Yes, Continue</button>
+        `
+      );
+    }
+
+    window.openDeleteAccountStep2 = function openDeleteAccountStep2() {
+      setAccountModal(
+        "Final Confirmation",
+        "You selected YES to permanently delete your Hidden Towers account. This action cannot be undone.
+
+Are you sure this is correct?",
+        `
+          <button class="secondary" onclick="closeAccountDeleteModal()">No, Cancel</button>
+          <button class="danger" onclick="performAccountDeletion()">Yes, Delete My Account</button>
+        `
+      );
+    };
+
+    window.performAccountDeletion = async function performAccountDeletion() {
+      if (!currentUser || !currentProfile) return;
+
+      setAccountModal(
+        "Deleting Account...",
+        "Please wait while your Hidden Towers account is deleted.",
+        ``
+      );
+
+      try {
+        await deleteCurrentAccountData();
+        await deleteUser(currentUser);
+        await finishAccountDeletion();
+      } catch (err) {
+        if (err && err.code === "auth/requires-recent-login") {
+          const password = prompt("For security, please re-enter your password to delete your account.");
+
+          if (!password) {
+            setAccountModal(
+              "Deletion Canceled",
+              "Your account was not deleted because password confirmation was canceled.",
+              `<button class="secondary" onclick="closeAccountDeleteModal()">Close</button>`
+            );
+            return;
+          }
+
+          try {
+            const credential = EmailAuthProvider.credential(currentUser.email, password);
+            await reauthenticateWithCredential(currentUser, credential);
+            await deleteCurrentAccountData();
+            await deleteUser(currentUser);
+            await finishAccountDeletion();
+          } catch (reauthErr) {
+            setAccountModal(
+              "Deletion Failed",
+              "Your account could not be deleted: " + (reauthErr.message || reauthErr),
+              `<button class="secondary" onclick="closeAccountDeleteModal()">Close</button>`
+            );
+          }
+
+          return;
+        }
+
+        setAccountModal(
+          "Deletion Failed",
+          "Your account could not be deleted: " + (err.message || err),
+          `<button class="secondary" onclick="closeAccountDeleteModal()">Close</button>`
+        );
+      }
+    };
+
+    async function deleteCurrentAccountData() {
+      if (!currentUser) throw new Error("No signed-in user found.");
+
+      const uid = currentUser.uid;
+      const profile = currentProfile || {};
+      const username = profile.username || "";
+      const key = profile.usernameKey || (username ? usernameKey(username) : "");
+      const playerId = profile.playerId || "";
+
+      const batch = writeBatch(db);
+
+      batch.delete(doc(db, "users", uid));
+
+      if (key) {
+        batch.delete(doc(db, "usernames", key));
+      }
+
+      if (playerId) {
+        batch.delete(doc(db, "playerIds", playerId));
+      }
+
+      const histSnap = await getDocs(
+        query(collection(db, "leagueHistory"), where("uid", "==", uid))
+      );
+
+      histSnap.forEach((historyDoc) => {
+        batch.delete(historyDoc.ref);
+      });
+
+      await batch.commit();
+    }
+
+    async function finishAccountDeletion() {
+      stopHeartbeat();
+
+      if (unsubRoom) unsubRoom();
+      if (unsubTournament) unsubTournament();
+
+      unsubRoom = null;
+      unsubTournament = null;
+      roomId = null;
+      tournamentId = null;
+      tournament = null;
+      state = null;
+      currentUser = null;
+      currentProfile = null;
+
+      closeAccountDeleteModal();
+
+      const goodbye = document.getElementById("goodbyeOverlay");
+      if (goodbye) goodbye.style.display = "flex";
+
+      setTimeout(() => {
+        if (goodbye) goodbye.style.display = "none";
+        showAuth();
+        setAuthMessage("");
+      }, 3000);
     }
 
     function roomCode() {
