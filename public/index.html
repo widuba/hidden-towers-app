@@ -8,7 +8,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png" />
   <meta name="apple-mobile-web-app-title" content="HiddenTowers" />
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>Hidden Towers Multiplayer</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1183,12 +1183,7 @@ body.view-settings #settingsCard {
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
-
-    /* Scrollbar */
-    ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.18); border-radius: 999px; }
-
+      
 html,
 body {
   margin: 0;
@@ -1224,6 +1219,165 @@ textarea {
   -webkit-user-select: text;
   user-select: text;
 }
+      
+      /* ════════════════════════════
+         FINAL iOS / iPadOS APP FIXES
+      ════════════════════════════ */
+
+      html,
+      body {
+        width: 100%;
+        max-width: 100%;
+        min-height: 100%;
+        overflow-x: hidden !important;
+        -webkit-text-size-adjust: 100%;
+        overscroll-behavior: none;
+        scrollbar-width: none;
+        touch-action: manipulation;
+      }
+
+      html::-webkit-scrollbar,
+      body::-webkit-scrollbar,
+      *::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+      }
+
+      body {
+        padding:
+          env(safe-area-inset-top)
+          env(safe-area-inset-right)
+          env(safe-area-inset-bottom)
+          env(safe-area-inset-left);
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none;
+      }
+
+      body.view-room,
+      body.view-tournament,
+      body.view-auth,
+      body.view-settings {
+        overflow-y: auto;
+        overflow-x: hidden !important;
+      }
+
+      .app {
+        width: 100%;
+        max-width: 100vw;
+        overflow-x: hidden !important;
+        padding-top: calc(env(safe-area-inset-top) + 52px) !important;
+        padding-left: max(10px, env(safe-area-inset-left)) !important;
+        padding-right: max(10px, env(safe-area-inset-right)) !important;
+        padding-bottom: max(20px, env(safe-area-inset-bottom)) !important;
+      }
+
+      body.view-game .app {
+        padding-top: calc(env(safe-area-inset-top) + 52px) !important;
+        padding-bottom: max(10px, env(safe-area-inset-bottom)) !important;
+      }
+
+      button,
+      a,
+      .card,
+      .menu-box,
+      .mode-card,
+      .tile,
+      .pass,
+      .no-select {
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none;
+        touch-action: manipulation;
+      }
+
+      input,
+      textarea,
+      select,
+      [contenteditable="true"] {
+        -webkit-user-select: text;
+        user-select: text;
+        font-size: 16px !important;
+        touch-action: manipulation;
+      }
+
+      #authCard,
+      #roomCard,
+      #settingsCard,
+      #tournamentCard,
+      #gameArea,
+      .room-header,
+      .menu-grid,
+      .menu-box,
+      #quickLinks,
+      .game-sidebar,
+      .scores,
+      .game-top-bar {
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+
+      @media (max-width: 500px) {
+        .app {
+          gap: 6px;
+        }
+
+        .room-header {
+          gap: 6px;
+          padding: 8px 10px;
+        }
+
+        .signed-label {
+          font-size: 12px;
+          max-width: 100%;
+          overflow-wrap: anywhere;
+        }
+
+        .player-id-badge {
+          font-size: 12px;
+          margin-left: 3px;
+        }
+
+        .menu-grid {
+          grid-template-columns: 1fr !important;
+          gap: 8px;
+        }
+
+        .menu-box {
+          padding: 10px;
+        }
+
+        button {
+          font-size: 14px;
+          padding: 10px 14px;
+        }
+
+        .board {
+          width: min(88vw, calc(100dvh - 245px), calc(100vh - 245px)) !important;
+        }
+
+        .score {
+          font-size: 12px;
+          padding: 6px 10px;
+        }
+
+        .info {
+          font-size: 13px;
+          padding: 7px 10px;
+        }
+
+        .stay-btn {
+          font-size: 14px;
+          padding: 9px 16px;
+        }
+      }
+
+      @media (min-width: 700px) {
+        body.view-game .app {
+          padding-top: calc(env(safe-area-inset-top) + 36px) !important;
+        }
+      }
   </style>
 </head>
 
@@ -1266,7 +1420,7 @@ textarea {
       <p id="authMessage"></p>
 
       <div class="auth-footer">
-        <a href="/how-to-play" target="_blank">
+          <a href="how-to-play/index.html">
           <button class="how-btn">&#10067; How to Play</button>
         </a>
       </div>
@@ -1276,7 +1430,7 @@ textarea {
     <section id="roomCard">
       <div class="room-header">
         <span class="signed-label">Signed in as <b id="signedInAs"></b> <span class="player-id-badge" id="playerIdBadge" style="display:none"></span></span>
-        <a class="htp-link" href="/how-to-play" target="_blank">&#10067; How to Play</a>
+        <a class="htp-link" href="how-to-play/index.html">&#10067; How to Play</a>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
           <button class="secondary leave-room-btn" onclick="leaveRoom()" style="padding:7px 14px;font-size:14px;">Leave Room</button>
           <button class="secondary" onclick="logout()" style="padding:7px 14px;font-size:14px;">Logout</button>
@@ -1516,6 +1670,34 @@ textarea {
       });
     }
   </script>
+  
+  <script>
+    window.addEventListener("error", function (event) {
+      console.error("App error:", event.message, event.filename, event.lineno, event.colno, event.error);
+    });
+
+    window.addEventListener("unhandledrejection", function (event) {
+      console.error("Startup error:", event.reason);
+    });
+
+    setTimeout(function () {
+      const loading = document.getElementById("loadingScreen");
+      const authCard = document.getElementById("authCard");
+      const roomCard = document.getElementById("roomCard");
+      const gameArea = document.getElementById("gameArea");
+      const msg = document.getElementById("authMessage");
+
+      if (loading && !loading.classList.contains("hidden")) {
+        loading.classList.add("hidden");
+        document.body.className = "view-auth";
+
+        if (authCard) authCard.style.display = "";
+        if (roomCard) roomCard.style.display = "none";
+        if (gameArea) gameArea.style.display = "none";
+        if (msg) msg.textContent = "The app took too long to start. Please check your internet connection and try again.";
+      }
+    }, 9000);
+  </script>
 
   <script type="module">
 
@@ -1697,65 +1879,73 @@ textarea {
       if (el) el.classList.add("hidden");
     }
 
-    onAuthStateChanged(auth, async (user) => {
-  currentUser = user;
+      onAuthStateChanged(auth, async (user) => {
+        try {
+          currentUser = user;
 
-  if (!user) {
-    currentProfile = null;
-    showAuth();
-    hideLoading();
-    return;
-  }
+          if (!user) {
+            currentProfile = null;
+            showAuth();
+            return;
+          }
 
-  let profileSnap = await getDoc(doc(db, "users", user.uid));
+          let profileSnap = await getDoc(doc(db, "users", user.uid));
 
-if (!profileSnap.exists()) {
-  await new Promise(resolve => setTimeout(resolve, 700));
-  profileSnap = await getDoc(doc(db, "users", user.uid));
-}
+          if (!profileSnap.exists()) {
+            await new Promise(resolve => setTimeout(resolve, 700));
+            profileSnap = await getDoc(doc(db, "users", user.uid));
+          }
 
-if (!profileSnap.exists()) {
-  currentProfile = null;
-  hideLoading();
-  showAuth();
-  setAuthMessage("Your login worked, but your game profile was not found. Please log out and create the account again.");
-  return;
-}
+          if (!profileSnap.exists()) {
+            currentProfile = null;
+            showAuth();
+            setAuthMessage("Your login worked, but your game profile was not found. Please create a new account or contact support.");
+            return;
+          }
 
-currentProfile = profileSnap.data();
+          currentProfile = profileSnap.data();
 
-  // Ensure Player ID exists on profile and in the playerIds lookup collection
-  if (!currentProfile.playerId) {
-    const newPid = generatePlayerId();
-    await updateDoc(doc(db, "users", user.uid), { playerId: newPid });
-    await setDoc(doc(db, "playerIds", newPid), { username: currentProfile.username, uid: user.uid });
-    currentProfile = { ...currentProfile, playerId: newPid };
-  } else {
-    // playerIds doc may be missing if the account was backfilled before that
-    // write was added — ensure it exists on every login (cheap read + rare write)
-    const pidSnap = await getDoc(doc(db, "playerIds", currentProfile.playerId));
-    if (!pidSnap.exists()) {
-      await setDoc(doc(db, "playerIds", currentProfile.playerId), { username: currentProfile.username, uid: user.uid });
-    }
-  }
+          if (!currentProfile.playerId) {
+            const newPid = generatePlayerId();
+            await updateDoc(doc(db, "users", user.uid), { playerId: newPid });
+            await setDoc(doc(db, "playerIds", newPid), {
+              username: currentProfile.username,
+              uid: user.uid
+            });
+            currentProfile = { ...currentProfile, playerId: newPid };
+          } else {
+            const pidSnap = await getDoc(doc(db, "playerIds", currentProfile.playerId));
+            if (!pidSnap.exists()) {
+              await setDoc(doc(db, "playerIds", currentProfile.playerId), {
+                username: currentProfile.username,
+                uid: user.uid
+              });
+            }
+          }
 
-  setSignedInDisplay(currentProfile.username, currentProfile.playerId);
+          setSignedInDisplay(currentProfile.username, currentProfile.playerId);
 
-  // Auto-join from QR / pass link: ?tjoin=CODE&pid=PLAYERID
-  const urlParams = new URLSearchParams(window.location.search);
-  const tjoin = urlParams.get("tjoin");
-  if (tjoin) {
-    // Clean URL so back/refresh doesn't re-trigger
-    history.replaceState({}, "", window.location.pathname);
-    showRoom();
-    hideLoading();
-    await joinTournamentByCode(tjoin);
-    return;
-  }
+          const urlParams = new URLSearchParams(window.location.search);
+          const tjoin = urlParams.get("tjoin");
 
-  showRoom();
-  hideLoading();
-});
+          if (tjoin) {
+            history.replaceState({}, "", window.location.pathname);
+            showRoom();
+            await joinTournamentByCode(tjoin);
+            return;
+          }
+
+          showRoom();
+
+        } catch (err) {
+          console.error("Startup error:", err);
+          currentProfile = null;
+          showAuth();
+          setAuthMessage(friendlyErrorMessage(err));
+        } finally {
+          hideLoading();
+        }
+      });
 
     function setSignedInDisplay(username, playerId) {
       document.getElementById("signedInAs").textContent = username;
@@ -1833,7 +2023,7 @@ setSignedInDisplay(username, newPid);
 showRoom();
 setAuthMessage("");
       } catch (err) {
-        setAuthMessage(err.message);
+        setAuthMessage(friendlyErrorMessage(err));
       }
     }
 
@@ -1845,7 +2035,7 @@ setAuthMessage("");
         await signInWithEmailAndPassword(auth, email, password);
         setAuthMessage("");
       } catch (err) {
-        setAuthMessage(err.message);
+        setAuthMessage(friendlyErrorMessage(err));
       }
     }
 
@@ -1979,6 +2169,56 @@ setAuthMessage("");
       info.style.color = "#f87171";
       setTimeout(() => { info.style.color = ""; if (state) render(); else info.textContent = prev; }, 3000);
     }
+      
+      function friendlyErrorMessage(err) {
+        const raw = String(err?.message || err || "");
+        const code = String(err?.code || "");
+
+        if (code === "auth/invalid-email" || raw.includes("auth/invalid-email")) {
+          return "Please enter a valid email address.";
+        }
+
+        if (code === "auth/email-already-in-use" || raw.includes("auth/email-already-in-use")) {
+          return "An account already exists with this email. Try logging in instead.";
+        }
+
+        if (code === "auth/weak-password" || raw.includes("auth/weak-password")) {
+          return "Your password must be at least 6 characters long.";
+        }
+
+        if (
+          code === "auth/invalid-credential" ||
+          code === "auth/wrong-password" ||
+          code === "auth/user-not-found" ||
+          raw.includes("auth/invalid-credential") ||
+          raw.includes("auth/wrong-password") ||
+          raw.includes("auth/user-not-found")
+        ) {
+          return "The email or password is incorrect.";
+        }
+
+        if (code === "auth/missing-password" || raw.includes("auth/missing-password")) {
+          return "Please enter your password.";
+        }
+
+        if (code === "auth/too-many-requests" || raw.includes("auth/too-many-requests")) {
+          return "Too many attempts. Please wait a little while and try again.";
+        }
+
+        if (code === "permission-denied" || raw.toLowerCase().includes("missing or insufficient permissions")) {
+          return "Something went wrong while saving your account. Please try again.";
+        }
+
+        if (raw.toLowerCase().includes("username is already taken")) {
+          return "That username is already taken. Please choose another one.";
+        }
+
+        if (raw.toLowerCase().includes("network")) {
+          return "Network error. Please check your connection and try again.";
+        }
+
+        return "Something went wrong. Please try again.";
+      }
 
     function setAuthMessage(text) {
       document.getElementById("authMessage").textContent = text;
@@ -2122,7 +2362,7 @@ Are you sure this is correct?`,
           } catch (reauthErr) {
             setAccountModal(
               "Deletion Failed",
-              "Your account could not be deleted: " + (reauthErr.message || reauthErr),
+              "Your account could not be deleted: " + friendlyErrorMessage(reauthErr),
               `<button class="secondary" onclick="closeAccountDeleteModal()">Close</button>`
             );
           }
@@ -2132,7 +2372,7 @@ Are you sure this is correct?`,
 
         setAccountModal(
           "Deletion Failed",
-          "Your account could not be deleted: " + (err.message || err),
+          "Your account could not be deleted: " + friendlyErrorMessage(err),
           `<button class="secondary" onclick="closeAccountDeleteModal()">Close</button>`
         );
       }
@@ -3901,7 +4141,7 @@ Are you sure this is correct?`,
       } catch(e) {
         if (notAdded) {
           statusEl.style.color = "#f87171";
-          statusEl.innerHTML = `Not added yet. Get your pass at <a href="/pass/" style="color:#a78bfa;">hiddentowers.onrender.com/pass</a> and ask your host to scan it.`;
+          statusEl.innerHTML = `Not added yet. Get your pass at <a href="pass/index.html" style="color:#a78bfa;">Player Pass</a> and ask your host to scan it.`;
         } else {
           statusEl.style.color = "#f87171";
           statusEl.textContent = e.message;
@@ -4559,6 +4799,31 @@ Are you sure this is correct?`,
   if (key === "arrowright") moveTo(player.x + 1, player.y);
   if (key === "s") stayTurn();
 });
+  </script>
+  <script>
+    let lastTouchEnd = 0;
+
+    document.addEventListener("touchend", function (event) {
+      const now = Date.now();
+
+      if (now - lastTouchEnd <= 350) {
+        event.preventDefault();
+      }
+
+      lastTouchEnd = now;
+    }, { passive: false });
+
+    document.addEventListener("gesturestart", function (event) {
+      event.preventDefault();
+    }, { passive: false });
+
+    document.addEventListener("gesturechange", function (event) {
+      event.preventDefault();
+    }, { passive: false });
+
+    document.addEventListener("gestureend", function (event) {
+      event.preventDefault();
+    }, { passive: false });
   </script>
 </body>
 </html>
