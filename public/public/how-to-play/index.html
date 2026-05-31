@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+  />
+
+  <title>How to Play — Hidden Towers</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #0a0718;
+      --surface: rgba(255,255,255,.045);
+      --surface-hover: rgba(255,255,255,.07);
+      --border: rgba(255,255,255,.09);
+      --gold: #fbbf24;
+      --purple: #7c3aed;
+      --purple-light: #a78bfa;
+      --green: #10b981;
+      --red: #ef4444;
+      --blue: #3b82f6;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --r: 14px;
+      --r2: 20px;
+    }
+
+    html,
+    body {
+      width: 100%;
+      max-width: 100%;
+      min-height: 100%;
+      overflow-x: hidden !important;
+      -webkit-text-size-adjust: 100%;
+      overscroll-behavior-x: none;
+      overscroll-behavior-y: contain;
+      scrollbar-width: none;
+      touch-action: manipulation;
+      background: var(--bg);
+    }
+
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar,
+    *::-webkit-scrollbar {
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
+    }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      color: var(--text);
+      min-height: 100dvh;
+      padding:
+        calc(env(safe-area-inset-top) + 74px)
+        max(14px, env(safe-area-inset-right))
+        calc(env(safe-area-inset-bottom) + 58px)
+        max(14px, env(safe-area-inset-left));
+      background-image:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(124,58,237,.28) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 35% at 15% 65%, rgba(59,130,246,.12) 0%, transparent 65%),
+        radial-gradient(ellipse 60% 35% at 90% 90%, rgba(245,158,11,.08) 0%, transparent 60%);
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .35;
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,.75) 1px, transparent 1px),
+        radial-gradient(circle, rgba(255,255,255,.45) 1px, transparent 1px);
+      background-size: 340px 340px, 220px 220px;
+      background-position: 0 0, 80px 110px;
+      z-index: 0;
+    }
+
+    body > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    a,
+    button,
+    .card,
+    .hero,
+    .mini-card,
+    .tile-swatch,
+    .mode-card,
+    .tag,
+    .key,
+    .back-link {
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+      touch-action: manipulation;
+    }
+
+    .page {
+      width: min(100%, 900px);
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      max-width: 100%;
+      overflow-x: hidden !important;
+    }
+
+    .top-bar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 44px;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text);
+      background: rgba(255,255,255,.08);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-weight: 900;
+      font-size: 14px;
+      text-decoration: none;
+      padding: 9px 16px;
+      transition: background .15s, color .15s, transform .15s, border-color .15s;
+      flex-shrink: 0;
+    }
+
+    .back-link:hover {
+      background: rgba(255,255,255,.14);
+      color: var(--gold);
+      border-color: rgba(167,139,250,.35);
+    }
+
+    .back-link:active {
+      transform: scale(.98);
+    }
+
+    .top-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(24px, 6vw, 38px);
+      line-height: 1.1;
+      background: linear-gradient(135deg, var(--gold), #f472b6, var(--purple-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 36px 24px 28px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: 0 18px 50px rgba(0,0,0,.22);
+    }
+
+    .hero-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(34px, 8vw, 60px);
+      background: linear-gradient(135deg, var(--gold), #f472b6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.1;
+      margin-bottom: 10px;
+    }
+
+    .hero-sub {
+      color: var(--muted);
+      font-size: clamp(14px, 2.4vw, 17px);
+      font-weight: 700;
+      max-width: 600px;
+      margin: 0 auto 18px;
+      line-height: 1.5;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 900;
+      border: 1.5px solid transparent;
+    }
+
+    .tag-purple { background: rgba(124,58,237,.25); color: var(--purple-light); border-color: rgba(124,58,237,.4); }
+    .tag-gold   { background: rgba(251,191,36,.18); color: var(--gold); border-color: rgba(251,191,36,.35); }
+    .tag-green  { background: rgba(16,185,129,.18); color: #34d399; border-color: rgba(16,185,129,.35); }
+    .tag-red    { background: rgba(239,68,68,.18); color: #fca5a5; border-color: rgba(239,68,68,.35); }
+    .tag-blue   { background: rgba(59,130,246,.18); color: #93c5fd; border-color: rgba(59,130,246,.35); }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      padding: 22px 22px 24px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .card-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(20px, 4vw, 26px);
+      color: var(--gold);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      line-height: 1.15;
+    }
+
+    .card-title .icon {
+      font-size: 1.1em;
+    }
+
+    h3 {
+      font-size: 15px;
+      font-weight: 900;
+      color: var(--purple-light);
+      margin: 18px 0 8px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    h3:first-child {
+      margin-top: 0;
+    }
+
+    p {
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.6;
+      font-weight: 700;
+    }
+
+    ul,
+    ol {
+      padding-left: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    li {
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.55;
+      font-weight: 700;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .mini-card {
+      background: var(--surface-hover);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 14px;
+      min-width: 0;
+    }
+
+    .mini-card-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: 16px;
+      color: #e2e8f0;
+      margin-bottom: 6px;
+      line-height: 1.2;
+    }
+
+    .mini-card p,
+    .mini-card li {
+      font-size: 14px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin-top: 12px;
+      border-radius: var(--r);
+      max-width: 100%;
+      scrollbar-width: none;
+    }
+
+    .table-wrap::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 360px;
+      overflow: hidden;
+    }
+
+    th {
+      background: rgba(124,58,237,.25);
+      color: var(--purple-light);
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 13px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 10px 14px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      border-bottom: 1px solid rgba(255,255,255,.05);
+      vertical-align: top;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:nth-child(even) td {
+      background: rgba(255,255,255,.02);
+    }
+
+    td strong {
+      color: var(--gold);
+      font-weight: 900;
+    }
+
+    td em {
+      color: #34d399;
+      font-style: normal;
+      font-weight: 800;
+    }
+
+    .callout {
+      border-left: 4px solid var(--gold);
+      background: rgba(251,191,36,.07);
+      border-radius: 0 var(--r) var(--r) 0;
+      padding: 12px 16px;
+      margin-top: 14px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #fde68a;
+      line-height: 1.55;
+    }
+
+    .callout.blue {
+      border-color: var(--blue);
+      background: rgba(59,130,246,.07);
+      color: #93c5fd;
+    }
+
+    .callout.green {
+      border-color: var(--green);
+      background: rgba(16,185,129,.07);
+      color: #6ee7b7;
+    }
+
+    .callout.red {
+      border-color: var(--red);
+      background: rgba(239,68,68,.07);
+      color: #fca5a5;
+    }
+
+    .key-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .key {
+      background: rgba(0,0,0,.4);
+      border: 1px solid rgba(255,255,255,.18);
+      border-bottom: 3px solid rgba(255,255,255,.12);
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 900;
+      color: #e2e8f0;
+      white-space: nowrap;
+    }
+
+    .tile-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .tile-swatch {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface-hover);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 12px 10px;
+      text-align: center;
+      min-width: 0;
+    }
+
+    .tile-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      border: 2px solid rgba(100,80,200,.3);
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .t-hidden { background: #ffffff; color: #aaa; }
+    .t-empty { background: #181035; border-color: rgba(100,80,200,.25); }
+    .t-tower { background: #7c3aed; color: #fff; font-family: 'Fredoka One', cursive; }
+    .t-gas { background: #065f46; color: #6ee7b7; font-size: 22px; }
+    .t-infected { background: #064e3b; color: #6ee7b7; font-size: 16px; }
+    .t-safe { background: #1d4ed8; color: #bfdbfe; font-size: 16px; font-family: 'Fredoka One', cursive; }
+    .t-player { background: #db2777; color: #fff; font-size: 20px; }
+
+    .tile-label {
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--muted);
+      line-height: 1.3;
+    }
+
+    .tile-desc {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.4;
+    }
+
+    .mode-card {
+      background: var(--surface-hover);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 16px;
+      min-width: 0;
+    }
+
+    .mode-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .mode-badge {
+      font-family: 'Fredoka One', cursive;
+      font-size: 13px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .badge-classic { background: rgba(251,191,36,.2); color: var(--gold); border: 1px solid rgba(251,191,36,.35); }
+    .badge-poison { background: rgba(16,185,129,.2); color: #34d399; border: 1px solid rgba(16,185,129,.35); }
+    .badge-blackout { background: rgba(59,130,246,.2); color: #93c5fd; border: 1px solid rgba(59,130,246,.35); }
+    .badge-eclipse { background: rgba(124,58,237,.24); color: #c4b5fd; border: 1px solid rgba(167,139,250,.38); }
+
+    .mode-name {
+      font-family: 'Fredoka One', cursive;
+      font-size: 18px;
+      color: #e2e8f0;
+      line-height: 1.15;
+    }
+
+    .level-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .level-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .level-dot {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--purple);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-family: 'Fredoka One', cursive;
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+
+    .level-fill {
+      flex: 1;
+      height: 22px;
+      border-radius: 6px;
+      background: rgba(124,58,237,.2);
+      overflow: hidden;
+      position: relative;
+      min-width: 0;
+    }
+
+    .level-fill-inner {
+      height: 100%;
+      background: linear-gradient(90deg, #7c3aed, #a78bfa);
+      border-radius: 6px;
+    }
+
+    .level-pts {
+      font-size: 13px;
+      font-weight: 900;
+      color: var(--gold);
+      width: 92px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .progress-track {
+      display: flex;
+      gap: 5px;
+      margin-top: 8px;
+    }
+
+    .progress-step {
+      flex: 1;
+      height: 10px;
+      border-radius: 4px;
+      background: rgba(255,255,255,.1);
+    }
+
+    .progress-step.filled {
+      background: var(--gold);
+    }
+
+    .progress-step.filled.red {
+      background: #ef4444;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .step {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--purple);
+      color: #fff;
+      font-family: 'Fredoka One', cursive;
+      font-size: 14px;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .step-text {
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.55;
+      color: var(--text);
+    }
+
+    .step-text strong {
+      color: var(--gold);
+    }
+
+    .diff-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .diff-card {
+      background: var(--surface-hover);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 14px;
+      min-width: 0;
+    }
+
+    .diff-name {
+      font-family: 'Fredoka One', cursive;
+      font-size: 17px;
+      margin-bottom: 4px;
+    }
+
+    .diff-easy { color: #34d399; }
+    .diff-medium { color: var(--gold); }
+    .diff-hard { color: #f87171; }
+
+    .diff-desc {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+      line-height: 1.5;
+    }
+
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      padding: 10px 0;
+    }
+
+    @media (max-width: 560px) {
+      body {
+        padding:
+          calc(env(safe-area-inset-top) + 82px)
+          max(10px, env(safe-area-inset-right))
+          calc(env(safe-area-inset-bottom) + 58px)
+          max(10px, env(safe-area-inset-left));
+      }
+
+      .page {
+        gap: 14px;
+      }
+
+      .top-bar {
+        gap: 8px;
+      }
+
+      .back-link {
+        padding: 8px 13px;
+        font-size: 13px;
+      }
+
+      .top-title {
+        font-size: clamp(22px, 6vw, 31px);
+      }
+
+      .card {
+        padding: 16px;
+      }
+
+      .hero {
+        padding: 25px 15px 20px;
+      }
+
+      .hero-title {
+        font-size: clamp(32px, 10vw, 44px);
+      }
+
+      .grid-2,
+      .grid-3,
+      .diff-row {
+        grid-template-columns: 1fr;
+      }
+
+      .tile-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .level-row {
+        gap: 7px;
+      }
+
+      .level-dot {
+        width: 29px;
+        height: 29px;
+      }
+
+      .level-pts {
+        width: 76px;
+        font-size: 12px;
+      }
+
+      th,
+      td {
+        padding: 9px 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+
+    <div class="top-bar">
+      <a class="back-link" href="../index.html" id="backHomeBtn">&#8592; Back to Game</a>
+      <div class="top-title">How to Play</div>
+    </div>
+
+    <section class="hero">
+      <div class="hero-title">&#127984; Hidden Towers</div>
+      <p class="hero-sub">
+        A fog-of-war strategy board game. Explore a hidden grid, capture towers, upgrade them, outmaneuver opponents, and race to victory before the board turns against you.
+      </p>
+      <div class="tag-row">
+        <span class="tag tag-purple">2–4 Players</span>
+        <span class="tag tag-blue">1 vs AI</span>
+        <span class="tag tag-gold">4 Game Modes</span>
+        <span class="tag tag-green">Tower Strategy</span>
+        <span class="tag tag-red">Fog of War</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-title"><span class="icon">&#128640;</span> Getting Started</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-text">Create an account or log in.</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">Choose to <strong>create a room</strong>, <strong>join one</strong> using a room code, or start a <strong>Daily Challenge</strong>.</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-text">Pick your <strong>player count</strong>, <strong>game mode</strong>, and optionally <strong>AI difficulty</strong> for 1-player mode.</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-text">Players can choose their color. The host can invite friends with the room code, then start the game.</div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-text">Each player appears on their starting tile. The rest of the board is hidden. <strong>Go explore.</strong></div></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-title"><span class="icon">&#9654;</span> How a Turn Works</div>
+      <p>On your turn, move one tile in any direction — or stay where you are. Players take turns one at a time.</p>
+      <div class="key-row">
+        <span class="key">&#8593; Up</span>
+        <span class="key">&#8595; Down</span>
+        <span class="key">&#8592; Left</span>
+        <span class="key">&#8594; Right</span>
+        <span class="key">S — Stay</span>
+      </div>
+      <div class="callout blue" style="margin-top:14px;">
+        No diagonal movement. You can only move to directly adjacent tiles.
+      </div>
+      <div class="divider"></div>
+      <h3>What happens when you step on a tile</h3>
+      <ul>
+        <li><strong>Hidden tile</strong> — it reveals and you earn <strong>+10 points</strong>.</li>
+        <li><strong>Empty tile</strong> — nothing happens; you just move there.</li>
+        <li><strong>Tower</strong> — triggers the tower interaction.</li>
+        <li><strong>Infected tile</strong> — you become infected. Your next turn you are teleported to a random tile instead of choosing your move.</li>
+        <li><strong>Safe infected tile</strong> — safe for you if you own the protecting tower; otherwise still dangerous.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <div class="card-title"><span class="icon">&#9726;</span> Tile Types</div>
+      <div class="tile-grid">
+        <div class="tile-swatch">
+          <div class="tile-box t-hidden"></div>
+          <div class="tile-label">Hidden</div>
+          <div class="tile-desc">Unknown space. Reveals for +10 pts when stepped on.</div>
+        </div>
+        <div class="tile-swatch">
+          <div class="tile-box t-empty"></div>
+          <div class="tile-label">Empty</div>
+          <div class="tile-desc">A normal revealed tile. Safe to walk on.</div>
+        </div>
+        <div class="tile-swatch">
+          <div class="tile-box t-tower">3</div>
+          <div class="tile-label">Tower</div>
+          <div class="tile-desc">The most important tile. Claim, upgrade, and defend it.</div>
+        </div>
+        <div class="tile-swatch">
+          <div class="tile-box t-player">&#9654;</div>
+          <div class="tile-label">Player</div>
+          <div class="tile-desc">Shows where each player is on the board.</div>
+        </div>
+        <div class="tile-swatch">
+          <div class="tile-box t-gas">&#9763;</div>
+          <div class="tile-label">Gas Origin</div>
+          <div class="tile-desc">The source of poison gas. Revealed when discovered.</div>
+        </div>
+        <div class="tile-swatch">
+          <div class="tile-box t-infected">&#9763;</div>
+          <div class="tile-label">Infected</div>
+          <div class="tile-desc">Dangerous. Stepping on it causes a forced random teleport next turn.</div>
+        </div>
+        <div class="tile-swatch">
+          <div class="tile-box t-safe">A</div>
+          <div class="tile-label">Safe Lane</div>
+          <div class="tile-desc">Infected, but safe for the owner of the protecting tower.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-title"><span class="icon">&#127963;</span> Towers</div>
+      <p>Towers are the heart of the game. Claiming, upgrading, and defending towers is how you score the most points and win.</p>
+
+      <h3>Claiming a Tower</h3>
+      <p>Towers start hidden. Walk onto an undiscovered tower to claim it — it turns your color and you earn points for a Level 1 tower (<strong>+50 pts</strong>).</p>
+
+      <h3>Upgrading Your Tower</h3>
+      <p>Stay on your own tower turn after turn to upgrade it. It takes <em>tower level</em> stay-turns to reach the next level. Each upgrade earns you points.</p>
+      <p style="margin-top:8px; color:var(--muted); font-size:14px;">Example: a Level 3 tower needs 3 stay-turns to reach Level 4.</p>
+
+      <div class="level-bar" style="margin-top:14px;">
+        <div class="level-row"><div class="level-dot">1</div><div class="level-fill"><div class="level-fill-inner" style="width:3.6%"></div></div><div class="level-pts">+50 pts</div></div>
+        <div class="level-row"><div class="level-dot">2</div><div class="level-fill"><div class="level-fill-inner" style="width:5.8%"></div></div><div class="level-pts">+80 pts</div></div>
+        <div class="level-row"><div class="level-dot">3</div><div class="level-fill"><div class="level-fill-inner" style="width:9.3%"></div></div><div class="level-pts">+128 pts</div></div>
+        <div class="level-row"><div class="level-dot">4</div><div class="level-fill"><div class="level-fill-inner" style="width:14.8%"></div></div><div class="level-pts">+204 pts</div></div>
+        <div class="level-row"><div class="level-dot">5</div><div class="level-fill"><div class="level-fill-inner" style="width:23.7%"></div></div><div class="level-pts">+327 pts</div></div>
+        <div class="level-row"><div class="level-dot">6</div><div class="level-fill"><div class="level-fill-inner" style="width:38%"></div></div><div class="level-pts">+524 pts</div></div>
+        <div class="level-row"><div class="level-dot">7</div><div class="level-fill"><div class="level-fill-inner" style="width:60.8%"></div></div><div class="level-pts">+838 pts</div></div>
+        <div class="level-row"><div class="level-dot">8</div><div class="level-fill"><div class="level-fill-inner" style="width:97%"></div></div><div class="level-pts">+1342 pts</div></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <h3>Capturing an Enemy Tower</h3>
+      <p>Walk onto an enemy tower to start invading it. Stay on it for <strong>5 consecutive turns</strong> to capture it. You earn points for the tower at its current level.</p>
+      <p style="margin-top:8px;">The invasion bar fills turn by turn:</p>
+      <div class="progress-track">
+        <div class="progress-step filled red"></div>
+        <div class="progress-step filled red"></div>
+        <div class="progress-step filled red"></div>
+        <div class="progress-step"></div>
+        <div class="progress-step"></div>
+      </div>
+      <p style="margin-top:8px; color:var(--muted); font-size:14px;">3 of 5 turns done — 2 more to capture.</p>
+      <div class="callout red" style="margin-top:12px;">
+        If the owner steps back on their tower while you are invading, the invasion resets to zero.
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-title"><span class="icon">&#127918;</span> Game Modes</div>
+      <p>There are four game modes, each with different strategy.</p>
+
+      <div class="grid-3">
+        <div class="mode-card">
+          <div class="mode-header">
+            <span class="mode-badge badge-classic">Classic</span>
+            <span class="mode-name">Hidden Towers</span>
+          </div>
+          <p style="font-size:14px;">The original mode. Towers start hidden. Reveal them, claim them, and upgrade them to score points.</p>
+          <div class="divider"></div>
+          <div class="table-wrap" style="margin-top:0;">
+            <table>
+              <thead><tr><th>Players</th><th>Board</th><th>Towers</th><th>Win</th></tr></thead>
+              <tbody>
+                <tr><td>2</td><td>6×6</td><td>4</td><td>Get <strong>3,000 pts</strong></td></tr>
+                <tr><td>3</td><td>7×7</td><td>6</td><td>Get <strong>4,000 pts</strong> or <em>4 towers</em></td></tr>
+                <tr><td>4</td><td>8×8</td><td>7</td><td>Get <strong>5,000 pts</strong> or <em>4 towers</em></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="mode-card">
+          <div class="mode-header">
+            <span class="mode-badge badge-poison">Poison Gas</span>
+            <span class="mode-name">Poison Gas</span>
+          </div>
+          <p style="font-size:14px;">Classic rules, but a hidden poison gas source lurks on the board. Revealing it starts the spread.</p>
+          <div class="divider"></div>
+          <div class="table-wrap" style="margin-top:0;">
+            <table>
+              <thead><tr><th>Players</th><th>Board</th><th>Towers</th><th>Win</th></tr></thead>
+              <tbody>
+                <tr><td>2</td><td>6×6</td><td>4</td><td>Get <strong>2,000 pts</strong></td></tr>
+                <tr><td>3</td><td>7×7</td><td>6</td><td>Get <strong>3,000 pts</strong> or <em>4 towers</em></td></tr>
+                <tr><td>4</td><td>8×8</td><td>7</td><td>Get <strong>4,000 pts</strong> or <em>4 towers</em></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout green" style="margin-top:10px; font-size:13px;">
+            Gas cannot infect tower tiles, but it can box you in. Control safe lanes with your towers.
+          </div>
+        </div>
+
+        <div class="mode-card">
+          <div class="mode-header">
+            <span class="mode-badge badge-blackout">Blackout</span>
+            <span class="mode-name">Blackout</span>
+          </div>
+          <p style="font-size:14px;">Revealed tiles vanish again after being ignored for 3 turns. The map can go dark again, so memory matters.</p>
+          <div class="divider"></div>
+          <p style="font-size:14px;">Towers can hide again too. They keep their owner and level, but upgrade progress and takeover progress reset when they disappear.</p>
+        </div>
+
+        <div class="mode-card">
+          <div class="mode-header">
+            <span class="mode-badge badge-eclipse">Eclipse</span>
+            <span class="mode-name">Eclipse</span>
+          </div>
+          <p style="font-size:14px;">Eclipse uses Blackout rules with a twist: every 10 moves, the hidden parts of the board shift around.</p>
+          <div class="divider"></div>
+          <p style="font-size:14px;">Hidden towers can move, but tower ownership and level stay attached to the tower.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-title"><span class="icon">&#127769;</span> Blackout & Eclipse</div>
+
+      <h3>Blackout</h3>
+      <p>In Blackout, revealed tiles do not stay revealed forever. After a revealed tile goes 3 turns without any player stepping on it, it becomes hidden again.</p>
+
+      <div class="grid-2" style="margin-top:14px;">
+        <div class="mini-card">
+          <div class="mini-card-title">&#9724; Tiles Vanish</div>
+          <p style="font-size:14px;">Any revealed tile can become hidden again after being ignored for 3 turns.</p>
+        </div>
+
+        <div class="mini-card">
+          <div class="mini-card-title">&#127963; Towers Can Hide Too</div>
+          <p style="font-size:14px;">A tower can disappear back into the fog, but it keeps its owner and level.</p>
+        </div>
+
+        <div class="mini-card">
+          <div class="mini-card-title">&#8635; Progress Resets</div>
+          <p style="font-size:14px;">If a tower hides again, upgrade progress and takeover progress reset to zero.</p>
+        </div>
+
+        <div class="mini-card">
+          <div class="mini-card-title">&#129504; Memory Matters</div>
+          <p style="font-size:14px;">Remember where important towers were, because the board can go dark again.</p>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <h3>Eclipse</h3>
+      <p>Eclipse includes all Blackout rules, but adds a bigger twist: every 10 moves, the hidden part of the board shifts.</p>
+
+      <div class="callout blue" style="margin-top:12px;">
+        Only hidden tiles shift. Revealed tiles stay where they are. Hidden towers can move, but their owner and level stay the same.
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-title"><span class="icon">&#9763;</span> Poison Gas</div>
+      <p>In Poison Gas mode, a hidden gas tile exists somewhere on the board. Once any player walks onto it, gas begins spreading at the end of each full round.</p>
+
+      <h3>Spreading schedule</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Players</th><th>Gas Spread Schedule</th><th>Total Added</th></tr></thead>
+          <tbody>
+            <tr><td>2 Players</td><td>+1, +1, +2, +2, +3</td><td><strong>9</strong></td></tr>
+            <tr><td>3 Players</td><td>+2, +2, +2, +3, +3</td><td><strong>12</strong></td></tr>
+            <tr><td>4 Players</td><td>+3, +3, +3, +3, +4</td><td><strong>16</strong></td></tr>
+            <tr><td>After spread ends</td><td colspan="2"><em>No more spreading. Safe lanes are finalized.</em></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout red" style="margin-top:14px;">
+        <strong>Infected tiles are permanent.</strong> If you step on one, your next turn you are teleported to a random tile instead of moving normally.
+      </div>
+
+      <div class="divider"></div>
+
+      <h3>Safe Lanes</h3>
+      <p>After gas finishes spreading, each owned tower carves a <strong>safe lane</strong> through infected tiles. The lane runs in all four cardinal directions from the tower to the edge of the board.</p>
+      <div class="callout green" style="margin-top:10px;">
+        Safe lanes are shown on the board with the owner's color and letter. Other players still get infected walking through them.
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-title"><span class="icon">&#127942;</span> How to Win</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Mode</th><th>Players</th><th>Win Condition</th></tr></thead>
+          <tbody>
+            <tr><td>Classic</td><td>2</td><td>Get <strong>3,000 points</strong></td></tr>
+            <tr><td>Classic</td><td>3</td><td>Get <strong>4,000 points</strong> <em>or</em> own <strong>4 of 6 towers</strong></td></tr>
+            <tr><td>Classic</td><td>4</td><td>Get <strong>5,000 points</strong> <em>or</em> own <strong>4 of 7 towers</strong></td></tr>
+
+            <tr><td>Poison Gas</td><td>2</td><td>Get <strong>2,000 points</strong></td></tr>
+            <tr><td>Poison Gas</td><td>3</td><td>Get <strong>3,000 points</strong> <em>or</em> own <strong>4 of 6 towers</strong></td></tr>
+            <tr><td>Poison Gas</td><td>4</td><td>Get <strong>4,000 points</strong> <em>or</em> own <strong>4 of 7 towers</strong></td></tr>
+
+            <tr><td>Blackout</td><td>2</td><td>Get <strong>3,000 points</strong></td></tr>
+            <tr><td>Blackout</td><td>3</td><td>Get <strong>4,000 points</strong> <em>or</em> own <strong>4 of 6 towers</strong></td></tr>
+            <tr><td>Blackout</td><td>4</td><td>Get <strong>5,000 points</strong> <em>or</em> own <strong>4 of 7 towers</strong></td></tr>
+
+            <tr><td>Eclipse</td><td>2</td><td>Get <strong>3,000 points</strong></td></tr>
+            <tr><td>Eclipse</td><td>3</td><td>Get <strong>4,000 points</strong> <em>or</em> own <strong>4 of 6 towers</strong></td></tr>
+            <tr><td>Eclipse</td><td>4</td><td>Get <strong>5,000 points</strong> <em>or</em> own <strong>4 of 7 towers</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout" style="margin-top:14px;">
+        If all players keep staying for 5 full rounds with no movement across the board, the game ends early and the player with the most points wins.
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-title"><span class="icon">&#129504;</span> 1 Player vs AI</div>
+      <p>Select <strong>1 Player</strong> when creating a room to play solo against a CPU opponent. The AI is available for all 2-player game modes.</p>
+
+      <div class="diff-row">
+        <div class="diff-card">
+          <div class="diff-name diff-easy">Easy</div>
+          <div class="diff-desc">Makes random moves 40% of the time. Looks only 2 moves ahead. Good for learning the game.</div>
+        </div>
+        <div class="diff-card">
+          <div class="diff-name diff-medium">Medium</div>
+          <div class="diff-desc">Looks up to 4 moves ahead with a 250 ms time limit. Plays well but makes mistakes.</div>
+        </div>
+        <div class="diff-card">
+          <div class="diff-name diff-hard">Hard</div>
+          <div class="diff-desc">Uses deeper search with alpha-beta pruning and iterative deepening. Very difficult to beat.</div>
+        </div>
+      </div>
+
+      <div class="callout blue" style="margin-top:14px;">
+        The AI always plays as Player 2. The host device runs the AI calculations — it plays automatically after a short delay.
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-title"><span class="icon">&#128176;</span> Scoring Summary</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Action</th><th>Points</th></tr></thead>
+          <tbody>
+            <tr><td>Reveal a hidden tile</td><td><strong>+10</strong></td></tr>
+            <tr><td>Claim an unowned tower</td><td><strong>+50</strong></td></tr>
+            <tr><td>Upgrade tower to Level 2</td><td><strong>+80</strong></td></tr>
+            <tr><td>Upgrade tower to Level 3</td><td><strong>+128</strong></td></tr>
+            <tr><td>Upgrade tower to Level 4</td><td><strong>+204</strong></td></tr>
+            <tr><td>Upgrade tower to Level 5</td><td><strong>+327</strong></td></tr>
+            <tr><td>Upgrade tower to Level 6</td><td><strong>+524</strong></td></tr>
+            <tr><td>Upgrade tower to Level 7</td><td><strong>+838</strong></td></tr>
+            <tr><td>Upgrade tower to Level 8</td><td><strong>+1,342</strong></td></tr>
+            <tr><td>Capture an enemy tower</td><td><strong>Points for its level</strong></td></tr>
+            <tr><td>Blackout/Eclipse tile re-hides</td><td><strong>No points lost; tower progress resets</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-title"><span class="icon">&#129351;</span> Player Pass 2.0, Stats & Daily Challenge</div>
+
+      <p>Hidden Towers tracks your progress as you play. Player Pass 2.0 shows your stats, badges, title, and recent matches.</p>
+
+      <div class="grid-2" style="margin-top:14px;">
+        <div class="mini-card">
+          <div class="mini-card-title">&#128202; Player Stats</div>
+          <p style="font-size:14px;">Track games played, wins, losses, win rate, towers owned, tiles revealed, and mode-specific wins.</p>
+        </div>
+
+        <div class="mini-card">
+          <div class="mini-card-title">&#127942; Badges & Titles</div>
+          <p style="font-size:14px;">Earn badges for achievements like winning your first game, winning special modes, revealing tiles, and capturing towers.</p>
+        </div>
+
+        <div class="mini-card">
+          <div class="mini-card-title">&#128221; Recent Matches</div>
+          <p style="font-size:14px;">Completed games are saved to your recent match history so you can look back at your results.</p>
+        </div>
+
+        <div class="mini-card">
+          <div class="mini-card-title">&#9728; Daily Challenge</div>
+          <p style="font-size:14px;">Play a rotating daily solo challenge against AI using different modes and difficulties.</p>
+        </div>
+
+        <div class="mini-card">
+          <div class="mini-card-title">&#128257; Play Again</div>
+          <p style="font-size:14px;">After regular games, the host can start a rematch with the same players, same mode, and a fresh board.</p>
+        </div>
+
+        <div class="mini-card">
+          <div class="mini-card-title">&#128279; Invite Friends</div>
+          <p style="font-size:14px;">Room hosts can share an invite with the room code so friends can join faster.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-title"><span class="icon">&#128161;</span> Strategy Tips</div>
+      <div class="grid-2">
+        <div class="mini-card">
+          <div class="mini-card-title">&#128269; Reveal early</div>
+          <p style="font-size:14px;">Uncover tiles fast at the start to find towers before your opponents and bank easy points.</p>
+        </div>
+        <div class="mini-card">
+          <div class="mini-card-title">&#128308; Defend high-level towers</div>
+          <p style="font-size:14px;">A Level 7 or 8 tower is worth a lot of points. Do not leave them unguarded.</p>
+        </div>
+        <div class="mini-card">
+          <div class="mini-card-title">&#9763; Plan around gas</div>
+          <p style="font-size:14px;">In Poison Gas, tower placement determines your safe lanes after gas finalizes.</p>
+        </div>
+        <div class="mini-card">
+          <div class="mini-card-title">&#128293; Upgrade carefully</div>
+          <p style="font-size:14px;">A higher-level tower is powerful, but it also becomes a bigger target.</p>
+        </div>
+        <div class="mini-card">
+          <div class="mini-card-title">&#128336; Timing invasions</div>
+          <p style="font-size:14px;">Capture attempts take 5 turns. Start invading only when you can commit.</p>
+        </div>
+        <div class="mini-card">
+          <div class="mini-card-title">&#127919; Tower vs points race</div>
+          <p style="font-size:14px;">In 3–4 player modes, owning 4 towers can win outright.</p>
+        </div>
+        <div class="mini-card">
+          <div class="mini-card-title">&#127769; Remember the map</div>
+          <p style="font-size:14px;">In Blackout and Eclipse, important tiles can vanish again. Try to remember where towers were.</p>
+        </div>
+        <div class="mini-card">
+          <div class="mini-card-title">&#127761; Watch the Eclipse timer</div>
+          <p style="font-size:14px;">In Eclipse, hidden tiles shift every 10 moves. Revealed information is safe, but hidden towers may move.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer">Hidden Towers — How to Play &nbsp;&#8226;&nbsp; Good luck out there!</div>
+  </main>
+
+  <script>
+    document.getElementById("backHomeBtn").addEventListener("click", () => {
+      sessionStorage.setItem("hiddenTowersReturningHome", "1");
+    });
+
+    let lastTouchEnd = 0;
+
+    document.addEventListener("touchend", function (event) {
+      const now = Date.now();
+
+      if (now - lastTouchEnd <= 350) {
+        event.preventDefault();
+      }
+
+      lastTouchEnd = now;
+    }, { passive: false });
+
+    document.addEventListener("gesturestart", function (event) {
+      event.preventDefault();
+    }, { passive: false });
+
+    document.addEventListener("gesturechange", function (event) {
+      event.preventDefault();
+    }, { passive: false });
+
+    document.addEventListener("gestureend", function (event) {
+      event.preventDefault();
+    }, { passive: false });
+  </script>
+</body>
+</html>
