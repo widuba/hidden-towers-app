@@ -1638,6 +1638,133 @@ textarea {
         font-weight: 800;
         margin: 4px 0 8px;
       }
+
+/* ════ IN-GAME CHAT ════ */
+.chat-panel {
+  background: var(--card); border: 1px solid var(--card-border);
+  border-radius: var(--r2); backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden;
+}
+.chat-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 7px 12px; cursor: pointer;
+  -webkit-user-select: none; user-select: none; touch-action: manipulation;
+}
+.chat-header-title {
+  font-family: 'Fredoka One', cursive; font-size: 14px;
+  color: var(--gold); display: flex; align-items: center; gap: 6px;
+}
+.chat-unread {
+  background: var(--purple); color: #fff; font-size: 10px; font-weight: 900;
+  padding: 1px 6px; border-radius: 999px; font-family: 'Nunito', sans-serif;
+}
+.chat-toggle-icon { font-size: 12px; color: var(--muted); }
+.chat-body { display: flex; flex-direction: column; }
+.chat-body.collapsed { display: none; }
+.chat-messages {
+  overflow-y: auto; padding: 4px 10px 2px;
+  display: flex; flex-direction: column; gap: 3px;
+  max-height: 110px; min-height: 36px; scrollbar-width: none;
+}
+.chat-messages::-webkit-scrollbar { display: none; }
+.chat-msg {
+  font-size: 12px; font-weight: 700; line-height: 1.4;
+  padding: 2px 5px; border-radius: 6px; word-break: break-word;
+  -webkit-user-select: text; user-select: text;
+}
+.chat-msg .chat-name { font-weight: 900; font-size: 11px; margin-right: 3px; }
+.chat-msg.sys { color: var(--muted); font-style: italic; font-size: 11px; padding: 1px 2px; }
+.chat-msg-me { background: rgba(120,80,255,.12); }
+.chat-msg-user { font-weight: 900; font-size: 11px; margin-right: 3px; color: var(--purple); }
+.chat-quick-row {
+  display: flex; gap: 4px; flex-wrap: wrap; padding: 4px 8px 0;
+}
+.chat-quick-btn {
+  font-size: 11px !important; font-weight: 800 !important;
+  font-family: 'Nunito', sans-serif !important; padding: 3px 8px !important;
+  border-radius: 999px !important; background: rgba(255,255,255,.07) !important;
+  color: var(--muted) !important; border: 1px solid var(--card-border) !important;
+  cursor: pointer; touch-action: manipulation;
+  box-shadow: none !important; transform: none !important; filter: none !important;
+  transition: background .12s !important;
+}
+.chat-quick-btn:hover:not(:disabled) { background: rgba(255,255,255,.14) !important; transform: none !important; }
+.chat-input-row { display: flex; gap: 5px; padding: 5px 8px 7px; }
+.chat-input {
+  flex: 1; font-size: 13px !important; padding: 6px 10px !important;
+  border-radius: 10px !important; background: rgba(0,0,0,.28) !important;
+  color: var(--text) !important; border: 1.5px solid var(--card-border) !important;
+  font-family: 'Nunito', sans-serif !important; font-weight: 700 !important;
+  outline: none; -webkit-user-select: text !important; user-select: text !important;
+  touch-action: manipulation;
+}
+.chat-input:focus { border-color: var(--purple2) !important; }
+.chat-send-btn {
+  padding: 6px 12px !important; font-size: 13px !important;
+  border-radius: 10px !important; background: var(--purple) !important;
+  color: #fff !important; box-shadow: none !important;
+  transform: none !important; filter: none !important;
+}
+.chat-send-btn:hover:not(:disabled) { filter: brightness(1.15) !important; transform: none !important; }
+
+/* ════ SOUND CONTROLS ════ */
+.sound-row { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+.sound-toggle {
+  font-size: 11px !important; font-weight: 800 !important;
+  font-family: 'Nunito', sans-serif !important; padding: 5px 11px !important;
+  border-radius: 999px !important; background: rgba(255,255,255,.07) !important;
+  color: var(--muted) !important; border: 1px solid var(--card-border) !important;
+  cursor: pointer; touch-action: manipulation;
+  box-shadow: none !important; transform: none !important; filter: none !important;
+  transition: background .14s, color .14s !important;
+}
+.sound-toggle.on {
+  background: rgba(16,185,129,.18) !important; color: #6ee7b7 !important;
+  border-color: rgba(16,185,129,.35) !important;
+}
+.sound-toggle:hover:not(:disabled) { transform: none !important; filter: brightness(1.1) !important; }
+
+/* ════ SPECTATOR ════ */
+.spectator-tag {
+  font-size: 11px; font-weight: 900; letter-spacing: .05em;
+  padding: 3px 9px; border-radius: 999px;
+  background: rgba(59,130,246,.18); border: 1px solid rgba(59,130,246,.35);
+  color: #93c5fd; flex-shrink: 0;
+}
+.spectate-modal {
+  display: none; position: fixed; inset: 0; z-index: 10050;
+  background: rgba(0,0,0,.82); backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  align-items: center; justify-content: center; padding: 18px;
+}
+.spectate-modal-box {
+  width: min(94vw, 400px); background: #0b0820;
+  border: 1.5px solid rgba(59,130,246,.38); border-radius: var(--r2);
+  padding: 22px; box-shadow: 0 0 60px rgba(59,130,246,.2);
+  display: flex; flex-direction: column; gap: 12px;
+}
+.spectate-modal-title {
+  font-family: 'Fredoka One', cursive; font-size: 26px;
+  color: #93c5fd; text-align: center;
+}
+
+/* ════ PROFILE / AVATAR ════ */
+.avatar-grid {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 8px;
+}
+.avatar-opt {
+  aspect-ratio: 1; border-radius: 12px; border: 2px solid var(--card-border);
+  background: rgba(255,255,255,.055); display: grid; place-items: center;
+  font-size: 24px; cursor: pointer; touch-action: manipulation;
+  transition: border-color .14s, background .14s;
+  -webkit-user-select: none; user-select: none;
+}
+.avatar-opt:hover { background: rgba(255,255,255,.11); }
+.avatar-opt.selected { border-color: var(--gold); background: rgba(251,191,36,.12); }
+.settings-section-title {
+  font-family: 'Fredoka One', cursive; font-size: 17px; color: var(--gold); margin-top: 4px;
+}
   </style>
 </head>
 
@@ -1781,7 +1908,9 @@ textarea {
 
         <button onclick="startDailyChallenge()" style="grid-column:1 / -1;width:100%;padding:12px;">🌞 Daily Challenge</button>
 
-        <button class="secondary" onclick="showSettings()" style="grid-column:1 / -1;width:100%;padding:12px;">⚙️ Settings</button>
+        <button class="secondary" onclick="openSpectateModal()" style="width:100%;padding:10px;">👁 Watch Game</button>
+
+        <button class="secondary" onclick="showSettings()" style="width:100%;padding:10px;">⚙️ Settings</button>
       </div>
 
       <div id="lobbyBox">
@@ -1816,6 +1945,11 @@ textarea {
           <div class="settings-value" id="settingsPlayerId">—</div>
         </div>
       </div>
+
+      <div class="settings-section-title">🎨 Profile Avatar</div>
+      <div style="font-size:12px;color:var(--muted);font-weight:800;margin-top:-2px;">Shown on your Player Pass. Click to select, then save.</div>
+      <div class="avatar-grid" id="avatarGrid"></div>
+      <button id="saveAvatarBtn" onclick="saveAvatar()" style="width:100%;">Save Avatar</button>
 
       <div class="settings-warning">
         Deleting your account is permanent. Your email address, username, Player ID, and personal account profile will be deleted. Some completed game records may be retained or anonymized only where needed for leaderboard, tournament, security, or legal purposes.
@@ -1913,12 +2047,59 @@ textarea {
           Online mode. Arrow keys move. S stays.
         </div>
 
+        <!-- Sound controls -->
+        <div class="sound-row">
+          <button class="sound-toggle" id="sfxBtn" onclick="toggleSfx()">🔇 SFX Off</button>
+          <button class="sound-toggle" id="musicBtn" onclick="toggleMusic()">🎵 Music Off</button>
+        </div>
+
+        <!-- In-game chat -->
+        <div class="chat-panel" id="chatPanel" style="display:none;">
+          <div class="chat-header" onclick="toggleChat()">
+            <div class="chat-header-title">💬 Chat <span class="chat-unread" id="chatUnread" style="display:none">0</span></div>
+            <span class="chat-toggle-icon" id="chatToggleIcon">▾</span>
+          </div>
+          <div class="chat-body" id="chatBody">
+            <div class="chat-messages" id="chatMessages"></div>
+            <div class="chat-quick-row">
+              <button class="chat-quick-btn" onclick="sendQuickChat('👍 Good move!')">👍</button>
+              <button class="chat-quick-btn" onclick="sendQuickChat('😮 Wow!')">😮</button>
+              <button class="chat-quick-btn" onclick="sendQuickChat('😂 Lol')">😂</button>
+              <button class="chat-quick-btn" onclick="sendQuickChat('GG!')">GG</button>
+              <button class="chat-quick-btn" onclick="sendQuickChat('😤 Nooo!')">😤</button>
+            </div>
+            <div class="chat-input-row">
+              <input class="chat-input" id="chatInput" placeholder="Message…" maxlength="120"
+                autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                onkeydown="if(event.key==='Enter'){sendChatMessage();event.preventDefault();}">
+              <button class="chat-send-btn" onclick="sendChatMessage()">Send</button>
+            </div>
+          </div>
+        </div>
+
         <button id="backToRoomBtn" onclick="backToRoom()" style="display:none;margin-top:4px;">Back to Room</button>
         <button id="leaveGameBtn" onclick="confirmLeaveGame()" style="display:none;margin-top:4px;" class="secondary danger">Leave Game</button>
       </div>
 
     </section>
 
+  </div>
+
+  <!-- ══ SPECTATE MODAL ══ -->
+  <div class="spectate-modal" id="spectateModal">
+    <div class="spectate-modal-box">
+      <div class="spectate-modal-title">👁 Watch Game</div>
+      <p style="text-align:center;color:var(--muted);font-size:13px;font-weight:700;">Enter a room code to watch a game in real time. You will see the full board.</p>
+      <input id="spectateCodeInput" placeholder="Room Code"
+        oninput="this.value=this.value.toUpperCase()"
+        autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"
+        style="text-align:center;letter-spacing:4px;font-size:18px;">
+      <div id="spectateStatus" style="font-size:12px;font-weight:800;color:var(--muted);min-height:16px;text-align:center;"></div>
+      <div style="display:flex;gap:10px;">
+        <button class="secondary" onclick="closeSpectateModal()" style="flex:1;">Cancel</button>
+        <button onclick="joinAsSpectator()" style="flex:1;background:linear-gradient(135deg,#3b82f6,#1d4ed8);box-shadow:0 4px 14px rgba(59,130,246,.3);">Watch</button>
+      </div>
+    </div>
   </div>
 
   <!-- ══ ACCOUNT DELETE MODAL ══ -->
@@ -2081,6 +2262,12 @@ textarea {
     let roomId = null;
     let unsubRoom = null;
     let state = null;
+    let spectatorMode = false;
+    let unsubChat = null;
+    let prevMyTurn = false;
+    let chatOpen = true;
+    let chatUnreadCount = 0;
+    const sounds = createSoundEngine();
     let selectedGameType = "classic";
     let aiMoveTimer = null;
     let selectedDifficulty = "medium";
@@ -2133,6 +2320,17 @@ textarea {
     window.shareCurrentRoom = shareCurrentRoom;
     window.rematchRoom = rematchRoom;
     window.startDailyChallenge = startDailyChallenge;
+    window.openSpectateModal = openSpectateModal;
+    window.closeSpectateModal = closeSpectateModal;
+    window.joinAsSpectator = joinAsSpectator;
+    window.leaveSpectate = leaveSpectate;
+    window.sendChatMessage = sendChatMessage;
+    window.sendQuickChat = sendQuickChat;
+    window.toggleChat = toggleChat;
+    window.toggleSfx = toggleSfx;
+    window.toggleMusic = toggleMusic;
+    window.selectAvatar = selectAvatar;
+    window.saveAvatar = saveAvatar;
     document.getElementById("signupBtn")?.addEventListener("click", signUp);
     document.getElementById("loginBtn")?.addEventListener("click", login);
 
@@ -2583,6 +2781,9 @@ textarea {
         if (unsubTournament) unsubTournament();
         unsubTournament = null;
 
+        unsubscribeChat();
+        spectatorMode = false;
+
         roomId = null;
         state = null;
         tournamentId = null;
@@ -2635,9 +2836,12 @@ textarea {
 
       if (unsubRoom) unsubRoom();
       unsubRoom = null;
+      unsubscribeChat();
+      spectatorMode = false;
       roomId = null;
       state = null;
       knownLeftUids.clear();
+      document.getElementById("chatPanel").style.display = "none";
       document.getElementById("roomCard").classList.remove("in-lobby");
       showRoom();
     }
@@ -2832,6 +3036,8 @@ if (!currentProfile) {
       document.getElementById("settingsEmail").textContent = currentUser.email || "—";
       document.getElementById("settingsUsername").textContent = currentProfile.username || "—";
       document.getElementById("settingsPlayerId").textContent = currentProfile.playerId || "—";
+
+      loadAvatarInSettings();
     }
 
     function showTournamentView() {
@@ -3263,15 +3469,18 @@ Are you sure this is correct?`,
         };
       }
 
-    function subscribeRoom(code) {
+    function subscribeRoom(code, asSpectator = false) {
       if (unsubRoom) unsubRoom();
+      unsubscribeChat();
       stopHeartbeat();
       knownLeftUids.clear();
 
+      spectatorMode = asSpectator;
       roomId = code;
       document.getElementById("roomCodeDisplay").textContent = code;
       document.getElementById("roomCard").classList.add("in-lobby");
-      startHeartbeat();
+      if (!asSpectator) startHeartbeat();
+      subscribeChat(code);
 
       unsubRoom = onSnapshot(doc(db, "games", code), (snap) => {
         if (!snap.exists()) {
@@ -3552,19 +3761,33 @@ Are you sure this is correct?`,
       renderScores();
       renderBoard();
 
+      document.getElementById("chatPanel").style.display = "flex";
+
       const leaveBtn = document.getElementById("leaveGameBtn");
       const btrBtn = document.getElementById("backToRoomBtn");
 
       if (state.status === "playing") {
         const current = state.players[state.currentPlayer];
         const gasText = state.twoPlayerMode && state.gasActive ? ` | Gas round ${state.gasRound}` : "";
-        const turnText = isMyTurn() ? "YOUR TURN" : `${current.username}'s turn`;
-        document.getElementById("info").textContent =
-          `${turnText} | Round ${state.fullRoundNumber}${gasText}`;
-        // Show leave button only if the local player is still in the game
-        const me = state.players.find(p => p.uid === currentUser?.uid);
-        leaveBtn.style.display = (me && !me.left) ? "block" : "none";
-        btrBtn.style.display = "none";
+
+        if (spectatorMode) {
+          document.getElementById("info").textContent =
+            `👁 Spectating | ${current.username}'s turn | Round ${state.fullRoundNumber}${gasText}`;
+          leaveBtn.style.display = "none";
+          btrBtn.textContent = "Stop Watching";
+          btrBtn.style.display = "block";
+          prevMyTurn = false;
+        } else {
+          const myTurn = isMyTurn();
+          const turnText = myTurn ? "YOUR TURN" : `${current.username}'s turn`;
+          document.getElementById("info").textContent =
+            `${turnText} | Round ${state.fullRoundNumber}${gasText}`;
+          if (myTurn && !prevMyTurn) sounds.play("your_turn");
+          prevMyTurn = myTurn;
+          const me = state.players.find(p => p.uid === currentUser?.uid);
+          leaveBtn.style.display = (me && !me.left) ? "block" : "none";
+          btrBtn.style.display = "none";
+        }
       } else if (state.status === "ended") {
         document.getElementById("info").textContent = "Game over. Hide final screen to inspect the board.";
         leaveBtn.style.display = "none";
@@ -3626,7 +3849,9 @@ Are you sure this is correct?`,
         const div = document.createElement("div");
         div.className = "tile ";
 
-        if (!tile.revealed) {
+        const visibleRevealed = spectatorMode ? true : tile.revealed;
+
+        if (!visibleRevealed) {
           div.className += "hidden";
         } else if (tile.type === "tower") {
           div.className += "tower";
@@ -3650,7 +3875,7 @@ Are you sure this is correct?`,
           div.className += "revealed";
         }
 
-        if (tile.revealed && tile.type === "gas") {
+        if (visibleRevealed && tile.type === "gas") {
           div.className += " gas-origin";
 
           const gasMark = document.createElement("div");
@@ -4176,11 +4401,13 @@ Are you sure this is correct?`,
 
       const tile = getTileFrom(next.tiles, x, y);
       const wasHidden = tile.revealed === false;
+      const prevTileOwner = tile.owner;
 
       if (wasHidden) {
         tile.revealed = true;
         tile.untouchedTurns = 0;
         player.points += 10;
+        sounds.play("tile_reveal");
 
         if (next.twoPlayerMode && tile.type === "gas" && !next.gasActive) {
           next.gasActive = true;
@@ -4190,6 +4417,10 @@ Are you sure this is correct?`,
       }
 
       handleTowerStep(next, player, tile, true);
+      if (tile.type === "tower") {
+        if (prevTileOwner === null && tile.owner === player.id) sounds.play("tower_claim");
+        else if (prevTileOwner !== null && prevTileOwner !== player.id && tile.owner === player.id) sounds.play("tower_capture");
+      }
       if (next.gasFinalized) rebuildInfectionSafeZones(next);
       handleInfection(next, player);
 
@@ -4805,7 +5036,8 @@ Are you sure this is correct?`,
           const title = getBestTitle(stats);
 
           if (sub) {
-            sub.textContent = `${currentProfile?.username || "Player"} • ${title}`;
+            const avatarEmoji = userData.avatar || "🧙";
+            sub.textContent = `${avatarEmoji} ${currentProfile?.username || "Player"} • ${title}`;
           }
 
           let recentMatches = [];
@@ -4997,6 +5229,10 @@ Are you sure this is correct?`,
         }
 
         document.getElementById("gameOver").style.display = "grid";
+
+        const isWinner = winner.uid === currentUser?.uid;
+        if (isWinner) sounds.play("game_over_win");
+        else sounds.play("game_over_lose");
       }
 
     function hideGameOver() {
@@ -6089,6 +6325,315 @@ Are you sure this is correct?`,
       await updateDoc(doc(db, "tournaments", tournamentId), {
         status: "finished", updatedAt: serverTimestamp()
       });
+    }
+
+    // ══ SOUND ENGINE ══
+    function createSoundEngine() {
+      let ctx = null;
+      let sfxEnabled = true;
+      let musicEnabled = false;
+      let musicOscillators = [];
+      let musicInterval = null;
+
+      function getCtx() {
+        if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+        if (ctx.state === "suspended") ctx.resume();
+        return ctx;
+      }
+
+      function beep(freq, type, duration, volume, delay = 0) {
+        if (!sfxEnabled) return;
+        try {
+          const c = getCtx();
+          const osc = c.createOscillator();
+          const gain = c.createGain();
+          osc.connect(gain);
+          gain.connect(c.destination);
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, c.currentTime + delay);
+          gain.gain.setValueAtTime(volume, c.currentTime + delay);
+          gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + delay + duration);
+          osc.start(c.currentTime + delay);
+          osc.stop(c.currentTime + delay + duration + 0.05);
+        } catch (e) {}
+      }
+
+      const sounds = {
+        tile_reveal() {
+          beep(440, "sine", 0.08, 0.2);
+        },
+        tower_claim() {
+          beep(523, "triangle", 0.1, 0.3);
+          beep(659, "triangle", 0.15, 0.3, 0.1);
+        },
+        tower_capture() {
+          beep(880, "sawtooth", 0.06, 0.25);
+          beep(1046, "sawtooth", 0.1, 0.25, 0.07);
+          beep(1318, "sawtooth", 0.15, 0.25, 0.14);
+        },
+        your_turn() {
+          beep(523, "sine", 0.1, 0.3);
+          beep(784, "sine", 0.15, 0.3, 0.12);
+        },
+        game_over_win() {
+          [523, 659, 784, 1046].forEach((f, i) => beep(f, "triangle", 0.2, 0.35, i * 0.12));
+        },
+        game_over_lose() {
+          beep(330, "sawtooth", 0.15, 0.3);
+          beep(262, "sawtooth", 0.25, 0.3, 0.18);
+        },
+        chat_receive() {
+          beep(880, "sine", 0.06, 0.15);
+        }
+      };
+
+      return {
+        play(type) {
+          if (!sfxEnabled) return;
+          if (sounds[type]) sounds[type]();
+        },
+        toggleSfx() {
+          sfxEnabled = !sfxEnabled;
+          return sfxEnabled;
+        },
+        toggleMusic() {
+          musicEnabled = !musicEnabled;
+          if (musicEnabled) this.startMusic();
+          else this.stopMusic();
+          return musicEnabled;
+        },
+        startMusic() {
+          if (!musicEnabled) return;
+          try {
+            const c = getCtx();
+            const notes = [261, 293, 329, 392, 440, 392, 329, 293];
+            let i = 0;
+            const playNote = () => {
+              if (!musicEnabled) return;
+              const osc = c.createOscillator();
+              const gain = c.createGain();
+              osc.connect(gain);
+              gain.connect(c.destination);
+              osc.type = "sine";
+              osc.frequency.value = notes[i % notes.length];
+              gain.gain.setValueAtTime(0.05, c.currentTime);
+              gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.4);
+              osc.start(c.currentTime);
+              osc.stop(c.currentTime + 0.45);
+              musicOscillators.push(osc);
+              i++;
+            };
+            musicInterval = setInterval(playNote, 500);
+          } catch (e) {}
+        },
+        stopMusic() {
+          if (musicInterval) { clearInterval(musicInterval); musicInterval = null; }
+          musicOscillators.forEach(o => { try { o.stop(); } catch(e) {} });
+          musicOscillators = [];
+        },
+        isSfxOn() { return sfxEnabled; },
+        isMusicOn() { return musicEnabled; }
+      };
+    }
+
+    // ══ CHAT ══
+    function subscribeChat(roomCode) {
+      unsubscribeChat();
+      try {
+        const chatCol = collection(db, "games", roomCode, "chat");
+        unsubChat = onSnapshot(chatCol, snap => {
+          const msgs = snap.docs
+            .map(d => d.data())
+            .sort((a, b) => (a.ts || 0) - (b.ts || 0));
+          renderChatMessages(msgs);
+        });
+      } catch(e) {
+        console.warn("Chat subscribe failed:", e);
+      }
+    }
+
+    function unsubscribeChat() {
+      if (unsubChat) { unsubChat(); unsubChat = null; }
+    }
+
+    async function sendChatMessage() {
+      const input = document.getElementById("chatInput");
+      if (!input) return;
+      const text = input.value.trim();
+      if (!text || !roomId || !currentUser) return;
+      input.value = "";
+      await writeChatMsg(text);
+    }
+
+    async function sendQuickChat(text) {
+      if (!roomId || !currentUser) return;
+      await writeChatMsg(text);
+    }
+
+    async function writeChatMsg(text) {
+      try {
+        const msgId = `${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+        const username = currentProfile?.username || "Player";
+        await setDoc(doc(db, "games", roomId, "chat", msgId), {
+          uid: currentUser.uid,
+          username,
+          text,
+          ts: Date.now()
+        });
+      } catch(e) {
+        console.warn("Chat send failed:", e);
+      }
+    }
+
+    function renderChatMessages(messages) {
+      const box = document.getElementById("chatMessages");
+      if (!box) return;
+
+      const wasAtBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 40;
+
+      box.innerHTML = "";
+      messages.forEach(msg => {
+        const isMe = msg.uid === currentUser?.uid;
+        const div = document.createElement("div");
+        div.className = "chat-msg" + (isMe ? " chat-msg-me" : "");
+        div.innerHTML = `<span class="chat-msg-user">${isMe ? "You" : escapeHtml(msg.username)}</span> ${escapeHtml(msg.text)}`;
+        box.appendChild(div);
+      });
+
+      if (wasAtBottom || messages.length === 0) {
+        box.scrollTop = box.scrollHeight;
+      } else if (!chatOpen) {
+        chatUnreadCount++;
+        const badge = document.getElementById("chatUnread");
+        if (badge) { badge.textContent = chatUnreadCount; badge.style.display = "inline"; }
+      }
+
+      if (!chatOpen) {
+        const last = messages[messages.length - 1];
+        if (last && last.uid !== currentUser?.uid) sounds.play("chat_receive");
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    function toggleChat() {
+      chatOpen = !chatOpen;
+      const body = document.getElementById("chatBody");
+      const icon = document.getElementById("chatToggleIcon");
+      if (body) body.style.display = chatOpen ? "flex" : "none";
+      if (icon) icon.textContent = chatOpen ? "▾" : "▴";
+      if (chatOpen) {
+        chatUnreadCount = 0;
+        const badge = document.getElementById("chatUnread");
+        if (badge) badge.style.display = "none";
+      }
+    }
+
+    // ══ SPECTATOR ══
+    function openSpectateModal() {
+      const modal = document.getElementById("spectateModal");
+      if (modal) {
+        modal.style.display = "flex";
+        const inp = document.getElementById("spectateCodeInput");
+        if (inp) { inp.value = ""; inp.focus(); }
+        const status = document.getElementById("spectateStatus");
+        if (status) status.textContent = "";
+      }
+    }
+
+    function closeSpectateModal() {
+      const modal = document.getElementById("spectateModal");
+      if (modal) modal.style.display = "none";
+    }
+
+    async function joinAsSpectator() {
+      const inp = document.getElementById("spectateCodeInput");
+      const status = document.getElementById("spectateStatus");
+      if (!inp || !status) return;
+      const code = inp.value.trim().toUpperCase();
+      if (!code) { status.textContent = "Enter a room code."; return; }
+      status.textContent = "Checking...";
+      try {
+        const snap = await getDoc(doc(db, "games", code));
+        if (!snap.exists()) { status.textContent = "Room not found."; return; }
+        const data = snap.data();
+        if (data.status === "waiting") { status.textContent = "Game hasn't started yet."; return; }
+        if (data.status === "ended") { status.textContent = "Game has already ended."; return; }
+        closeSpectateModal();
+        subscribeRoom(code, true);
+        showGame();
+      } catch(e) {
+        status.textContent = "Error: " + (e.message || "Could not join.");
+      }
+    }
+
+    function leaveSpectate() {
+      leaveRoom();
+    }
+
+    // ══ PROFILE / AVATAR ══
+    const AVATAR_OPTIONS = ["🧙","🧝","🧛","🧟","🧜","🧞","🤖","👾","🦊","🐉","🦁","🐺","🌟","🔥","⚡","💎","🗡️","🛡️","🎭","🎩"];
+
+    async function loadAvatarInSettings() {
+      const grid = document.getElementById("avatarGrid");
+      if (!grid || !currentUser) return;
+      let currentAvatar = "🧙";
+      try {
+        const snap = await getDoc(doc(db, "users", currentUser.uid));
+        if (snap.exists()) currentAvatar = snap.data().avatar || "🧙";
+      } catch(e) {}
+
+      grid.innerHTML = "";
+      AVATAR_OPTIONS.forEach(emoji => {
+        const btn = document.createElement("button");
+        btn.className = "avatar-opt" + (emoji === currentAvatar ? " selected" : "");
+        btn.textContent = emoji;
+        btn.onclick = () => selectAvatar(emoji);
+        grid.appendChild(btn);
+      });
+    }
+
+    function selectAvatar(emoji) {
+      document.querySelectorAll(".avatar-opt").forEach(btn => {
+        btn.classList.toggle("selected", btn.textContent === emoji);
+      });
+    }
+
+    async function saveAvatar() {
+      const selected = document.querySelector(".avatar-opt.selected");
+      if (!selected || !currentUser) return;
+      const emoji = selected.textContent;
+      const btn = document.getElementById("saveAvatarBtn");
+      if (btn) btn.textContent = "Saving...";
+      try {
+        await setDoc(doc(db, "users", currentUser.uid), { avatar: emoji }, { merge: true });
+        if (btn) btn.textContent = "Saved!";
+        setTimeout(() => { if (btn) btn.textContent = "Save Avatar"; }, 2000);
+      } catch(e) {
+        if (btn) btn.textContent = "Error saving";
+        setTimeout(() => { if (btn) btn.textContent = "Save Avatar"; }, 2000);
+      }
+    }
+
+    // ══ SOUND UI ══
+    function toggleSfx() {
+      const on = sounds.toggleSfx();
+      const btn = document.getElementById("sfxBtn");
+      if (btn) {
+        btn.textContent = on ? "🔊 SFX On" : "🔇 SFX Off";
+        btn.className = "sound-toggle" + (on ? " on" : "");
+      }
+    }
+
+    function toggleMusic() {
+      const on = sounds.toggleMusic();
+      const btn = document.getElementById("musicBtn");
+      if (btn) {
+        btn.textContent = on ? "🎵 Music On" : "🎵 Music Off";
+        btn.className = "sound-toggle" + (on ? " on" : "");
+      }
     }
 
     // Best-effort leave on tab close / navigation away.
