@@ -4942,7 +4942,7 @@ Are you sure this is correct?`,
               if (won) updates["stats.tournamentGameWins"] = increment(1);
             }
 
-            tx.set(userRef, updates, { merge: true });
+            tx.update(userRef, updates);
           });
         } catch (err) {
           console.error("Could not record player stats:", err);
