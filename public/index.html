@@ -4873,7 +4873,7 @@ Are you sure this is correct?`,
       }
 
       async function recordPlayerStatsForEndedGame(s) {
-        if (!currentUser || !currentProfile || !s || s.status !== "ended") return;
+        if (!currentUser || !s || s.status !== "ended") return;
 
         const me = (s.players || []).find(p => p.uid === currentUser.uid);
         if (!me) return;
@@ -4884,12 +4884,11 @@ Are you sure this is correct?`,
 
         const ranking = getRankingFor(s);
         const placement = ranking.findIndex(p => p.uid === currentUser.uid) + 1;
-        if (placement < 1) return;
+        if (placement < 1) { statRecordedRooms.delete(statKey); return; }
 
         const won = me.id === s.finalWinnerId;
         const modeKey = getModeStatKey(s.gameType || "classic");
         const isTournamentGame = !!s.tournamentCode;
-
         const towersOwned = countOwnedTowersForPlayer(s, me.id);
         const highestTower = highestTowerLevelIn(s, me.id);
         const tilesRevealed = countRevealedTilesIn(s);
@@ -4898,54 +4897,48 @@ Are you sure this is correct?`,
         const matchRef = doc(db, "userGameStats", `${currentUser.uid}_${s.code}`);
 
         try {
-          await runTransaction(db, async (tx) => {
-            const already = await tx.get(matchRef);
-            if (already.exists()) return;
+          // Server-side idempotency: if match was already recorded, skip
+          const alreadySnap = await getDoc(matchRef);
+          if (alreadySnap.exists()) return;
 
-            tx.set(matchRef, {
-              uid: currentUser.uid,
-              roomCode: s.code,
-              gameType: s.gameType || "classic",
-              modeName: getModeName(s.gameType || "classic"),
-              tournamentCode: s.tournamentCode || null,
-              placement,
-              won,
-              winnerId: s.finalWinnerId || null,
-              points: me.points || 0,
-              towersOwned,
-              highestTower,
-              tilesRevealed,
-              playerCount: s.playerCount || 0,
-              createdAt: serverTimestamp()
-            });
+          const updates = {
+            "stats.gamesPlayed": increment(1),
+            "stats.totalPoints": increment(me.points || 0),
+            "stats.totalTowersOwnedAtEnd": increment(towersOwned),
+            "stats.totalTilesRevealed": increment(tilesRevealed),
+            "stats.updatedAt": serverTimestamp(),
+            "stats.lastMode": getModeName(s.gameType || "classic")
+          };
+          if (won) {
+            updates["stats.wins"] = increment(1);
+            updates[`stats.modeWins.${modeKey}`] = increment(1);
+          } else {
+            updates["stats.losses"] = increment(1);
+          }
+          updates[`stats.modeGames.${modeKey}`] = increment(1);
+          if (isTournamentGame) {
+            updates["stats.tournamentGamesPlayed"] = increment(1);
+            if (won) updates["stats.tournamentGameWins"] = increment(1);
+          }
 
-            const updates = {
-              "stats.gamesPlayed": increment(1),
-              "stats.totalPoints": increment(me.points || 0),
-              "stats.totalTowersOwnedAtEnd": increment(towersOwned),
-              "stats.totalTilesRevealed": increment(tilesRevealed),
-              "stats.updatedAt": serverTimestamp(),
-              "stats.lastMode": getModeName(s.gameType || "classic")
-            };
-
-            if (won) {
-              updates["stats.wins"] = increment(1);
-              updates[`stats.modeWins.${modeKey}`] = increment(1);
-            } else {
-              updates["stats.losses"] = increment(1);
-            }
-
-            updates[`stats.modeGames.${modeKey}`] = increment(1);
-
-            if (isTournamentGame) {
-              updates["stats.tournamentGamesPlayed"] = increment(1);
-              if (won) updates["stats.tournamentGameWins"] = increment(1);
-            }
-
-            tx.update(userRef, updates);
+          // Write stats to user doc first, then stamp the match record
+          await updateDoc(userRef, updates);
+          await setDoc(matchRef, {
+            uid: currentUser.uid,
+            roomCode: s.code,
+            gameType: s.gameType || "classic",
+            modeName: getModeName(s.gameType || "classic"),
+            tournamentCode: s.tournamentCode || null,
+            placement, won,
+            winnerId: s.finalWinnerId ?? null,
+            points: me.points || 0,
+            towersOwned, highestTower, tilesRevealed,
+            playerCount: s.playerCount || 0,
+            createdAt: serverTimestamp()
           });
         } catch (err) {
           console.error("Could not record player stats:", err);
+          statRecordedRooms.delete(statKey); // allow retry on next snapshot
         }
       }
       
