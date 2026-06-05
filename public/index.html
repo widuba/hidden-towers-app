@@ -90,6 +90,18 @@
       justify-content: flex-start;
     }
 
+    body.view-lobby {
+      overflow: hidden !important;
+      height: 100dvh;
+      height: 100vh;
+    }
+    body.view-lobby .app {
+      height: 100dvh;
+      height: 100vh;
+      overflow: hidden;
+      justify-content: center;
+    }
+
     /* ── Typography ── */
     h1, h2, h3, .ftitle { font-family: 'Fredoka One', cursive; font-weight: 400; }
 
@@ -501,8 +513,15 @@
 
     .board-wrap {
       flex: 1; min-height: 0;
-      display: flex; align-items: center; justify-content: center;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
       width: 100%;
+    }
+
+    .game-room-code {
+      font-family: 'Fredoka One', cursive;
+      font-size: 13px; letter-spacing: 3px;
+      color: var(--muted); text-align: center;
+      padding: 0 0 5px; opacity: 0.75; flex-shrink: 0;
     }
 
     .board {
@@ -729,6 +748,10 @@
         flex: 0 0 260px;
         width: 260px;
         min-width: 0;
+        overflow-y: auto;
+        max-height: calc(100dvh - 20px);
+        max-height: calc(100vh - 20px);
+        padding-bottom: 10px;
       }
 
       body.view-game .info {
@@ -1281,6 +1304,18 @@ textarea {
         overflow-x: hidden !important;
       }
 
+      body.view-lobby {
+        overflow: hidden !important;
+        height: 100dvh !important;
+      }
+      body.view-lobby .app {
+        height: 100dvh !important;
+        overflow: hidden !important;
+        justify-content: center;
+        padding-top: calc(env(safe-area-inset-top) + 10px) !important;
+        padding-bottom: max(10px, env(safe-area-inset-bottom)) !important;
+      }
+
       .app {
         width: 100%;
         max-width: 100vw;
@@ -1375,7 +1410,8 @@ textarea {
 
         body.view-game .game-sidebar {
           gap: 8px;
-          padding-bottom: 4px;
+          padding-bottom: max(12px, env(safe-area-inset-bottom));
+          overflow-y: visible;
         }
 
         body.view-game .game-top-bar {
@@ -1963,6 +1999,7 @@ textarea {
     <!-- ══ GAME AREA ══ -->
     <section id="gameArea">
       <div class="board-wrap">
+        <div class="game-room-code" id="gameRoomCode"></div>
         <div class="board" id="board"></div>
       </div>
 
@@ -3376,6 +3413,7 @@ Are you sure this is correct?`,
       roomId = code;
       document.getElementById("roomCodeDisplay").textContent = code;
       document.getElementById("roomCard").classList.add("in-lobby");
+      document.body.classList.add("view-lobby");
       if (!asSpectator) startHeartbeat();
 
       unsubRoom = onSnapshot(doc(db, "games", code), (snap) => {
@@ -3654,6 +3692,9 @@ Are you sure this is correct?`,
     function render() {
       if (!state) return;
 
+      const codeEl = document.getElementById("gameRoomCode");
+      if (codeEl && roomId) codeEl.textContent = `Room: ${roomId}`;
+
       renderScores();
       renderBoard();
 
@@ -3743,7 +3784,7 @@ Are you sure this is correct?`,
         const div = document.createElement("div");
         div.className = "tile ";
 
-        const visibleRevealed = spectatorMode ? true : tile.revealed;
+        const visibleRevealed = tile.revealed;
 
         if (!visibleRevealed) {
           div.className += "hidden";
