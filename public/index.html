@@ -90,6 +90,18 @@
       justify-content: flex-start;
     }
 
+    body.view-lobby {
+      overflow: hidden !important;
+      height: 100dvh;
+      height: 100vh;
+    }
+    body.view-lobby .app {
+      height: 100dvh;
+      height: 100vh;
+      overflow: hidden;
+      justify-content: center;
+    }
+
     /* ── Typography ── */
     h1, h2, h3, .ftitle { font-family: 'Fredoka One', cursive; font-weight: 400; }
 
@@ -501,8 +513,15 @@
 
     .board-wrap {
       flex: 1; min-height: 0;
-      display: flex; align-items: center; justify-content: center;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
       width: 100%;
+    }
+
+    .game-room-code {
+      font-family: 'Fredoka One', cursive;
+      font-size: 13px; letter-spacing: 3px;
+      color: var(--muted); text-align: center;
+      padding: 0 0 5px; opacity: 0.75; flex-shrink: 0;
     }
 
     .board {
@@ -729,6 +748,10 @@
         flex: 0 0 260px;
         width: 260px;
         min-width: 0;
+        overflow-y: auto;
+        max-height: calc(100dvh - 20px);
+        max-height: calc(100vh - 20px);
+        padding-bottom: 10px;
       }
 
       body.view-game .info {
@@ -1281,6 +1304,18 @@ textarea {
         overflow-x: hidden !important;
       }
 
+      body.view-lobby {
+        overflow: hidden !important;
+        height: 100dvh !important;
+      }
+      body.view-lobby .app {
+        height: 100dvh !important;
+        overflow: hidden !important;
+        justify-content: center;
+        padding-top: calc(env(safe-area-inset-top) + 10px) !important;
+        padding-bottom: max(10px, env(safe-area-inset-bottom)) !important;
+      }
+
       .app {
         width: 100%;
         max-width: 100vw;
@@ -1375,7 +1410,8 @@ textarea {
 
         body.view-game .game-sidebar {
           gap: 8px;
-          padding-bottom: 4px;
+          padding-bottom: max(12px, env(safe-area-inset-bottom));
+          overflow-y: visible;
         }
 
         body.view-game .game-top-bar {
@@ -1638,6 +1674,64 @@ textarea {
         font-weight: 800;
         margin: 4px 0 8px;
       }
+
+/* ════ SOUND CONTROLS ════ */
+.sound-row { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+.sound-toggle {
+  font-size: 11px !important; font-weight: 800 !important;
+  font-family: 'Nunito', sans-serif !important; padding: 5px 11px !important;
+  border-radius: 999px !important; background: rgba(255,255,255,.07) !important;
+  color: var(--muted) !important; border: 1px solid var(--card-border) !important;
+  cursor: pointer; touch-action: manipulation;
+  box-shadow: none !important; transform: none !important; filter: none !important;
+  transition: background .14s, color .14s !important;
+}
+.sound-toggle.on {
+  background: rgba(16,185,129,.18) !important; color: #6ee7b7 !important;
+  border-color: rgba(16,185,129,.35) !important;
+}
+.sound-toggle:hover:not(:disabled) { transform: none !important; filter: brightness(1.1) !important; }
+
+/* ════ SPECTATOR ════ */
+.spectator-tag {
+  font-size: 11px; font-weight: 900; letter-spacing: .05em;
+  padding: 3px 9px; border-radius: 999px;
+  background: rgba(59,130,246,.18); border: 1px solid rgba(59,130,246,.35);
+  color: #93c5fd; flex-shrink: 0;
+}
+.spectate-modal {
+  display: none; position: fixed; inset: 0; z-index: 10050;
+  background: rgba(0,0,0,.82); backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  align-items: center; justify-content: center; padding: 18px;
+}
+.spectate-modal-box {
+  width: min(94vw, 400px); background: #0b0820;
+  border: 1.5px solid rgba(59,130,246,.38); border-radius: var(--r2);
+  padding: 22px; box-shadow: 0 0 60px rgba(59,130,246,.2);
+  display: flex; flex-direction: column; gap: 12px;
+}
+.spectate-modal-title {
+  font-family: 'Fredoka One', cursive; font-size: 26px;
+  color: #93c5fd; text-align: center;
+}
+
+/* ════ PROFILE / AVATAR ════ */
+.avatar-grid {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 8px;
+}
+.avatar-opt {
+  aspect-ratio: 1; border-radius: 12px; border: 2px solid var(--card-border);
+  background: rgba(255,255,255,.055); display: grid; place-items: center;
+  font-size: 24px; cursor: pointer; touch-action: manipulation;
+  transition: border-color .14s, background .14s;
+  -webkit-user-select: none; user-select: none;
+}
+.avatar-opt:hover { background: rgba(255,255,255,.11); }
+.avatar-opt.selected { border-color: var(--gold); background: rgba(251,191,36,.12); }
+.settings-section-title {
+  font-family: 'Fredoka One', cursive; font-size: 17px; color: var(--gold); margin-top: 4px;
+}
   </style>
 </head>
 
@@ -1781,7 +1875,9 @@ textarea {
 
         <button onclick="startDailyChallenge()" style="grid-column:1 / -1;width:100%;padding:12px;">🌞 Daily Challenge</button>
 
-        <button class="secondary" onclick="showSettings()" style="grid-column:1 / -1;width:100%;padding:12px;">⚙️ Settings</button>
+        <button class="secondary" onclick="openSpectateModal()" style="width:100%;padding:10px;">👁 Watch Game</button>
+
+        <button class="secondary" onclick="showSettings()" style="width:100%;padding:10px;">⚙️ Settings</button>
       </div>
 
       <div id="lobbyBox">
@@ -1816,6 +1912,11 @@ textarea {
           <div class="settings-value" id="settingsPlayerId">—</div>
         </div>
       </div>
+
+      <div class="settings-section-title">🎨 Profile Avatar</div>
+      <div style="font-size:12px;color:var(--muted);font-weight:800;margin-top:-2px;">Shown on your Player Pass. Click to select, then save.</div>
+      <div class="avatar-grid" id="avatarGrid"></div>
+      <button id="saveAvatarBtn" onclick="saveAvatar()" style="width:100%;">Save Avatar</button>
 
       <div class="settings-warning">
         Deleting your account is permanent. Your email address, username, Player ID, and personal account profile will be deleted. Some completed game records may be retained or anonymized only where needed for leaderboard, tournament, security, or legal purposes.
@@ -1898,6 +1999,7 @@ textarea {
     <!-- ══ GAME AREA ══ -->
     <section id="gameArea">
       <div class="board-wrap">
+        <div class="game-room-code" id="gameRoomCode"></div>
         <div class="board" id="board"></div>
       </div>
 
@@ -1913,12 +2015,35 @@ textarea {
           Online mode. Arrow keys move. S stays.
         </div>
 
+        <!-- Sound controls -->
+        <div class="sound-row">
+          <button class="sound-toggle" id="sfxBtn" onclick="toggleSfx()">🔇 SFX Off</button>
+          <button class="sound-toggle" id="musicBtn" onclick="toggleMusic()">🎵 Music Off</button>
+        </div>
+
         <button id="backToRoomBtn" onclick="backToRoom()" style="display:none;margin-top:4px;">Back to Room</button>
         <button id="leaveGameBtn" onclick="confirmLeaveGame()" style="display:none;margin-top:4px;" class="secondary danger">Leave Game</button>
       </div>
 
     </section>
 
+  </div>
+
+  <!-- ══ SPECTATE MODAL ══ -->
+  <div class="spectate-modal" id="spectateModal">
+    <div class="spectate-modal-box">
+      <div class="spectate-modal-title">👁 Watch Game</div>
+      <p style="text-align:center;color:var(--muted);font-size:13px;font-weight:700;">Enter a room code to watch a game in real time. You will see the full board.</p>
+      <input id="spectateCodeInput" placeholder="Room Code"
+        oninput="this.value=this.value.toUpperCase()"
+        autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"
+        style="text-align:center;letter-spacing:4px;font-size:18px;">
+      <div id="spectateStatus" style="font-size:12px;font-weight:800;color:var(--muted);min-height:16px;text-align:center;"></div>
+      <div style="display:flex;gap:10px;">
+        <button class="secondary" onclick="closeSpectateModal()" style="flex:1;">Cancel</button>
+        <button onclick="joinAsSpectator()" style="flex:1;background:linear-gradient(135deg,#3b82f6,#1d4ed8);box-shadow:0 4px 14px rgba(59,130,246,.3);">Watch</button>
+      </div>
+    </div>
   </div>
 
   <!-- ══ ACCOUNT DELETE MODAL ══ -->
@@ -2081,6 +2206,9 @@ textarea {
     let roomId = null;
     let unsubRoom = null;
     let state = null;
+    let spectatorMode = false;
+    let prevMyTurn = false;
+    const sounds = createSoundEngine();
     let selectedGameType = "classic";
     let aiMoveTimer = null;
     let selectedDifficulty = "medium";
@@ -2133,6 +2261,14 @@ textarea {
     window.shareCurrentRoom = shareCurrentRoom;
     window.rematchRoom = rematchRoom;
     window.startDailyChallenge = startDailyChallenge;
+    window.openSpectateModal = openSpectateModal;
+    window.closeSpectateModal = closeSpectateModal;
+    window.joinAsSpectator = joinAsSpectator;
+    window.leaveSpectate = leaveSpectate;
+    window.toggleSfx = toggleSfx;
+    window.toggleMusic = toggleMusic;
+    window.selectAvatar = selectAvatar;
+    window.saveAvatar = saveAvatar;
     document.getElementById("signupBtn")?.addEventListener("click", signUp);
     document.getElementById("loginBtn")?.addEventListener("click", login);
 
@@ -2583,6 +2719,8 @@ textarea {
         if (unsubTournament) unsubTournament();
         unsubTournament = null;
 
+        spectatorMode = false;
+
         roomId = null;
         state = null;
         tournamentId = null;
@@ -2635,6 +2773,7 @@ textarea {
 
       if (unsubRoom) unsubRoom();
       unsubRoom = null;
+      spectatorMode = false;
       roomId = null;
       state = null;
       knownLeftUids.clear();
@@ -2832,6 +2971,8 @@ if (!currentProfile) {
       document.getElementById("settingsEmail").textContent = currentUser.email || "—";
       document.getElementById("settingsUsername").textContent = currentProfile.username || "—";
       document.getElementById("settingsPlayerId").textContent = currentProfile.playerId || "—";
+
+      loadAvatarInSettings();
     }
 
     function showTournamentView() {
@@ -3263,15 +3404,17 @@ Are you sure this is correct?`,
         };
       }
 
-    function subscribeRoom(code) {
+    function subscribeRoom(code, asSpectator = false) {
       if (unsubRoom) unsubRoom();
       stopHeartbeat();
       knownLeftUids.clear();
 
+      spectatorMode = asSpectator;
       roomId = code;
       document.getElementById("roomCodeDisplay").textContent = code;
       document.getElementById("roomCard").classList.add("in-lobby");
-      startHeartbeat();
+      document.body.classList.add("view-lobby");
+      if (!asSpectator) startHeartbeat();
 
       unsubRoom = onSnapshot(doc(db, "games", code), (snap) => {
         if (!snap.exists()) {
@@ -3549,6 +3692,9 @@ Are you sure this is correct?`,
     function render() {
       if (!state) return;
 
+      const codeEl = document.getElementById("gameRoomCode");
+      if (codeEl && roomId) codeEl.textContent = `Room: ${roomId}`;
+
       renderScores();
       renderBoard();
 
@@ -3558,13 +3704,25 @@ Are you sure this is correct?`,
       if (state.status === "playing") {
         const current = state.players[state.currentPlayer];
         const gasText = state.twoPlayerMode && state.gasActive ? ` | Gas round ${state.gasRound}` : "";
-        const turnText = isMyTurn() ? "YOUR TURN" : `${current.username}'s turn`;
-        document.getElementById("info").textContent =
-          `${turnText} | Round ${state.fullRoundNumber}${gasText}`;
-        // Show leave button only if the local player is still in the game
-        const me = state.players.find(p => p.uid === currentUser?.uid);
-        leaveBtn.style.display = (me && !me.left) ? "block" : "none";
-        btrBtn.style.display = "none";
+
+        if (spectatorMode) {
+          document.getElementById("info").textContent =
+            `👁 Spectating | ${current.username}'s turn | Round ${state.fullRoundNumber}${gasText}`;
+          leaveBtn.style.display = "none";
+          btrBtn.textContent = "Stop Watching";
+          btrBtn.style.display = "block";
+          prevMyTurn = false;
+        } else {
+          const myTurn = isMyTurn();
+          const turnText = myTurn ? "YOUR TURN" : `${current.username}'s turn`;
+          document.getElementById("info").textContent =
+            `${turnText} | Round ${state.fullRoundNumber}${gasText}`;
+          if (myTurn && !prevMyTurn) sounds.play("your_turn");
+          prevMyTurn = myTurn;
+          const me = state.players.find(p => p.uid === currentUser?.uid);
+          leaveBtn.style.display = (me && !me.left) ? "block" : "none";
+          btrBtn.style.display = "none";
+        }
       } else if (state.status === "ended") {
         document.getElementById("info").textContent = "Game over. Hide final screen to inspect the board.";
         leaveBtn.style.display = "none";
@@ -3626,7 +3784,9 @@ Are you sure this is correct?`,
         const div = document.createElement("div");
         div.className = "tile ";
 
-        if (!tile.revealed) {
+        const visibleRevealed = tile.revealed;
+
+        if (!visibleRevealed) {
           div.className += "hidden";
         } else if (tile.type === "tower") {
           div.className += "tower";
@@ -3650,7 +3810,7 @@ Are you sure this is correct?`,
           div.className += "revealed";
         }
 
-        if (tile.revealed && tile.type === "gas") {
+        if (visibleRevealed && tile.type === "gas") {
           div.className += " gas-origin";
 
           const gasMark = document.createElement("div");
@@ -4176,11 +4336,13 @@ Are you sure this is correct?`,
 
       const tile = getTileFrom(next.tiles, x, y);
       const wasHidden = tile.revealed === false;
+      const prevTileOwner = tile.owner;
 
       if (wasHidden) {
         tile.revealed = true;
         tile.untouchedTurns = 0;
         player.points += 10;
+        sounds.play("tile_reveal");
 
         if (next.twoPlayerMode && tile.type === "gas" && !next.gasActive) {
           next.gasActive = true;
@@ -4190,6 +4352,10 @@ Are you sure this is correct?`,
       }
 
       handleTowerStep(next, player, tile, true);
+      if (tile.type === "tower") {
+        if (prevTileOwner === null && tile.owner === player.id) sounds.play("tower_claim");
+        else if (prevTileOwner !== null && prevTileOwner !== player.id && tile.owner === player.id) sounds.play("tower_capture");
+      }
       if (next.gasFinalized) rebuildInfectionSafeZones(next);
       handleInfection(next, player);
 
@@ -4707,7 +4873,7 @@ Are you sure this is correct?`,
       }
 
       async function recordPlayerStatsForEndedGame(s) {
-        if (!currentUser || !currentProfile || !s || s.status !== "ended") return;
+        if (!currentUser || !s || s.status !== "ended") return;
 
         const me = (s.players || []).find(p => p.uid === currentUser.uid);
         if (!me) return;
@@ -4718,12 +4884,11 @@ Are you sure this is correct?`,
 
         const ranking = getRankingFor(s);
         const placement = ranking.findIndex(p => p.uid === currentUser.uid) + 1;
-        if (placement < 1) return;
+        if (placement < 1) { statRecordedRooms.delete(statKey); return; }
 
         const won = me.id === s.finalWinnerId;
         const modeKey = getModeStatKey(s.gameType || "classic");
         const isTournamentGame = !!s.tournamentCode;
-
         const towersOwned = countOwnedTowersForPlayer(s, me.id);
         const highestTower = highestTowerLevelIn(s, me.id);
         const tilesRevealed = countRevealedTilesIn(s);
@@ -4732,54 +4897,48 @@ Are you sure this is correct?`,
         const matchRef = doc(db, "userGameStats", `${currentUser.uid}_${s.code}`);
 
         try {
-          await runTransaction(db, async (tx) => {
-            const already = await tx.get(matchRef);
-            if (already.exists()) return;
+          // Server-side idempotency: if match was already recorded, skip
+          const alreadySnap = await getDoc(matchRef);
+          if (alreadySnap.exists()) return;
 
-            tx.set(matchRef, {
-              uid: currentUser.uid,
-              roomCode: s.code,
-              gameType: s.gameType || "classic",
-              modeName: getModeName(s.gameType || "classic"),
-              tournamentCode: s.tournamentCode || null,
-              placement,
-              won,
-              winnerId: s.finalWinnerId || null,
-              points: me.points || 0,
-              towersOwned,
-              highestTower,
-              tilesRevealed,
-              playerCount: s.playerCount || 0,
-              createdAt: serverTimestamp()
-            });
+          const updates = {
+            "stats.gamesPlayed": increment(1),
+            "stats.totalPoints": increment(me.points || 0),
+            "stats.totalTowersOwnedAtEnd": increment(towersOwned),
+            "stats.totalTilesRevealed": increment(tilesRevealed),
+            "stats.updatedAt": serverTimestamp(),
+            "stats.lastMode": getModeName(s.gameType || "classic")
+          };
+          if (won) {
+            updates["stats.wins"] = increment(1);
+            updates[`stats.modeWins.${modeKey}`] = increment(1);
+          } else {
+            updates["stats.losses"] = increment(1);
+          }
+          updates[`stats.modeGames.${modeKey}`] = increment(1);
+          if (isTournamentGame) {
+            updates["stats.tournamentGamesPlayed"] = increment(1);
+            if (won) updates["stats.tournamentGameWins"] = increment(1);
+          }
 
-            const updates = {
-              "stats.gamesPlayed": increment(1),
-              "stats.totalPoints": increment(me.points || 0),
-              "stats.totalTowersOwnedAtEnd": increment(towersOwned),
-              "stats.totalTilesRevealed": increment(tilesRevealed),
-              "stats.updatedAt": serverTimestamp(),
-              "stats.lastMode": getModeName(s.gameType || "classic")
-            };
-
-            if (won) {
-              updates["stats.wins"] = increment(1);
-              updates[`stats.modeWins.${modeKey}`] = increment(1);
-            } else {
-              updates["stats.losses"] = increment(1);
-            }
-
-            updates[`stats.modeGames.${modeKey}`] = increment(1);
-
-            if (isTournamentGame) {
-              updates["stats.tournamentGamesPlayed"] = increment(1);
-              if (won) updates["stats.tournamentGameWins"] = increment(1);
-            }
-
-            tx.set(userRef, updates, { merge: true });
+          // Write stats to user doc first, then stamp the match record
+          await updateDoc(userRef, updates);
+          await setDoc(matchRef, {
+            uid: currentUser.uid,
+            roomCode: s.code,
+            gameType: s.gameType || "classic",
+            modeName: getModeName(s.gameType || "classic"),
+            tournamentCode: s.tournamentCode || null,
+            placement, won,
+            winnerId: s.finalWinnerId ?? null,
+            points: me.points || 0,
+            towersOwned, highestTower, tilesRevealed,
+            playerCount: s.playerCount || 0,
+            createdAt: serverTimestamp()
           });
         } catch (err) {
           console.error("Could not record player stats:", err);
+          statRecordedRooms.delete(statKey); // allow retry on next snapshot
         }
       }
       
@@ -4805,7 +4964,8 @@ Are you sure this is correct?`,
           const title = getBestTitle(stats);
 
           if (sub) {
-            sub.textContent = `${currentProfile?.username || "Player"} • ${title}`;
+            const avatarEmoji = userData.avatar || "🧙";
+            sub.textContent = `${avatarEmoji} ${currentProfile?.username || "Player"} • ${title}`;
           }
 
           let recentMatches = [];
@@ -4997,6 +5157,10 @@ Are you sure this is correct?`,
         }
 
         document.getElementById("gameOver").style.display = "grid";
+
+        const isWinner = winner.uid === currentUser?.uid;
+        if (isWinner) sounds.play("game_over_win");
+        else sounds.play("game_over_lose");
       }
 
     function hideGameOver() {
@@ -6089,6 +6253,217 @@ Are you sure this is correct?`,
       await updateDoc(doc(db, "tournaments", tournamentId), {
         status: "finished", updatedAt: serverTimestamp()
       });
+    }
+
+    // ══ SOUND ENGINE ══
+    function createSoundEngine() {
+      let ctx = null;
+      let sfxEnabled = true;
+      let musicEnabled = false;
+      let musicOscillators = [];
+      let musicInterval = null;
+
+      function getCtx() {
+        if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+        if (ctx.state === "suspended") ctx.resume();
+        return ctx;
+      }
+
+      function beep(freq, type, duration, volume, delay = 0) {
+        if (!sfxEnabled) return;
+        try {
+          const c = getCtx();
+          const osc = c.createOscillator();
+          const gain = c.createGain();
+          osc.connect(gain);
+          gain.connect(c.destination);
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, c.currentTime + delay);
+          gain.gain.setValueAtTime(volume, c.currentTime + delay);
+          gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + delay + duration);
+          osc.start(c.currentTime + delay);
+          osc.stop(c.currentTime + delay + duration + 0.05);
+        } catch (e) {}
+      }
+
+      const sounds = {
+        tile_reveal() {
+          beep(440, "sine", 0.08, 0.2);
+        },
+        tower_claim() {
+          beep(523, "triangle", 0.1, 0.3);
+          beep(659, "triangle", 0.15, 0.3, 0.1);
+        },
+        tower_capture() {
+          beep(880, "sawtooth", 0.06, 0.25);
+          beep(1046, "sawtooth", 0.1, 0.25, 0.07);
+          beep(1318, "sawtooth", 0.15, 0.25, 0.14);
+        },
+        your_turn() {
+          beep(523, "sine", 0.1, 0.3);
+          beep(784, "sine", 0.15, 0.3, 0.12);
+        },
+        game_over_win() {
+          [523, 659, 784, 1046].forEach((f, i) => beep(f, "triangle", 0.2, 0.35, i * 0.12));
+        },
+        game_over_lose() {
+          beep(330, "sawtooth", 0.15, 0.3);
+          beep(262, "sawtooth", 0.25, 0.3, 0.18);
+        }
+      };
+
+      return {
+        play(type) {
+          if (!sfxEnabled) return;
+          if (sounds[type]) sounds[type]();
+        },
+        toggleSfx() {
+          sfxEnabled = !sfxEnabled;
+          return sfxEnabled;
+        },
+        toggleMusic() {
+          musicEnabled = !musicEnabled;
+          if (musicEnabled) this.startMusic();
+          else this.stopMusic();
+          return musicEnabled;
+        },
+        startMusic() {
+          if (!musicEnabled) return;
+          try {
+            const c = getCtx();
+            const notes = [261, 293, 329, 392, 440, 392, 329, 293];
+            let i = 0;
+            const playNote = () => {
+              if (!musicEnabled) return;
+              const osc = c.createOscillator();
+              const gain = c.createGain();
+              osc.connect(gain);
+              gain.connect(c.destination);
+              osc.type = "sine";
+              osc.frequency.value = notes[i % notes.length];
+              gain.gain.setValueAtTime(0.05, c.currentTime);
+              gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.4);
+              osc.start(c.currentTime);
+              osc.stop(c.currentTime + 0.45);
+              musicOscillators.push(osc);
+              i++;
+            };
+            musicInterval = setInterval(playNote, 500);
+          } catch (e) {}
+        },
+        stopMusic() {
+          if (musicInterval) { clearInterval(musicInterval); musicInterval = null; }
+          musicOscillators.forEach(o => { try { o.stop(); } catch(e) {} });
+          musicOscillators = [];
+        },
+        isSfxOn() { return sfxEnabled; },
+        isMusicOn() { return musicEnabled; }
+      };
+    }
+
+    // ══ SPECTATOR ══
+    function openSpectateModal() {
+      const modal = document.getElementById("spectateModal");
+      if (modal) {
+        modal.style.display = "flex";
+        const inp = document.getElementById("spectateCodeInput");
+        if (inp) { inp.value = ""; inp.focus(); }
+        const status = document.getElementById("spectateStatus");
+        if (status) status.textContent = "";
+      }
+    }
+
+    function closeSpectateModal() {
+      const modal = document.getElementById("spectateModal");
+      if (modal) modal.style.display = "none";
+    }
+
+    async function joinAsSpectator() {
+      const inp = document.getElementById("spectateCodeInput");
+      const status = document.getElementById("spectateStatus");
+      if (!inp || !status) return;
+      const code = inp.value.trim().toUpperCase();
+      if (!code) { status.textContent = "Enter a room code."; return; }
+      status.textContent = "Checking...";
+      try {
+        const snap = await getDoc(doc(db, "games", code));
+        if (!snap.exists()) { status.textContent = "Room not found."; return; }
+        const data = snap.data();
+        if (data.status === "waiting") { status.textContent = "Game hasn't started yet."; return; }
+        if (data.status === "ended") { status.textContent = "Game has already ended."; return; }
+        closeSpectateModal();
+        subscribeRoom(code, true);
+        showGame();
+      } catch(e) {
+        status.textContent = "Error: " + (e.message || "Could not join.");
+      }
+    }
+
+    function leaveSpectate() {
+      leaveRoom();
+    }
+
+    // ══ PROFILE / AVATAR ══
+    const AVATAR_OPTIONS = ["🧙","🧝","🧛","🧟","🧜","🧞","🤖","👾","🦊","🐉","🦁","🐺","🌟","🔥","⚡","💎","🗡️","🛡️","🎭","🎩"];
+
+    async function loadAvatarInSettings() {
+      const grid = document.getElementById("avatarGrid");
+      if (!grid || !currentUser) return;
+      let currentAvatar = "🧙";
+      try {
+        const snap = await getDoc(doc(db, "users", currentUser.uid));
+        if (snap.exists()) currentAvatar = snap.data().avatar || "🧙";
+      } catch(e) {}
+
+      grid.innerHTML = "";
+      AVATAR_OPTIONS.forEach(emoji => {
+        const btn = document.createElement("button");
+        btn.className = "avatar-opt" + (emoji === currentAvatar ? " selected" : "");
+        btn.textContent = emoji;
+        btn.onclick = () => selectAvatar(emoji);
+        grid.appendChild(btn);
+      });
+    }
+
+    function selectAvatar(emoji) {
+      document.querySelectorAll(".avatar-opt").forEach(btn => {
+        btn.classList.toggle("selected", btn.textContent === emoji);
+      });
+    }
+
+    async function saveAvatar() {
+      const selected = document.querySelector(".avatar-opt.selected");
+      if (!selected || !currentUser) return;
+      const emoji = selected.textContent;
+      const btn = document.getElementById("saveAvatarBtn");
+      if (btn) btn.textContent = "Saving...";
+      try {
+        await setDoc(doc(db, "users", currentUser.uid), { avatar: emoji }, { merge: true });
+        if (btn) btn.textContent = "Saved!";
+        setTimeout(() => { if (btn) btn.textContent = "Save Avatar"; }, 2000);
+      } catch(e) {
+        if (btn) btn.textContent = "Error saving";
+        setTimeout(() => { if (btn) btn.textContent = "Save Avatar"; }, 2000);
+      }
+    }
+
+    // ══ SOUND UI ══
+    function toggleSfx() {
+      const on = sounds.toggleSfx();
+      const btn = document.getElementById("sfxBtn");
+      if (btn) {
+        btn.textContent = on ? "🔊 SFX On" : "🔇 SFX Off";
+        btn.className = "sound-toggle" + (on ? " on" : "");
+      }
+    }
+
+    function toggleMusic() {
+      const on = sounds.toggleMusic();
+      const btn = document.getElementById("musicBtn");
+      if (btn) {
+        btn.textContent = on ? "🎵 Music On" : "🎵 Music Off";
+        btn.className = "sound-toggle" + (on ? " on" : "");
+      }
     }
 
     // Best-effort leave on tab close / navigation away.
